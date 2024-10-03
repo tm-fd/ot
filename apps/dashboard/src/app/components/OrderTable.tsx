@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, useEffect } from 'react'
 import {Table,
     TableHeader,
     TableColumn,
@@ -21,16 +21,40 @@ export default function OrderTable({ orders }: { orders: Order[] }) {
     const [selectionBehavior, setSelectionBehavior] = useState('replace');
 
     const hasSearchFilter = Boolean(filterValue)
-  
+   
+
+    const searchOrder = (order: Order, value: string) => {
+      const lowerFilterValue = value.toString().toLowerCase()
+    
+      const searchInObject = (obj: any) => {
+        for (const key in obj) {
+          if (typeof obj[key] === 'object' && obj[key] !== null) {
+            // Recursively search in nested objects
+            if (searchInObject(obj[key])) return true
+          } else if (Array.isArray(obj[key])) {
+            // Search within arrays
+            for (const item of obj[key]) {
+              if (searchInObject(item)) return true
+            }
+          } else if (obj[key]?.toString().toLowerCase().includes(lowerFilterValue)) {
+            return true
+          }
+        }
+        return false
+      }
+    
+      return searchInObject(order)
+    }
+    
     const filteredItems = useMemo(() => {
       let filteredOrders = [...orders]
-  
+    
       if (hasSearchFilter) {
         filteredOrders = filteredOrders.filter(order =>
-          order.id.toLowerCase().includes(filterValue.toLowerCase())
+          searchOrder(order, filterValue)
         )
       }
-  
+    
       return filteredOrders
     }, [orders, filterValue, hasSearchFilter])
   
@@ -46,12 +70,18 @@ export default function OrderTable({ orders }: { orders: Order[] }) {
     }, [page, filteredItems])
   
     const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-      column: 'name',
-      direction: 'ascending'
+      column: 'date',
+      direction: 'descending'
     })
+
+    useEffect(() => {
+      
+      console.log(orders)
+    }, []);
   
     const sortedItems = useMemo(() => {
       return [...items].sort((a: Order, b: Order) => {
+        console.log(a[sortDescriptor.column as keyof Order])
         const first = a[sortDescriptor.column as keyof Order] as string
         const second = b[sortDescriptor.column as keyof Order] as string
         const cmp = first < second ? -1 : first > second ? 1 : 0
@@ -124,7 +154,7 @@ export default function OrderTable({ orders }: { orders: Order[] }) {
           {column => (
             <TableColumn
               key={column.key}
-              {...(column.key === 'name' ? { allowsSorting: true } : {})}
+              {...(column.key === 'date' ? { allowsSorting: true } : {})}
             >
               {column.label}
             </TableColumn>
@@ -138,15 +168,6 @@ export default function OrderTable({ orders }: { orders: Order[] }) {
           )}
         </TableBody>
       </Table>
-      {/* <RadioGroup 
-      label="Selection Behavior"
-      orientation="horizontal"
-      value={selectionBehavior}
-      onValueChange={setSelectionBehavior}
-    >
-      <Radio value="toggle">Toggle</Radio>
-      <Radio value="replace">Replace</Radio>
-    </RadioGroup> */}
     </div>
     )
   }

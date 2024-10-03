@@ -7,21 +7,25 @@ async function getOrders(page: number): Promise<Order[]> {
     `http://localhost:3000/orders?ordersPage=${page}`, { cache: 'no-store'})
     
   const data = await res.json()
-  return data
+  const customData = data.map((obj: any) =>{
+    return {
+      id: obj.id,
+  email: obj.billing.email,
+  customerName: obj.billing.first_name + " " + obj.billing.last_name,
+  date: obj.date_created,
+  confirmationCode: obj.meta_data.find((o: any) => o.key === '_activation_code')?.value,
+  status: obj.status,
+  trackingNumber: obj.trackingInfo?.trackingNumber,
+  trackingStatus: obj.trackingInfo?.trackingStatus,
+  
+    }
+  })
+  return customData
 }
-
-async function getShipping(orderNumber: string, orderDate: string): Promise<string[]> {
-  const res = await fetch(
-    `http://localhost:3000/shipping?orderNumber=${orderNumber}&orderDate=${orderDate}`, { cache: 'no-store'})
-  const data = await res.json()
-  console.log("shipping",data)
-  return data
-}
-
 
 export default async function Orders() {
   const orders = await getOrders(60)
-
+console.log(orders)
 
   return (
     <section className='py-24'>

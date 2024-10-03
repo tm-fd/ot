@@ -1,11 +1,15 @@
 import express from 'express';
 import axios from 'axios';
-import { env } from 'process';
+import { PrismaClient } from '@prisma/client'
+import { getTrackingInfo } from './scheduledFunctions/getShippmentsTracking'
+
+const prisma = new PrismaClient()
 
 const host = process.env.HOST ?? 'localhost';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 const app = express();
+    //  getTrackingInfo()
 
 app.get('/', (req, res) => {
   res.send({ message: 'Hello API' });
@@ -14,7 +18,6 @@ app.get('/', (req, res) => {
 
  app.get("/orders", async (req, res) => {
   const ordersPage = req.query.ordersPage
-  console.log(ordersPage)
   try {
     const response = await axios.get(`https://imvilabs.com/wp-json/wc/v3/orders?per_page=${ordersPage}`, {
       auth: {
@@ -23,7 +26,28 @@ app.get('/', (req, res) => {
       },
     });
     const result = response.data;
-    res.send(JSON.stringify(result));
+    const f3pl = await prisma.shippingInfo.findMany()
+    const mapped_result = result.map(o => {
+      const trackingInfo = f3pl.find(t => Number(t.orderId) === o.id)
+      return {...o, trackingInfo}
+    })
+      const resultWithShippingInfo = await Promise.all(mapped_result.map(async o => {
+        if(o.trackingInfo){
+          const pn_response = await axios.get(`https://api2.postnord.com/rest/shipment/v5/trackandtrace/findByIdentifier.json`, {
+            params: {
+              apikey: process.env.PN_API_KEY,
+              id: o.trackingInfo.trackingNumber,
+              locale: 'en',
+            },
+          });
+          const trackingStatus = pn_response.data.TrackingInformationResponse.shipments[0].statusText.header
+          return {...o, trackingInfo: {...o.trackingInfo, trackingStatus}}
+        }else {
+          return o;
+        }
+      })
+    )
+      res.send(JSON.stringify(resultWithShippingInfo));
   } catch (error) {
     console.error("Error:", error);
     res.status(500).send("An error occurred");
@@ -55,39 +79,6 @@ app.get('/', (req, res) => {
 //     res.status(500).send("An error occurred");
 //   }
 // });
-
-app.get("/shipping", async (req, res) => {
-  const {orderNumber, orderDate} = req.query
-  console.log(orderNumber, orderDate)
-  try {
-    const response = await axios.get(`https://www.e3pl.se/system/api.asp?s=443ce94115bf88d519dc6ce2c7489d59&typ=skickat&order=${orderNumber}&datum=${orderDate}&data=txt`, {
-    });
-    const result = response.data;
-    const jsonResult = convertToJSON(result);
-    res.send(JSON.stringify(jsonResult));
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).send("An error occurred");
-  }
-});
-
-
-const convertToJSON = (text) => {
-  
-  const lines = text.trim().replace(/;/g, ',').replace(/<br>/g, ',');
-  const resultArr = lines.split(',')
-  const removeLast = resultArr.slice(0,resultArr.length-1)
-  const result = [];
-for (let i = 0; i < removeLast.length; i += 3) {
-  result.push({
-    id: removeLast[i],
-    trackingCode: removeLast[i + 1],
-    date: removeLast[i + 2]
-  });
-}
-  return result
-  
-};
 
 
 

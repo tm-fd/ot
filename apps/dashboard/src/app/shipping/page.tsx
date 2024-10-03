@@ -2,7 +2,7 @@
 
 async function getShipping(orderNumber: string, orderDate: string): Promise<string[]> {
   const res = await fetch(
-    `http://localhost:3000/shipping?orderNumber=${orderNumber}&date=${orderDate}`, { cache: 'no-store'})
+    `http://localhost:3000/shipping?orderNumber=${orderNumber}&orderDate=${orderDate}`, { cache: 'no-store'})
     
     
   const data = await res.json()
@@ -12,7 +12,8 @@ async function getShipping(orderNumber: string, orderDate: string): Promise<stri
 
 
 export default async function Shipping() {
-  const shipping = await getShipping("27511", "2022-09-23")
+  
+  const shipping = await getShipping("alla", "2024-09-23")
 
 
   return (
