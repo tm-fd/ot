@@ -1,5 +1,6 @@
 import OrderTable from '@/app/components/OrderTable'
 import { Order } from './columns'
+import AddOrder from '@/app/components/AddOrder'
 
 
 async function getOrders(page: number): Promise<Order[]> {
@@ -29,7 +30,8 @@ console.log(orders)
 
   return (
     <section className='py-24'>
-      <div className='container'>
+      <div className='container flex flex-col	'>
+        <div className='ml-auto'><AddOrder /></div>
         {orders.length < 0 ? <p>Loading...</p> : <OrderTable orders={orders}  />}
       </div>
     </section>

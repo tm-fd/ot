@@ -40,7 +40,19 @@ module.exports = {
           colors: {
                 success: '#8e9bef',
                 pending: '#ecde4b',
-                light: '#ccc'
+                light: '#ccc',
+                blue: {
+          50: "#e6f1fe",
+          100: "#cce3fd",
+          200: "#99c7fb",
+          300: "#66aaf9",
+          400: "#338ef7",
+          500: "#006FEE",
+          600: "#005bc4",
+          700: "#9cc2ee",
+          800: "#002e62",
+          900: "#001731",
+        },
           } // light theme colors
         },
         dark: {
@@ -48,7 +60,19 @@ module.exports = {
           colors: {
                 success: '#8e9bef',
                 pending: '#ecde4b',
-                light: '#ccc'
+                light: '#ccc',
+                blue: {
+          50: "#e6f1fe",
+          100: "#cce3fd",
+          200: "#99c7fb",
+          300: "#66aaf9",
+          400: "#338ef7",
+          500: "#006FEE",
+          600: "#005bc4",
+          700: "#004493",
+          800: "#002e62",
+          900: "#001731",
+        },
           } // dark theme colors
         },
         modern: {
