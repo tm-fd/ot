@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/maria"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("MARIADB_URL")
+}
+
+model Purchase {
+  id                   Int                  @id @default(autoincrement())
+  email                String
+  first_name           String
+  last_name            String
+  code                 String               @unique
+  number_of_vr_glasses Int
+  number_of_licenses   Int
+  created_at           DateTime             @default(now())
+  updated_at           DateTime             @updatedAt
+  is_subscription      Boolean              @default(false)
+  duration             Int
+  order_number         String
+  activations          PurchaseActivation[]
+
+  @@map("purchase")
+}
+
+model PurchaseActivation {
+  id              Int      @id @default(autoincrement())
+  purchase_id     Int
+  activation_date DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  purchase        Purchase @relation(fields: [purchase_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "activation_purchase__fk")
+
+  @@map("purchase_activation")
+}

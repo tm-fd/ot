@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "./generated/mysql"
 }
 
 datasource db {
@@ -14,12 +15,15 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
+
 model ShippingInfo {
   id                 Int       @id @default(autoincrement())
   createdAt          String    @db.VarChar(255)	@default("2024-0-0")
   orderId            String    @db.VarChar(255) @default("0000")
   trackingNumber     String    @db.VarChar(255) @default("UE10000000")
 }
+
+
 
 
 

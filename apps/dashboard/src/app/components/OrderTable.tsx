@@ -73,15 +73,10 @@ export default function OrderTable({ orders }: { orders: Order[] }) {
       column: 'date',
       direction: 'descending'
     })
-
-    useEffect(() => {
-      
-      console.log(orders)
-    }, []);
+    
   
     const sortedItems = useMemo(() => {
       return [...items].sort((a: Order, b: Order) => {
-        console.log(a[sortDescriptor.column as keyof Order])
         const first = a[sortDescriptor.column as keyof Order] as string
         const second = b[sortDescriptor.column as keyof Order] as string
         const cmp = first < second ? -1 : first > second ? 1 : 0

@@ -1,8 +1,7 @@
 import cron from 'node-cron';
 import axios from 'axios';
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { PrismaClient as PrismaClientSQL} from '@prisma/mysql'
+const prisma = new PrismaClientSQL()
 
 export const getTrackingInfo = async () => {
     const today = new Date();

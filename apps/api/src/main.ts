@@ -1,15 +1,19 @@
 import express from 'express';
 import axios from 'axios';
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient as PrismaClientSQL} from '@prisma/mysql'
+import { PrismaClient as PrismaClientMariaDB } from '@prisma/maria'
+import { body } from 'express-validator';
 import { getTrackingInfo } from './scheduledFunctions/getShippmentsTracking'
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClientSQL()
+const maria_prisma = new PrismaClientMariaDB({ datasources: { db: { url: process.env.MARIADB_URL } } })
 
 const host = process.env.HOST ?? 'localhost';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 const app = express();
-      // getTrackingInfo()
+app.use(express.json());
+      //  getTrackingInfo()
 
 app.get('/', (req, res) => {
   res.send({ message: 'Hello API' });
@@ -80,7 +84,100 @@ app.get('/', (req, res) => {
 //   }
 // });
 
+app.post('/add-order', async (req, res) => {
+  const {
+    email,
+    firstName,
+    lastName,
+    code,
+    numberOfVrGlasses,
+    numberOfLicenses,
+    isSubscription,
+    duration,
+    orderNumber,
+  } = req.body;
+console.log(req.body)
 
+  if (!email) {
+    return res.status(404).json({ error: "Email adddress is missing " });
+  }
+
+  if (!body('email').isEmail()) {
+    return res
+      .status(404)
+      .json({ error: "Please provide a valid email address" });
+  }
+
+  if (!firstName) {
+    return res.status(404).json({ error: "First Name is missing " });
+  }
+
+  if (!lastName) {
+    return res.status(404).json({ error: "Last Name is missing " });
+  }
+
+  if (!code) {
+    return res.status(404).json({ error: "Activation Code is missing " });
+  }
+
+  if (!orderNumber) {
+    return res.status(404).json({ error: "Order Number is missing " });
+  }
+
+  if (
+    undefined === numberOfVrGlasses ||
+    typeof numberOfVrGlasses !== "number"
+  ) {
+    return res
+      .status(404)
+      .json({ error: "Number of VR Glasses value is missing or is invalid" });
+  }
+
+  if (undefined === numberOfLicenses || typeof numberOfLicenses !== "number") {
+    return res
+      .status(404)
+      .json({ error: "Number of Licenses is missing or is invalid" });
+  }
+
+  if (undefined === isSubscription) {
+    return res
+      .status(404)
+      .json({ error: "Is Subscription is missing or is invalid" });
+  }
+
+  if (undefined === duration || typeof duration !== "number") {
+    return res.status(404).json({ error: "Duration is missing or is invalid" });
+  }
+  try {
+    const purchase = await maria_prisma.purchase.findUnique({
+      where: {
+        code: code,
+      },
+    });
+
+    if (purchase) {
+      return res.status(404).json({ error: "Purchase code already used" });
+    }
+    const result = await maria_prisma.purchase.create({
+      data: {
+        email: email,
+        first_name: firstName,
+        last_name: lastName,
+        code: code,
+        number_of_vr_glasses: numberOfVrGlasses,
+        number_of_licenses: numberOfLicenses,
+        is_subscription: isSubscription,
+        duration: duration,
+        order_number: orderNumber,
+      },
+    });
+    res.status(400).json(result);
+} catch (error) {
+      console.error("Error:", error);
+      res.status(500).send("An error occurred");
+    }
+
+})
 
 
 

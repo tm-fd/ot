@@ -65,7 +65,6 @@ const shippingStatusTxt = (txt: string) => {
 
 export const renderCell = (order: Order, columnKey: React.Key) => {
   const cellValue = order[columnKey as keyof Order];
-  console.log(order);
   switch (columnKey) {
     case 'id':
       return <Order>{order.id}</Order>;
