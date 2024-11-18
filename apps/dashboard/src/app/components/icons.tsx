@@ -182,3 +182,16 @@ export const LockIcon = (props: IconProps) => (
     />
   </svg>
 );
+
+export const ArrowRight = (props: IconProps) => (
+<svg aria-hidden="true"
+    fill="none"
+    focusable="false"
+    height="1em"
+    role="presentation"
+    viewBox="0 0 24 24"
+    width="1em"
+    {...props} >
+      <path d="M7.293 4.707 14.586 12l-7.293 7.293 1.414 1.414L17.414 12 8.707 3.293 7.293 4.707z"/>
+      </svg>
+)

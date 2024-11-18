@@ -20,9 +20,12 @@ export default function RootLayout({
         <Providers>
         <header className='py-6'>
             <nav className='container flex items-center justify-between'>
-              <ul>
+              <ul className='flex gap-6 flex-row'>
                 <li>
-                  <Link href='/orders'>Orders</Link>
+                  <Link href='/woo-orders'>Orders</Link>
+                </li>
+                <li>
+                  <Link href='/purchases'>Licenses</Link>
                 </li>
               </ul>
               <ThemeSwitcher />

@@ -11,17 +11,21 @@
     "@prisma/client": "^5.20.0",
     "@types/node-cron": "^3.0.11",
     "axios": "^1.7.7",
+    "cors": "^2.8.5",
+    "crypto-random-string": "^5.0.0",
     "express": "~4.18.1",
     "express-validator": "^7.2.0",
     "framer-motion": "^11.5.4",
     "install": "^0.13.0",
+    "joi": "^17.13.3",
     "next": "14.2.3",
     "next-themes": "^0.3.0",
     "node-cron": "^3.0.3",
     "npm": "^10.8.3",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "zustand": "^5.0.0-rc.2"
   },
   "devDependencies": {
     "@nx/esbuild": "19.7.3",

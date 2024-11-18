@@ -1,7 +1,6 @@
 const { createGlobPatternsForDependencies } = require('@nx/react/tailwind');
 const { join } = require('path');
-const {nextui} = require("@nextui-org/react");
-
+const { nextui } = require('@nextui-org/react');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -17,63 +16,115 @@ module.exports = {
     colors: {
       success: '#8e9bef',
       pending: '#ecde4b',
-      light: '#ccc'
+      light: '#ccc',
     },
     extend: {
+      colors: {
+            transparent: 'transparent',
+            success: '#8e9bef',
+            pending: '#ecde4b',
+            light: '#ccc',
+            blue: {
+              50: '#e6f1fe',
+              100: '#cce3fd',
+              200: '#99c7fb',
+              300: '#66aaf9',
+              400: '#338ef7',
+              500: '#006FEE',
+              600: '#005bc4',
+              700: '#9cc2ee',
+              800: '#002e62',
+              900: '#001731',
+            },
+            green: {
+              50: '#043320',
+              500: '#62ed6b',
+            },
+          },
       container: {
-      center: true,
-      padding: {
-        DEFAULT: '1rem',
-        md: '1.5rem',
-        lg: '2rem'
-      }
-    }
+        center: true,
+        padding: {
+          DEFAULT: '1rem',
+          md: '1.5rem',
+          lg: '2rem',
+        },
+      },
     },
   },
-  darkMode: "class",
-  plugins: [nextui(
-    {
+  darkMode: 'class',
+  plugins: [
+    nextui({
       addCommonColors: true,
       themes: {
         light: {
           layout: {}, // light theme layout tokens
           colors: {
-                success: '#8e9bef',
-                pending: '#ecde4b',
-                light: '#ccc',
-                blue: {
-          50: "#e6f1fe",
-          100: "#cce3fd",
-          200: "#99c7fb",
-          300: "#66aaf9",
-          400: "#338ef7",
-          500: "#006FEE",
-          600: "#005bc4",
-          700: "#9cc2ee",
-          800: "#002e62",
-          900: "#001731",
-        },
-          } // light theme colors
+            transparent: 'transparent',
+            success: '#8e9bef',
+            pending: '#ecde4b',
+            light: '#ccc',
+            primary: {
+              700: '#27551b',
+              foreground: "#b1f091",
+              DEFAULT: "#43d728",
+            },
+            secondary: {
+              700: '#265070',
+              foreground: "#9bb7e3",
+              DEFAULT: "#286ed7",
+            },
+            warning:'#ea7d00',
+            blue: {
+              50: '#e6f1fe',
+              100: '#cce3fd',
+              200: '#99c7fb',
+              300: '#66aaf9',
+              400: '#338ef7',
+              500: '#006FEE',
+              600: '#005bc4',
+              700: '#9cc2ee',
+              800: '#002e62',
+              900: '#001731',
+            },
+            green: {
+              50: '#043320',
+              500: '#62ed6b',
+            },
+          },
         },
         dark: {
           layout: {}, // dark theme layout tokens
           colors: {
-                success: '#8e9bef',
-                pending: '#ecde4b',
-                light: '#ccc',
-                blue: {
-          50: "#e6f1fe",
-          100: "#cce3fd",
-          200: "#99c7fb",
-          300: "#66aaf9",
-          400: "#338ef7",
-          500: "#006FEE",
-          600: "#005bc4",
-          700: "#004493",
-          800: "#002e62",
-          900: "#001731",
-        },
-          } // dark theme colors
+            primary: {
+              700: '#5cd63e',
+              foreground: "#b1f091",
+              DEFAULT: "#43d728",
+            },
+            secondary: {
+              700: '#62a3d5',
+              foreground: "#9bb7e3",
+              DEFAULT: "#286ed7",
+            },
+            success: '#8e9bef',
+            pending: '#ecde4b',
+            light: '#ccc',
+            blue: {
+              50: '#e6f1fe',
+              100: '#cce3fd',
+              200: '#99c7fb',
+              300: '#66aaf9',
+              400: '#338ef7',
+              500: '#006FEE',
+              600: '#005bc4',
+              700: '#004493',
+              800: '#002e62',
+              900: '#001731',
+            },
+            green: {
+              50: '#043320',
+              500: '#62ed6b',
+            },
+          },
         },
         modern: {
           extend: 'dark', // <- inherit default values from dark theme
@@ -92,25 +143,29 @@ module.exports = {
               800: '#FDD5F9',
               900: '#FEECFE',
               DEFAULT: '#DD62ED',
-              foreground: '#ffffff'
+              foreground: '#ffffff',
             },
-            focus: '#F182F6'
+            focus: '#F182F6',
+            green: {
+              50: '#043320',
+              500: '#62ed6b',
+            },
           },
           layout: {
             disabledOpacity: '0.3',
             radius: {
               small: '1px',
               medium: '2px',
-              large: '4px'
+              large: '4px',
             },
             borderWidth: {
               small: '1px',
               medium: '2px',
-              large: '3px'
-            }
-          }
-        }
-      }
-    }
-  )],
+              large: '3px',
+            },
+          },
+        },
+      },
+    }),
+  ],
 };

@@ -1,19 +1,18 @@
 import express from 'express';
 import axios from 'axios';
-import { PrismaClient as PrismaClientSQL} from '@prisma/mysql'
-import { PrismaClient as PrismaClientMariaDB } from '@prisma/maria'
-import { body } from 'express-validator';
+import cors from "cors";
+import { PrismaClient } from '@prisma/client';
 import { getTrackingInfo } from './scheduledFunctions/getShippmentsTracking'
 
-const prisma = new PrismaClientSQL()
-const maria_prisma = new PrismaClientMariaDB({ datasources: { db: { url: process.env.MARIADB_URL } } })
+const prisma = new PrismaClient()
 
 const host = process.env.HOST ?? 'localhost';
-const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+const port = process.env.PORT ? Number(process.env.PORT) : 3333;
 
 const app = express();
 app.use(express.json());
-      //  getTrackingInfo()
+app.use(cors());
+    //  getTrackingInfo()
 
 app.get('/', (req, res) => {
   res.send({ message: 'Hello API' });
@@ -84,100 +83,38 @@ app.get('/', (req, res) => {
 //   }
 // });
 
-app.post('/add-order', async (req, res) => {
-  const {
-    email,
-    firstName,
-    lastName,
-    code,
-    numberOfVrGlasses,
-    numberOfLicenses,
-    isSubscription,
-    duration,
-    orderNumber,
-  } = req.body;
-console.log(req.body)
-
-  if (!email) {
-    return res.status(404).json({ error: "Email adddress is missing " });
-  }
-
-  if (!body('email').isEmail()) {
-    return res
-      .status(404)
-      .json({ error: "Please provide a valid email address" });
-  }
-
-  if (!firstName) {
-    return res.status(404).json({ error: "First Name is missing " });
-  }
-
-  if (!lastName) {
-    return res.status(404).json({ error: "Last Name is missing " });
-  }
-
-  if (!code) {
-    return res.status(404).json({ error: "Activation Code is missing " });
-  }
-
-  if (!orderNumber) {
-    return res.status(404).json({ error: "Order Number is missing " });
-  }
-
-  if (
-    undefined === numberOfVrGlasses ||
-    typeof numberOfVrGlasses !== "number"
-  ) {
-    return res
-      .status(404)
-      .json({ error: "Number of VR Glasses value is missing or is invalid" });
-  }
-
-  if (undefined === numberOfLicenses || typeof numberOfLicenses !== "number") {
-    return res
-      .status(404)
-      .json({ error: "Number of Licenses is missing or is invalid" });
-  }
-
-  if (undefined === isSubscription) {
-    return res
-      .status(404)
-      .json({ error: "Is Subscription is missing or is invalid" });
-  }
-
-  if (undefined === duration || typeof duration !== "number") {
-    return res.status(404).json({ error: "Duration is missing or is invalid" });
-  }
+app.get("/woo-emails", async (req, res) => {
   try {
-    const purchase = await maria_prisma.purchase.findUnique({
-      where: {
-        code: code,
+    const response = await axios.get(`https://api.mailjet.com/v3/REST/message?Limit=200&ShowSubject=true&ShowContactAlt=true&Sort=ArrivedAt+DESC`, {
+      auth: {
+        username: process.env.MAILJET_USERNAME,
+        password: process.env.MAILJET_PASSWORD,
       },
     });
+    const result = response.data;
+      res.send(JSON.stringify(result.Data));
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("An error occurred");
+  }
+});
 
-    if (purchase) {
-      return res.status(404).json({ error: "Purchase code already used" });
+app.get('/get-purchases', async (req, res) => {
+    
+  try {
+    const purchases = await prisma.purchase.findMany();
+    if (!purchases) {
+      return res.status(404).json({ error: "Could not fetch purchases" });
     }
-    const result = await maria_prisma.purchase.create({
-      data: {
-        email: email,
-        first_name: firstName,
-        last_name: lastName,
-        code: code,
-        number_of_vr_glasses: numberOfVrGlasses,
-        number_of_licenses: numberOfLicenses,
-        is_subscription: isSubscription,
-        duration: duration,
-        order_number: orderNumber,
-      },
-    });
-    res.status(400).json(result);
+
+    res.status(200).json(purchases);
 } catch (error) {
       console.error("Error:", error);
       res.status(500).send("An error occurred");
     }
 
 })
+
 
 
 

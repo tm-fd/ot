@@ -2,7 +2,7 @@
 
 async function getShipping(orderNumber: string, orderDate: string): Promise<string[]> {
   const res = await fetch(
-    `http://localhost:3000/shipping?orderNumber=${orderNumber}&orderDate=${orderDate}`, { cache: 'no-store'})
+    `${process.env.NEXT_PUBLIC_API_URL}/shipping?orderNumber=${orderNumber}&orderDate=${orderDate}`, { cache: 'no-store'})
     
     
   const data = await res.json()

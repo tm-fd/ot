@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "./generated/mysql"
 }
 
 datasource db {
@@ -22,8 +21,3 @@ model ShippingInfo {
   orderId            String    @db.VarChar(255) @default("0000")
   trackingNumber     String    @db.VarChar(255) @default("UE10000000")
 }
-
-
-
-
-

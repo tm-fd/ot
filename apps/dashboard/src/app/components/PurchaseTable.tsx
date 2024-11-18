@@ -13,17 +13,17 @@ import {Table,
     Button,
   } from "@nextui-org/react";
 
-import { Order, columns, renderCell } from '../woo-orders/columns'
+import { Purchase, columns, renderCell } from '../purchases/columns'
 import { SearchIcon } from './icons'
 
-export default function OrderTable({ orders }: { orders: Order[] }) {
+export default function PurchaseTable({ purchases }: { purchases: Purchase[] }) {
     const [filterValue, setFilterValue] = useState('')
     const [selectionBehavior, setSelectionBehavior] = useState('replace');
 
     const hasSearchFilter = Boolean(filterValue)
    
 
-    const searchOrder = (order: Order, value: string) => {
+    const searchPurchase = (purchase: Purchase, value: string) => {
       const lowerFilterValue = value.toString().toLowerCase()
     
       const searchInObject = (obj: any) => {
@@ -43,35 +43,30 @@ export default function OrderTable({ orders }: { orders: Order[] }) {
         return false
       }
     
-      return searchInObject(order)
+      return searchInObject(purchase)
     }
     
     const filteredItems = useMemo(() => {
-      let filteredOrders = [...orders]
+      let filteredPurchases = [...purchases]
     
       if (hasSearchFilter) {
-        filteredOrders = filteredOrders.filter(order =>
-          searchOrder(order, filterValue)
+        filteredPurchases = filteredPurchases.filter(purchase =>
+          searchPurchase(purchase, filterValue)
         )
       }
     
-      return filteredOrders
-    }, [orders, filterValue, hasSearchFilter])
+      return filteredPurchases
+    }, [purchases, filterValue, hasSearchFilter])
 
    
   
     const rowsPerPage = 20
     const [page, setPage] = useState(1)
-    useEffect(() => {
-      
-      console.log(page)
-    }, [page]);
     const pages = Math.ceil(filteredItems.length / rowsPerPage)
   
     const items = useMemo(() => {
       const start = (page - 1) * rowsPerPage
       const end = start + rowsPerPage
-      console.log(start, end, rowsPerPage)
       return filteredItems.slice(start, end)
     }, [page, filteredItems])
   
@@ -82,9 +77,9 @@ export default function OrderTable({ orders }: { orders: Order[] }) {
     
   
     const sortedItems = useMemo(() => {
-      return [...items].sort((a: Order, b: Order) => {
-        const first = a[sortDescriptor.column as keyof Order] as string
-        const second = b[sortDescriptor.column as keyof Order] as string
+      return [...items].sort((a: Purchase, b: Purchase) => {
+        const first = a[sortDescriptor.column as keyof Purchase] as string
+        const second = b[sortDescriptor.column as keyof Purchase] as string
         const cmp = first < second ? -1 : first > second ? 1 : 0
   
         return sortDescriptor.direction === 'descending' ? -cmp : cmp
@@ -126,7 +121,7 @@ export default function OrderTable({ orders }: { orders: Order[] }) {
     return (
       <div>
       <Table
-        aria-label='Orders table'
+        aria-label='Purchase table'
         topContent={topContent}
         topContentPlacement='outside'
         selectionMode="multiple"
@@ -179,10 +174,10 @@ export default function OrderTable({ orders }: { orders: Order[] }) {
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody items={sortedItems} emptyContent={'No orders to display.'}>
-          {order => (
-            <TableRow key={order.id}>
-              {columnKey => <TableCell>{renderCell(order, columnKey)}</TableCell>}
+        <TableBody items={sortedItems} emptyContent={'No purchases to display.'}>
+          {purchase => (
+            <TableRow key={purchase.id}>
+              {columnKey => <TableCell>{renderCell(purchase, columnKey)}</TableCell>}
             </TableRow>
           )}
         </TableBody>

@@ -7,10 +7,16 @@ export type Order = {
   email: string;
   customerName: string;
   date: string;
-  confirmationCode: string
+  confirmationCode: string;
   status: string;
   trackingNumber: string;
   trackingStatus: string;
+  sentEmails: {
+    ContactAlt: string;
+    ArrivedAt: string;
+    Status: string;
+    Subject: string;
+  }[];
 };
 
 export const columns = [
@@ -39,6 +45,10 @@ export const columns = [
     label: 'Status',
   },
   {
+    key: 'sentEmails',
+    label: 'Invoice Email',
+  },
+  {
     key: '3pl',
     label: 'Shipping',
   },
@@ -49,6 +59,16 @@ const statusColorMap = {
   pending: 'warning',
   processing: 'danger',
   canceled: 'light',
+};
+
+const emailStatusColorMap = {
+  delivered: 'secondary',
+  opened: 'primary',
+  sent: 'secondary',
+  blocked: 'danger',
+  queued: 'warning',
+  processed: 'warning',
+  clicked: 'primary',
 };
 
 const shippingStatusTxt = (txt: string) => {
@@ -65,19 +85,20 @@ const shippingStatusTxt = (txt: string) => {
 
 export const renderCell = (order: Order, columnKey: React.Key) => {
   const cellValue = order[columnKey as keyof Order];
+  const emailStatus = order.sentEmails.find(
+    (email: Order.sentEmails) =>
+      email.Subject === 'Tack för din order från imvi labs!' ||
+      email.Subject.includes("förnyelseorder")
+  )?.Status;
   switch (columnKey) {
     case 'id':
       return <Order>{order.id}</Order>;
     // case 'email':
     //   return <Order>{order.email}</Order>;
     case 'name':
-      return (
-        <Order>
-          {order.customerName}
-        </Order>
-      );
+      return <Order>{order.customerName}</Order>;
     case 'date':
-      return <Order>{order.date.replace("T", " ").slice(0, 16)}</Order>;
+      return <Order>{order.date.replace('T', ' ').slice(0, 16)}</Order>;
     case 'status':
       return (
         <Chip
@@ -90,29 +111,38 @@ export const renderCell = (order: Order, columnKey: React.Key) => {
         </Chip>
       );
     case '_activation_code':
+      return <Order>{order.confirmationCode}</Order>;
+    case 'sentEmails':
       return (
-        <Order>
-          {order.confirmationCode}
-        </Order>
+        <Chip
+          className="capitalize"
+          color={emailStatusColorMap[emailStatus]}
+          size="sm"
+          variant="flat"
+        >
+          {emailStatus === 'sent' ? 'Delivered' : emailStatus}
+        </Chip>
       );
     case '3pl':
       return (
-        shippingStatusTxt(order.trackingStatus)?.status !== 'Not shippable' && <Chip
-          className="capitalize"
-          color={shippingStatusTxt(order.trackingStatus)?.color}
-          size="sm"
-          variant={order.trackingStatus && 'faded'}
-        >
-          <Link
-            isExternal
+        shippingStatusTxt(order.trackingStatus)?.status !== 'Not shippable' && (
+          <Chip
+            className="capitalize"
             color={shippingStatusTxt(order.trackingStatus)?.color}
-            href={`https://tracking.postnord.com/en/?id=${order.trackingNumber}`}
-            className="text-xs"
+            size="sm"
+            variant={order.trackingStatus && 'faded'}
           >
-            {shippingStatusTxt(order.trackingStatus)?.status}
-          </Link>
-        </Chip>
-        );
+            <Link
+              isExternal
+              color={shippingStatusTxt(order.trackingStatus)?.color}
+              href={`https://tracking.postnord.com/en/?id=${order.trackingNumber}`}
+              className="text-xs"
+            >
+              {shippingStatusTxt(order.trackingStatus)?.status}
+            </Link>
+          </Chip>
+        )
+      );
 
     default:
       return cellValue;
