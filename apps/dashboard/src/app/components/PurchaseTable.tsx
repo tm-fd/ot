@@ -121,11 +121,12 @@ export default function PurchaseTable({ purchases }: { purchases: Purchase[] }) 
     return (
       <div>
       <Table
+        isStriped
         aria-label='Purchase table'
         topContent={topContent}
         topContentPlacement='outside'
-        selectionMode="multiple"
-        selectionBehavior={selectionBehavior}
+        // selectionMode="multiple"
+        // selectionBehavior={selectionBehavior}
         bottomContent={
           <div className='flex w-full justify-center'>
             <Button

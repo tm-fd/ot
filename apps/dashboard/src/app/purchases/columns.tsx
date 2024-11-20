@@ -1,6 +1,7 @@
 import { Chip, Link } from '@nextui-org/react';
 import { DeleteIcon, EditIcon, EyeIcon } from '../components/icons';
 import Purchase from '../components/Purchase';
+import Actions from '../components/Actions';
 
 export type Purchase = {
   id: number;
@@ -38,10 +39,6 @@ export const columns = [
     label: 'Created date',
   },
   {
-    key: 'updatedDate',
-    label: 'Updated date',
-  },
-  {
     key: 'numberOfVrGlasses',
     label: 'VR Glasses',
   },
@@ -56,6 +53,10 @@ export const columns = [
   {
     key: 'duration',
     label: 'Duration',
+  },
+  {
+    key: 'actions',
+    label: 'Actions',
   },
 ];
 
@@ -83,6 +84,10 @@ export const renderCell = (purchase: Purchase, columnKey: React.Key) => {
       return <Purchase>{purchase.isSubscription ? 'Yes' : 'No'}</Purchase>;
     case 'duration':
       return <Purchase>{purchase.duration}</Purchase>;
+      case "actions":
+        return (
+          <Actions />
+        );
 
     default:
       return cellValue;

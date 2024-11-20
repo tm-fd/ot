@@ -4,11 +4,17 @@ import {Spinner} from "@nextui-org/react";
 import AddPurchase from '@/app/components/AddPurchase';
 
 
+const getOrderStatus = async (status: string) => {
+  const res = await fetch(`${process.env.CLOUDRUN_DEV_URL}/purchases/all-purchases`, {cache: 'no-store'});
+  const response = await res.json();
+  console.log(response)
+}
+
 
 export const getPurchases = async () => {
   const res = await fetch(`${process.env.CLOUDRUN_DEV_URL}/purchases/all-purchases`, {cache: 'no-store'});
    const response = await res.json();
-   console.log(response)
+   
    const customData = response.purchases.map((obj: Purchase) => {
     return {
       id: obj.id,
