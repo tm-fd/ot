@@ -52,14 +52,14 @@ export default function AddPurchase() {
       label: '12 months',
     },
   ];
-  const [email, setEmail] = useState(null);
-  const [firstName, setFistname] = useState(null);
-  const [lastName, setLastname] = useState(null);
-  const [numberOfVrGlasses, setNumberOfVrGlasses] = useState(null);
-  const [numberOfLicenses, setNumberOfLicenses] = useState(null);
+  const [email, setEmail] = useState("");
+  const [firstName, setFistname] = useState("");
+  const [lastName, setLastname] = useState("");
+  const [numberOfVrGlasses, setNumberOfVrGlasses] = useState("");
+  const [numberOfLicenses, setNumberOfLicenses] = useState("");
   const [isSubscription, setIsSubscription] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [errorMessage, setErorrMessage] = useState(null);
+  const [errorMessage, setErorrMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

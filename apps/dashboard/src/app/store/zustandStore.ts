@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-interface ZPurchase { // Renamed Purchase to ZPurchase
+interface ZPurchase { 
   id: number;
   email: string;
   code: string;

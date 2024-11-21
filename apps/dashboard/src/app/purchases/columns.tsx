@@ -73,7 +73,7 @@ export const renderCell = (purchase: ZPurchase, columnKey: React.Key) => {
       return <Purchase>{purchase.duration}</Purchase>;
       case "actions":
         return (
-          <Actions />
+          <Actions purchase={purchase} />
         );
 
     default:

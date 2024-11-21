@@ -17,8 +17,10 @@ import {
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { VerticalDotsIcon } from './VerticalDotsIcon';
+import OrderDetails from './OrderDetails';
+import { ZPurchase } from '../store/zustandStore';
 
-export default function UserPurchaseDetails() {
+export default function UserPurchaseDetails({purchase}: {purchase: ZPurchase}) {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [errorMessage, setErorrMessage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -95,7 +97,7 @@ export default function UserPurchaseDetails() {
                   )}
                 </AnimatePresence>
               </div>
-              <ModalBody className="pt-14">order status & tracking</ModalBody>
+              <ModalBody className="pt-14"><OrderDetails purchase={purchase}/></ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="flat" onPress={onClose}>
                   Close

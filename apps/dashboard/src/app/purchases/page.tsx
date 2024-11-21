@@ -1,9 +1,9 @@
 'use client'
 import { useEffect } from 'react';
-import PurchaseTable from '@/app/components/PurchaseTable';
-import { Purchase } from './columns';
+import PurchaseTable from '../components/PurchaseTable';
+import { ZPurchase } from '../store/zustandStore';
 import { Spinner } from '@nextui-org/react';
-import AddPurchase from '@/app/components/AddPurchase';
+import AddPurchase from '../components/AddPurchase';
 import usePurchaseStore from '../store/zustandStore';
 
 
@@ -19,7 +19,7 @@ export default function Purshases() {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
         const response = await res.json();
-        const customData = response.purchases.map((obj: Purchase) => ({
+        const customData = response.purchases.map((obj: ZPurchase) => ({
           id: obj.id,
           orderNumber: obj.order_number,
           email: obj.email,
@@ -36,7 +36,7 @@ export default function Purshases() {
       } catch (err: any) {
         setError(err.message);
       } finally {
-        // setIsLoading(false);
+         setIsLoading(false);
       }
     };
 
@@ -45,12 +45,12 @@ export default function Purshases() {
 
   return (
     <section className="py-24">
-      <div className="container flex flex-col">
-        <div className="ml-auto">
+      <div className="container flex flex-col items-center justify-center">
+      <div className="ml-auto">
           <AddPurchase />
         </div>
         {isLoading || !purchases || purchases.length === 0 ? (
-          <Spinner label="Loading..." color="primary" />
+          <Spinner label="Loading..." size="lg" color='secondary' style={{height: '50vh'}} />
         ) : error ? (
           <p>{error}</p>
         ) : (

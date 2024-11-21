@@ -117,7 +117,7 @@ export default function PurchaseTable() {
   }, [filterValue, onSearchChange, onClear]);
 
   if (isLoading) {
-    return <Spinner label="Loading..." color="primary" />;
+    return <Spinner label="Loading..." size="lg" color='secondary' />;
   }
 
   if (error) {

@@ -16,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
-      <body>
+      <body className='h-screen'>
         <Providers>
         <header className='py-6'>
             <nav className='container flex items-center justify-between'>
