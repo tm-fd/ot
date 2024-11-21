@@ -2,20 +2,8 @@ import { Chip, Link } from '@nextui-org/react';
 import { DeleteIcon, EditIcon, EyeIcon } from '../components/icons';
 import Purchase from '../components/Purchase';
 import Actions from '../components/Actions';
+import { ZPurchase } from '../store/zustandStore';
 
-export type Purchase = {
-  id: number;
-  email: string;
-  customerName: string;
-  date: string;
-  updatedDate: string;
-  confirmationCode: string;
-  numberOfVrGlasses: number;
-  numberOfLicenses: number;
-  isSubscription: boolean;
-  duration: number;
-  orderNumber: number;
-};
 
 export const columns = [
   {
@@ -60,9 +48,8 @@ export const columns = [
   },
 ];
 
-export const renderCell = (purchase: Purchase, columnKey: React.Key) => {
-  console.log(purchase)
-  const cellValue = purchase[columnKey as keyof Purchase];
+export const renderCell = (purchase: ZPurchase, columnKey: React.Key) => {
+  const cellValue = purchase[columnKey as keyof ZPurchase];
   switch (columnKey) {
     case 'orderNumber':
       return <Purchase>{purchase.orderNumber}</Purchase>;

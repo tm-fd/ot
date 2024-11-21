@@ -9,6 +9,7 @@ const { composePlugins, withNx } = require('@nx/next');
 const nextConfig = {
   env: {
     ADD_PURCHASE_URL: process.env.ADD_PURCHASE_URL,
+    CLOUDRUN_DEV_URL: process.env.CLOUDRUN_DEV_URL,
   },
   nx: {
     // Set this to true if you would like to use SVGR

@@ -25,7 +25,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "tslib": "^2.3.0",
-    "zustand": "^5.0.0-rc.2"
+    "zustand": "^5.0.1"
   },
   "devDependencies": {
     "@nx/esbuild": "19.7.3",
