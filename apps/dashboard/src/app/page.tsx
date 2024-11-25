@@ -1,8 +1,13 @@
 import { Button } from '@nextui-org/button'
 import { Card, CardBody } from '@nextui-org/card'
 import Image from 'next/image'
+import { auth } from "@/auth";
 
-export default function Home() {
+import AuthButton from "./AuthButton.server";
+
+export default async function Home() {
+  const session = await auth();
+
   /*
    * Replace the elements below with your own.
    *
@@ -11,7 +16,8 @@ export default function Home() {
   return (
     <section className='py-36'>
       <div className='container flex items-center justify-center'>
-        
+      <pre>{JSON.stringify(session, null, 2)}</pre>
+      <AuthButton />
       </div>
     </section>
   );
