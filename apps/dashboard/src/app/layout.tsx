@@ -1,8 +1,9 @@
 import './global.css';
 import Providers from "./providers";
 import Link from 'next/link'
-import ThemeSwitcher from '../components/ThemeSwitcher'
-
+import ThemeSwitcher from '@/components/ThemeSwitcher'
+import AuthButton from "@/components/AuthButton.server";
+import Header from "@/components/Header";
 
 export const metadata = {
   title: 'Welcome to dashboard',
@@ -18,20 +19,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning={true}>
       <body className='h-screen'>
         <Providers>
-        <header className='py-6'>
-            <nav className='container flex items-center justify-between'>
-              <ul className='flex gap-6 flex-row'>
-                <li>
-                  <Link href='/woo-orders'>Orders</Link>
-                </li>
-                <li>
-                  <Link href='/purchases'>Licenses</Link>
-                </li>
-              </ul>
-              <ThemeSwitcher />
-            </nav>
-          </header>
-          <main>{children}</main>
+          <Header />
+          <main className='container flex justify-center items-center h-full'>{children}</main>
           <footer></footer>
         </Providers>
         </body>

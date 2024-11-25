@@ -1,5 +1,6 @@
 import NextAuth, { User, NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 
 export const BASE_PATH = "/api/auth";
 
@@ -39,6 +40,9 @@ const authOptions: NextAuthConfig = {
       },
     }),
   ],
+  pages: {  
+    signIn: "/signin",
+  },
   basePath: BASE_PATH,
   secret: process.env.NEXTAUTH_SECRET,
 };
