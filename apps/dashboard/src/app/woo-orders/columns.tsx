@@ -1,6 +1,6 @@
 import { Chip, Link } from '@nextui-org/react';
-import { DeleteIcon, EditIcon, EyeIcon } from '../components/icons';
-import Order from '../components/Order';
+import { DeleteIcon, EditIcon, EyeIcon } from '../../components/icons';
+import Order from '../../components/Order';
 
 export type Order = {
   id: number;

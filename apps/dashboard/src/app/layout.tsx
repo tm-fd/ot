@@ -1,7 +1,7 @@
 import './global.css';
 import Providers from "./providers";
 import Link from 'next/link'
-import ThemeSwitcher from './components/ThemeSwitcher'
+import ThemeSwitcher from '../components/ThemeSwitcher'
 
 
 export const metadata = {

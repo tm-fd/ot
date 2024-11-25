@@ -1,9 +1,9 @@
 'use client'
 import { useEffect } from 'react';
-import PurchaseTable from '../components/PurchaseTable';
+import PurchaseTable from '../../components/PurchaseTable';
 import { ZPurchase } from '../store/zustandStore';
 import { Spinner } from '@nextui-org/react';
-import AddPurchase from '../components/AddPurchase';
+import AddPurchase from '../../components/AddPurchase';
 import usePurchaseStore from '../store/zustandStore';
 
 

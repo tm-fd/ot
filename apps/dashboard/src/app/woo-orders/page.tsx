@@ -1,4 +1,4 @@
-import OrderTable from '@/app/components/OrderTable';
+import OrderTable from '@/components/OrderTable';
 import { Order } from './columns';
 import AddOrder from '@/app/components/AddOrder';
 import {Spinner} from "@nextui-org/react";

@@ -1,7 +1,7 @@
 import { Chip, Link } from '@nextui-org/react';
-import { DeleteIcon, EditIcon, EyeIcon } from '../components/icons';
-import Purchase from '../components/Purchase';
-import Actions from '../components/Actions';
+import { DeleteIcon, EditIcon, EyeIcon } from '../../components/icons';
+import Purchase from '../../components/Purchase';
+import Actions from '../../components/Actions';
 import { ZPurchase } from '../store/zustandStore';
 
 

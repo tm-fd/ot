@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react';
 import { Spinner } from '@nextui-org/react';
-import { ZPurchase } from '../store/zustandStore';
+import { ZPurchase } from '../app/store/zustandStore';
 
 type OrderStatus = {
     id: number,

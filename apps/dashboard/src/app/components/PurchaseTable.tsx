@@ -15,9 +15,9 @@ import {
   Spinner, // Added import for Spinner
 } from '@nextui-org/react';
 
-import { Purchase, columns, renderCell } from '../purchases/columns';
+import { Purchase, columns, renderCell } from '../app/purchases/columns';
 import { SearchIcon } from './icons';
-import usePurchaseStore from '../store/zustandStore';
+import usePurchaseStore from '../app/store/zustandStore';
 
 export default function PurchaseTable() {
   const { purchases, isLoading, error } = usePurchaseStore();
