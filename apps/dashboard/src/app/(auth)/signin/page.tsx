@@ -1,24 +1,21 @@
-'use client';
+"use server"
 
 import React from 'react';
-import { signIn } from 'next-auth/react';
+import { signIn } from "@/auth";
 import { Input, Button } from '@nextui-org/react';
 import { EyeSlashFilledIcon, EyeFilledIcon } from '@/components/icons';
-import { handleCredentialLogin } from '@/app/actions';
 
-export default function SignIn() {
-  const [isVisible, setIsVisible] = React.useState(false);
+export default async function SignIn() {
+  // const [isVisible, setIsVisible] = React.useState(false);
 
-  const toggleVisibility = () => setIsVisible(!isVisible);
-    // const credentialsAction = (formData: FormData) => {
-    //   signIn("credentials", formData)
-    // }
+  // const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const credentialsAction = (formData: FormData) => {
+  const credentialsAction = async (formData: FormData) => {
+    "use server";
     try {
-      const response = handleCredentialLogin(formData);
+      await signIn("credentials", formData)
     } catch (err) {
-      console.log(err);
+      console.log("error",err);
     }
   };
 
@@ -28,12 +25,14 @@ export default function SignIn() {
       <form action={credentialsAction} className="flex flex-col gap-4 p-3 max-[600px]:w-full">
         <Input
           type="email"
+          name="email"
           label="Email"
           placeholder="Enter your email"
           variant="bordered"
           className="lg:w-96 sm:w-64"
         />
         <Input
+          name="password"
           label="Password"
           variant="bordered"
           placeholder="Enter password"
@@ -41,17 +40,16 @@ export default function SignIn() {
             <button
               className="focus:outline-none"
               type="button"
-              onClick={toggleVisibility}
               aria-label="toggle password visibility"
             >
-              {isVisible ? (
+              {/* {isVisible ? (
                 <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
               ) : (
                 <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-              )}
+              )} */}
             </button>
           }
-          type={isVisible ? 'text' : 'password'}
+          // type={isVisible ? 'text' : 'password'}
           className="lg:w-96 sm:w-64"
         />
 

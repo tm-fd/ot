@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { authConfig } from "./auth.config";
 import NextAuth from "next-auth";
+import { BASE_PATH } from "@/auth";
+
 
 const { auth } = NextAuth(authConfig);
 
@@ -10,17 +12,20 @@ export async function middleware(request) {
   const { nextUrl } = request;
   const session = await auth();
   const isAuthenticated = !!session?.user;
-  console.log(isAuthenticated, nextUrl.pathname);
+  console.log("XOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOXOOXOXOXOXOO",isAuthenticated, nextUrl.pathname);
 
   const isPublicRoute = ((PUBLIC_ROUTES.find(route => nextUrl.pathname.startsWith(route))
   || !nextUrl.pathname === ROOT) && !PROTECTED_SUB_ROUTES.find(route => nextUrl.pathname.includes(route)));
 
-  console.log(isPublicRoute);
+  console.log("isPublicRoute", isPublicRoute, PROTECTED_SUB_ROUTES.find(route => nextUrl.pathname.includes(route)));
 
-  if (!isAuthenticated && !isPublicRoute)
-    return Response.redirect(new URL(LOGIN, nextUrl));
+  if (!isAuthenticated && !isPublicRoute) return NextResponse.redirect(new URL(LOGIN, nextUrl));
+  
 }
 
+
+
+
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"]
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"]
 };

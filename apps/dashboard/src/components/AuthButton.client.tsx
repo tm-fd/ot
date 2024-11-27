@@ -1,23 +1,23 @@
 "use client";
 import { useSession } from "next-auth/react";
-
 import { Button } from "@nextui-org/button";
-
-import { signIn, signOut } from "@/auth/helpers";
+import { signOut } from "next-auth/react"
+import { signIn } from "@/auth/helpers";
+import { useRouter } from "next/navigation";
 
 export default function AuthButton() {
-  const session = useSession();
-
-  return session?.data?.user ? (
+  const { data: session, status, update } = useSession();
+  const router = useRouter();
+console.log("SESESESESESESESESESESES",session);
+  return session?.user ? (
     <Button
       onClick={async () => {
-        await signOut();
-        await signIn();
+        await signOut({ redirectTo: "/" });
       }}
     >
-      {session.data?.user?.name} : Sign Out
+      {session.user?.name} : Sign Out
     </Button>
   ) : (
-    <Button onClick={async () => await signIn()}>Sign In</Button>
+    <Button onClick={() => router.push("/signin")}>Sign In</Button>
   );
 }
