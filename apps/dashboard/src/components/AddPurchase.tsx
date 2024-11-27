@@ -19,6 +19,7 @@ import axios from 'axios';
 import cryptoRandomString from 'crypto-random-string';
 import Joi from 'joi';
 import { motion, AnimatePresence } from 'framer-motion';
+import { PurchaseObj } from '@/app/store/zustandStore';
 
 export default function AddPurchase() {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -73,7 +74,7 @@ export default function AddPurchase() {
     setDuration(e.target.value);
   };
 
-  function JoiValidatePurchase(obj) {
+  function JoiValidatePurchase(obj: PurchaseObj) {
     const schema = Joi.object({
       email: Joi.string()
         .email({ minDomainSegments: 2, tlds: { allow: false } })
