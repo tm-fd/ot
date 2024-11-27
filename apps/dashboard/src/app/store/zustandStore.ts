@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-interface ZPurchase { 
+export interface ZPurchase { 
   id: number;
   email: string;
   code: string;
