@@ -15,6 +15,20 @@ export interface ZPurchase {
   updated_at: string;
 }
 
+export interface PurchaseObj { 
+  id: number,
+  orderNumber: string,
+  email: string,
+  customerName: string,
+  date: string,
+  updatedDate: string,
+  confirmationCode: string,
+  numberOfVrGlasses: number,
+  numberOfLicenses: number,
+  isSubscription: boolean,
+  duration: number,       
+}
+
 interface PurchaseState {
   purchases: ZPurchase[]; // Changed Purchase to ZPurchase
   setPurchases: (purchases: ZPurchase[]) => void; // Changed Purchase to ZPurchase
