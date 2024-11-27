@@ -1,4 +1,4 @@
-import NextAuth, { User, NextAuthConfig } from "next-auth";
+import NextAuth, { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { getUserFromDb } from "@/actions";
@@ -6,6 +6,14 @@ import { redirect } from 'next/navigation'
 
 
 export const BASE_PATH = "/api/auth";
+
+export interface User {
+  id?: string
+  name?: string | null
+  email?: string | null
+  image?: string | null
+  token?: string | null
+}
 
 
 const authOptions: NextAuthConfig = {
@@ -33,6 +41,7 @@ const authOptions: NextAuthConfig = {
       if (trigger === "update") {
         return {...token, ...session}
       }
+      console.log("USUSUSUSUSUSUSUSUSUSUSUSU",user)
       if (user) {
         token.accessToken = user.token;
       }
