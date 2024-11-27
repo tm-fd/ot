@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react';
 import { Spinner } from '@nextui-org/react';
-import { ZPurchase } from '../app/store/zustandStore';
+import { PurchaseObj } from '../app/store/zustandStore';
 
 type OrderStatus = {
     id: number,
@@ -10,7 +10,7 @@ type OrderStatus = {
     status: string,
 };
 
-export default function OrderDetails({purchase}: {purchase: ZPurchase}) {
+export default function OrderDetails({purchase}: {purchase: PurchaseObj}) {
   const [orderStatus, setOrderStatus] = useState<OrderStatus | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
