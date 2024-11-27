@@ -183,7 +183,7 @@ export default function AddPurchase() {
           classNames={{ closeButton: 'hidden' }}
           className="bg-transparent shadow-none"
           isDismissable={false}
-          shadow="nonoe"
+          shadow="none"
           isKeyboardDismissDisabled={true}
         >
           <ModalContent>
