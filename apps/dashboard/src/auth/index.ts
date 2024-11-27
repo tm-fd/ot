@@ -17,7 +17,7 @@ const authOptions: NextAuthConfig = {
     Credentials({
       name: "Credentials",
       credentials: {
-        username: {},
+        email: {},
         password: {},
       },
       async authorize(credentials: CredentialsType): Promise<User | null> {
