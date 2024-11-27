@@ -18,9 +18,9 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { VerticalDotsIcon } from './VerticalDotsIcon';
 import OrderDetails from './OrderDetails';
-import { ZPurchase } from '../app/store/zustandStore';
+import { PurchaseObj } from '../app/store/zustandStore';
 
-export default function UserPurchaseDetails({purchase}: {purchase: ZPurchase}) {
+export default function UserPurchaseDetails({purchase}: {purchase: PurchaseObj}) {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [errorMessage, setErorrMessage] = useState(null);
   const [loading, setLoading] = useState(false);
