@@ -1,7 +1,7 @@
 import React from 'react'
 import UserPurchaseDetails from './UserPurchaseDetails';
-import { ZPurchase } from '../app/store/zustandStore';
+import { PurchaseObj } from '../app/store/zustandStore';
 
-export default function Actions({ purchase }: { purchase: ZPurchase }) {
+export default function Actions({ purchase }: { purchase: PurchaseObj }) {
   return <UserPurchaseDetails purchase={purchase}/>
 }
