@@ -34,7 +34,7 @@ const authOptions: NextAuthConfig = {
         return {...token, ...session}
       }
       if (user) {
-        token.accessToken = user.accessToken;
+        token.accessToken = user.token;
       }
       return token;
     },
