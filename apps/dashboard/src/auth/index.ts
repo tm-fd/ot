@@ -7,6 +7,11 @@ import { redirect } from 'next/navigation'
 
 export const BASE_PATH = "/api/auth";
 
+type CredentialsType = {
+  email?: string;
+  password?: string;
+};
+
 const authOptions: NextAuthConfig = {
   providers: [
     Credentials({
@@ -15,8 +20,7 @@ const authOptions: NextAuthConfig = {
         username: {},
         password: {},
       },
-      async authorize(credentials): Promise<User | null> {
-        // comment
+      async authorize(credentials: CredentialsType): Promise<User | null> {
         const { email, password } = credentials
         console.log('credentials', credentials)
         const user = await getUserFromDb(email as string, password as string)
