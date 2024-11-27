@@ -1,11 +1,9 @@
 import NextAuth, { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import { getUserFromDb } from "@/actions";
-import { redirect } from 'next/navigation'
+import { getUserFromDb } from "actions"
 
-
-export const BASE_PATH = "/api/auth";
+export const BASE_PATH = "/api/auth"
 
 export interface User {
   id?: string
@@ -15,6 +13,13 @@ export interface User {
   token?: string | null
 }
 
+interface AdapterUser {
+  id: string;
+  name: string | null;
+  email: string | null;
+  image: string | null;
+  // Add other properties of AdapterUser as needed
+}
 
 const authOptions: NextAuthConfig = {
   providers: [
@@ -24,13 +29,13 @@ const authOptions: NextAuthConfig = {
         email: {},
         password: {},
       },
-      async authorize(credentials): Promise<User | null> {
+      async authorize(credentials): Promise<User | AdapterUser | null> {
         const { email, password } = credentials
         console.log('credentials', credentials)
         const user = await getUserFromDb(email as string, password as string)
         console.log('Data', user)
         if (user) {
-          return user as User
+          return user 
         }
         return null
       },
@@ -43,7 +48,9 @@ const authOptions: NextAuthConfig = {
       }
       console.log("USUSUSUSUSUSUSUSUSUSUSUSU",user)
       if (user) {
-        token.accessToken = user.token;
+        if ('token' in user) {
+          token.accessToken = user.token;
+        }
       }
       return token;
     },
