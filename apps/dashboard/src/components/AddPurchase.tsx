@@ -69,7 +69,7 @@ export default function AddPurchase() {
     // console.log(errorMessage);
   }, [isSubmitted]);
 
-  const handleSelectionChange = (e) => {
+  const handleSelectionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDuration(e.target.value);
   };
 
