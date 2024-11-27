@@ -48,8 +48,8 @@ export const columns = [
   },
 ];
 
-export const renderCell = (purchase: ZPurchase, columnKey: React.Key) => {
-  const cellValue = purchase[columnKey as keyof ZPurchase];
+export const renderCell = (purchase, columnKey: React.Key) => {
+  const cellValue = purchase[columnKey];
   switch (columnKey) {
     case 'orderNumber':
       return <Purchase>{purchase.orderNumber}</Purchase>;
