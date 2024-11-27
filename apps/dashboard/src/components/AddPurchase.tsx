@@ -69,7 +69,7 @@ export default function AddPurchase() {
     // console.log(errorMessage);
   }, [isSubmitted]);
 
-  const handleSelectionChange = (e: Event) => {
+  const handleSelectionChange = (e: any) => {
     setDuration(e.target.value);
   };
 
