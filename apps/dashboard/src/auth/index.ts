@@ -16,6 +16,7 @@ const authOptions: NextAuthConfig = {
         password: {},
       },
       async authorize(credentials): Promise<User | null> {
+        // comment
         const { email, password } = credentials
         console.log('credentials', credentials)
         const user = await getUserFromDb(email as string, password as string)
