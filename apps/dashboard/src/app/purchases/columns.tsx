@@ -2,7 +2,7 @@ import { Chip, Link } from '@nextui-org/react';
 import { DeleteIcon, EditIcon, EyeIcon } from '../../components/icons';
 import Purchase from '../../components/Purchase';
 import Actions from '../../components/Actions';
-import { ZPurchase } from '../store/zustandStore';
+import { ZPurchase, PurchaseObj } from '../store/zustandStore';
 
 
 export const columns = [
@@ -48,8 +48,8 @@ export const columns = [
   },
 ];
 
-export const renderCell = (purchase, columnKey: React.Key) => {
-  const cellValue = purchase[columnKey];
+export const renderCell = (purchase: PurchaseObj, columnKey: React.Key) => {
+  const cellValue = purchase[columnKey as keyof PurchaseObj];
   switch (columnKey) {
     case 'orderNumber':
       return <Purchase>{purchase.orderNumber}</Purchase>;
