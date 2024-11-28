@@ -18,7 +18,7 @@ export async function getUserFromDb(email, password) {
     });
 
     const user = await res.json();
-    console.log("Reeeeeees",user)
+    console.log("Reeeeeees", user)
 
     if (res.ok && user) {
       revalidatePath("/purchases");
@@ -30,4 +30,17 @@ export async function getUserFromDb(email, password) {
     
   }
 
+}
+
+export async function doCredentialLogin(formData) {
+  try {
+    const response = await signIn("credentials", {
+      email: formData.get("email"),
+      password: formData.get("password"),
+      redirect: false
+    })
+    return response
+  } catch (err) {
+    throw new Error(err)
+  }
 }

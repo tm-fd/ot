@@ -53,11 +53,11 @@ const authOptions: NextAuthConfig = {
       }
       return token;
     },
-    // async session({ session, token }) {
-    //   console.log("LPLPLPLPLPLPLPLPLPLPLPLPLPL",token)
-    //   session.accessToken = token.accessToken;
-    //   return session;
-    // },
+    async session({ session, token }) {
+      console.log("LPLPLPLPLPLPLPLPLPLPLPLPLPL",token)
+      session.accessToken = token.accessToken;
+      return session;
+    },
   },
   pages: {  
     signIn: "/signin",
