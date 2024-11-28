@@ -69,11 +69,11 @@ export default function AddPurchase() {
     // console.log(errorMessage);
   }, [isSubmitted]);
 
-  const handleSelectionChange = (e) => {
+  const handleSelectionChange = (e: any) => {
     setDuration(e.target.value);
   };
 
-  function JoiValidatePurchase(obj) {
+  function JoiValidatePurchase(obj: any) {
     const schema = Joi.object({
       email: Joi.string()
         .email({ minDomainSegments: 2, tlds: { allow: false } })
@@ -183,7 +183,7 @@ export default function AddPurchase() {
           classNames={{ closeButton: 'hidden' }}
           className="bg-transparent shadow-none"
           isDismissable={false}
-          shadow="nonoe"
+          shadow="sm"
           isKeyboardDismissDisabled={true}
         >
           <ModalContent>

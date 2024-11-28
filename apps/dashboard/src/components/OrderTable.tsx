@@ -130,7 +130,7 @@ export default function OrderTable({ orders }: { orders: Order[] }) {
         topContent={topContent}
         topContentPlacement='outside'
         selectionMode="multiple"
-        selectionBehavior={selectionBehavior}
+        selectionBehavior='replace'
         bottomContent={
           <div className='flex w-full justify-center'>
             <Button

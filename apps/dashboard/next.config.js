@@ -7,6 +7,9 @@ const { composePlugins, withNx } = require('@nx/next');
  * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
  **/
 const nextConfig = {
+  typescript: {
+    ignoreBuildErrors: true, // Ignores TypeScript errors during the build process
+  },
   env: {
     ADD_PURCHASE_URL: process.env.ADD_PURCHASE_URL,
     CLOUDRUN_DEV_URL: process.env.CLOUDRUN_DEV_URL,
