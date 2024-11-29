@@ -8,7 +8,6 @@ import usePurchaseStore from '../store/zustandStore';
 import useSWR from 'swr';
 
 export const fetchPurchases = async () => {
-  // setIsLoading(true);
   try {
     const res = await fetch(`${process.env.CLOUDRUN_DEV_URL}/purchases/all-purchases`, { cache: 'no-store' });
     if (!res.ok) {
@@ -29,24 +28,19 @@ export const fetchPurchases = async () => {
       duration: obj.duration,
     }));
     return customData.reverse()
-    // setPurchases(customData.reverse());
   } catch (err: any) {
-    // setError(err.message);
-  } finally {
-    //  setIsLoading(false);
-  }
+    console.error(err.message);
+  } 
 };
 export default function Purshases() {
-  const { purchases, setPurchases, isLoading, setIsLoading, error, setError } = usePurchaseStore();
-  const { data } = useSWR('/purchases', fetchPurchases);
+  const { purchases, setPurchases, setError } = usePurchaseStore();
+  const { data, error, isLoading } = useSWR('/purchases', fetchPurchases);
 
   useEffect(() => {
     if (data) {
       setPurchases(data);
     }
-
-    // fetchPurchases();
-  }, [setPurchases, setIsLoading, setError, data]);
+  }, [setPurchases, isLoading, setError, data]);
 
   return (
     <section className="py-24">
@@ -57,7 +51,7 @@ export default function Purshases() {
         {isLoading || !purchases || purchases.length === 0 ? (
           <Spinner label="Loading..." size="lg" color='secondary' style={{height: '50vh'}} />
         ) : error ? (
-          <p>{error}</p>
+          <p className="text-red-500">Failed to load</p>
         ) : (
           <PurchaseTable />
         )}
