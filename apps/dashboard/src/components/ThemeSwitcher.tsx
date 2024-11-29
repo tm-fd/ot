@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useTheme } from 'next-themes'
-
 import { Button } from '@nextui-org/button'
 
 export default function ThemeSwitcher() {

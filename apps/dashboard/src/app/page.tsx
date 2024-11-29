@@ -8,7 +8,6 @@ export default async function Home() {
   return (
     <section className='py-36'>
       <div className='container flex items-center justify-center'>
-      <pre>{JSON.stringify(session, null, 2)}</pre>
       </div>
     </section>
   );

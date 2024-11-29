@@ -19,8 +19,7 @@ export async function middleware(request) {
   console.log("isPublicRoute", isPublicRoute, PROTECTED_SUB_ROUTES.find(route => nextUrl.pathname.includes(route)));
 
   if (!isAuthenticated && !isPublicRoute) return NextResponse.redirect(new URL(LOGIN, nextUrl));
-
-  // if (isAuthenticated) return NextResponse.redirect(new URL(ROOT, nextUrl));
+  
   
 }
 

@@ -1,6 +1,12 @@
 import Link from 'next/link';
 import ThemeSwitcher from '../components/ThemeSwitcher';
-import AuthButton from './AuthButton.server';
+import Logout from './Logout';
+import { getSession } from "@/lib/getSession";
+
+
+
+
+
 
 const NavigationList = () => {
   return (
@@ -12,14 +18,18 @@ const NavigationList = () => {
   );
 };
 
-const Header = () => {
+const Header = async() => {
+  const session = await getSession();
+  const user = session?.user;
   return (
     <header className="py-6">
       <nav className="container flex items-center justify-between">
         <NavigationList />
         <div className="flex gap-4"> {/* Added a div for better spacing */}
           <ThemeSwitcher />
-          <AuthButton />
+          {user && (
+            <Logout />
+          )}
         </div>
       </nav>
     </header>
