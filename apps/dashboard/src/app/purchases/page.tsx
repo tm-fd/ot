@@ -6,6 +6,8 @@ import { Spinner } from '@nextui-org/react';
 import AddPurchase from '../../components/AddPurchase';
 import usePurchaseStore from '../store/zustandStore';
 import useSWR from 'swr';
+import { useRouter } from 'next/navigation';
+
 
 export const fetchPurchases = async () => {
   try {
@@ -35,8 +37,13 @@ export const fetchPurchases = async () => {
 export default function Purshases() {
   const { purchases, setPurchases, setError } = usePurchaseStore();
   const { data, error, isLoading } = useSWR('/purchases', fetchPurchases);
+  const router = useRouter()
+  // useEffect(() => {
+  //   window.location.reload();
+  // }, []);
 
   useEffect(() => {
+    router.refresh();
     if (data) {
       setPurchases(data);
     }

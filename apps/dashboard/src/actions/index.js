@@ -22,12 +22,12 @@ export async function getUserFromDb(email, password) {
 
     if (res.ok && user) {
       revalidatePath("/purchases");
-      return user; // Must include at least an `id` field in the returned object
+      return user; 
     }
     return null;
   
   } catch (err) {
-    
+    throw new Error(err)
   }
 
 }
@@ -44,4 +44,8 @@ export async function doCredentialLogin(formData) {
   } catch (err) {
     throw new Error(err)
   }
+}
+
+export async function doLogout() {
+  await signOut({ redirectTo: "/signin" });
 }

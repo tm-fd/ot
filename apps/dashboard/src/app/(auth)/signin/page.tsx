@@ -1,32 +1,33 @@
 'use client';
 
 import React, { useState } from 'react';
-import { signIn } from "@/auth";
 import { Input, Button } from '@nextui-org/react';
 import { EyeSlashFilledIcon, EyeFilledIcon } from '@/components/icons';
 import { doCredentialLogin } from '@/actions';
 import { useRouter } from 'next/navigation';
+import { useTransition } from 'react';
 
 export default function SignIn() {
   const [isVisible, setIsVisible] = React.useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const router = useRouter()
   const [error, setError] = useState("");
+  const [ isPending, startTransition ] = useTransition();
 
 
    const handleCredentialLogin = async (event) => {
     event.preventDefault();
     try {
       const formData = new FormData(event.currentTarget);
-      const response = await doCredentialLogin(formData)
-      console.log(response)
+      startTransition( async () => {
+        const response = await doCredentialLogin(formData)
       if (!!response.error) {
         console.log(response.error)
         setError(response.error.message);
       }else{
-         router.refresh()
-         router.push('/purchases')
+         router.replace('/purchases')
       }
+      })
     } catch (err) {
       console.error(err)
       setError("Check your Credentials");
@@ -70,7 +71,7 @@ export default function SignIn() {
           className="lg:w-96 sm:w-64"
         />
 
-        <Button color="secondary" type="submit">
+        <Button color="secondary" type="submit" className='text-white' disabled={isPending}>
           sign in
         </Button>
       </form>

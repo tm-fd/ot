@@ -1,6 +1,5 @@
 import NextAuth, { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter"
 import { getUserFromDb } from "@/actions"
 
 export const BASE_PATH = "/api/auth"
@@ -46,8 +45,8 @@ const authOptions: NextAuthConfig = {
       return token;
     },
     async session({ session, token }) {
-      console.log("LPLPLPLPLPLPLPLPLPLPLPLPLPL",token)
-      session.accessToken = token.accessToken;
+       console.log("LPLPLPLPLPLPLPLPLPLPLPLPLPL",token)
+       session.accessToken = token.accessToken;
       return session;
     },
   },
