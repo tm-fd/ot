@@ -19,6 +19,8 @@ import axios from 'axios';
 import cryptoRandomString from 'crypto-random-string';
 import Joi from 'joi';
 import { motion, AnimatePresence } from 'framer-motion';
+import useSWR, { mutate } from 'swr';
+
 
 export default function AddPurchase() {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -146,6 +148,7 @@ export default function AddPurchase() {
     if (res && res.status == 200) {
        setLoading(false);
       setIsSubmitted(true);
+      mutate('/purchases');
       setErorrMessage('The purchase has been added successfully');
       setTimeout(() => {
         setErorrMessage(null);
