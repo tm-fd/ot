@@ -24,7 +24,7 @@ export default function SignIn() {
         console.log(response.error)
         setError(response.error.message);
       }else{
-        console.log("TO PURCHASES")
+         router.refresh()
          router.push('/purchases')
       }
     } catch (err) {
