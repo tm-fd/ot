@@ -19,11 +19,12 @@ export default function SignIn() {
     try {
       const formData = new FormData(event.currentTarget);
       const response = await doCredentialLogin(formData)
+      console.log(response)
       if (!!response.error) {
         console.log(response.error)
         setError(response.error.message);
       }else{
-        router.push('/purchases')
+         router.push('/purchases')
       }
     } catch (err) {
       console.error(err)

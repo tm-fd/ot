@@ -13,14 +13,6 @@ export interface User {
   token?: string | null
 }
 
-interface AdapterUser {
-  id: string;
-  name: string | null;
-  email: string | null;
-  image: string | null;
-  // Add other properties of AdapterUser as needed
-}
-
 const authOptions: NextAuthConfig = {
   providers: [
     Credentials({
@@ -29,7 +21,7 @@ const authOptions: NextAuthConfig = {
         email: {},
         password: {},
       },
-      async authorize(credentials): Promise<User | AdapterUser | null> {
+      async authorize(credentials): Promise<User | null> {
         const { email, password } = credentials
         console.log('credentials', credentials)
         const user = await getUserFromDb(email as string, password as string)

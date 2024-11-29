@@ -39,6 +39,7 @@ export async function doCredentialLogin(formData) {
       password: formData.get("password"),
       redirect: false
     })
+    console.log("RERERERERERERERERERERR",response)
     return response
   } catch (err) {
     throw new Error(err)
