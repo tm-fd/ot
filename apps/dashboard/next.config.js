@@ -13,6 +13,9 @@ const nextConfig = {
   env: {
     ADD_PURCHASE_URL: process.env.ADD_PURCHASE_URL,
     CLOUDRUN_DEV_URL: process.env.CLOUDRUN_DEV_URL,
+    POSTNORD_URL: process.env.POSTNORD_URL,
+    PN_API_KEY: process.env.PN_API_KEY,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
   },
   nx: {
     // Set this to true if you would like to use SVGR

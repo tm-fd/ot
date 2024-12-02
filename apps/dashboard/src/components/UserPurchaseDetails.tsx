@@ -20,7 +20,11 @@ import { VerticalDotsIcon } from './VerticalDotsIcon';
 import OrderDetails from './OrderDetails';
 import { PurchaseObj } from '../app/store/zustandStore';
 
-export default function UserPurchaseDetails({purchase}: {purchase: PurchaseObj}) {
+export default function UserPurchaseDetails({
+  purchase,
+}: {
+  purchase: PurchaseObj;
+}) {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [errorMessage, setErorrMessage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -63,7 +67,7 @@ export default function UserPurchaseDetails({purchase}: {purchase: PurchaseObj})
         </Modal>
       )}
       <Modal
-        size="full"
+        size="5xl"
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         placement="top-center"
@@ -97,7 +101,9 @@ export default function UserPurchaseDetails({purchase}: {purchase: PurchaseObj})
                   )}
                 </AnimatePresence>
               </div>
-              <ModalBody className="pt-14"><OrderDetails purchase={purchase}/></ModalBody>
+              <ModalBody className="pt-14">
+                <OrderDetails purchase={purchase} />
+              </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="flat" onPress={onClose}>
                   Close
