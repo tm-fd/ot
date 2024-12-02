@@ -1,5 +1,5 @@
 'use client'
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import PurchaseTable from '../../components/PurchaseTable';
 import { ZPurchase } from '../store/zustandStore';
 import { Spinner } from '@nextui-org/react';
@@ -9,9 +9,9 @@ import useSWR from 'swr';
 import { useRouter } from 'next/navigation';
 
 
-export const fetchPurchases = async () => {
+export const fetchPurchases = async (page: number) => {
   try {
-    const res = await fetch(`${process.env.CLOUDRUN_DEV_URL}/purchases/all-purchases`, { cache: 'no-store' });
+    const res = await fetch(`${process.env.CLOUDRUN_DEV_URL}/purchases/all-purchases?page=${page}`, { cache: 'no-store' });
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
@@ -29,22 +29,35 @@ export const fetchPurchases = async () => {
       isSubscription: obj.is_subscription,
       duration: obj.duration,
     }));
-    return customData.reverse()
+    const data = {
+      purchases: customData.reverse(),
+      currentPage: response.currentPage,
+      total: response.total,
+      totalPages: response.totalPages
+    }
+    console.log(data)
+    return data
   } catch (err: any) {
     console.error(err.message);
   } 
 };
+
 export default function Purshases() {
-  const { purchases, setPurchases, setError } = usePurchaseStore();
-  const { data, error, isLoading } = useSWR('/purchases', fetchPurchases);
+  const { purchases, setPurchases, setError, currentPage, setCurrentPage } = usePurchaseStore();
+  const { data, error, isLoading } = useSWR(`/purchases?page=${currentPage}`, () => fetchPurchases(currentPage));
   const router = useRouter()
 
   useEffect(() => {
     router.refresh();
     if (data) {
-      setPurchases(data);
+      setPurchases(data.purchases);
+      setCurrentPage(data.currentPage);
     }
-  }, [setPurchases, isLoading, setError, data]);
+  }, [setPurchases, isLoading, setError, data, currentPage]);
+
+  useEffect(() => {
+    console.log(currentPage)
+  }, [currentPage]);
 
   return (
     <section className="py-24">

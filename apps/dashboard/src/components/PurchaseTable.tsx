@@ -20,7 +20,7 @@ import { SearchIcon } from './icons';
 import usePurchaseStore from '../app/store/zustandStore';
 
 export default function PurchaseTable() {
-  const { purchases, isLoading, error } = usePurchaseStore();
+  const { currentpage, setCurrentPage, purchases, isLoading, error } = usePurchaseStore();
   const [filterValue, setFilterValue] = useState('');
   const [selectionBehavior, setSelectionBehavior] = useState('replace');
 
@@ -96,6 +96,16 @@ export default function PurchaseTable() {
     setPage(1);
   }, []);
 
+  const handleNextPage = () => {
+    setPage((prev) => (prev < pages ? prev + 1 : prev))
+    setCurrentPage(currentpage - 1);
+  };
+
+  const handlePreviousPage = () => {
+    setPage((prev) => (prev > 1 ? prev - 1 : prev))
+    setCurrentPage(currentpage + 1);
+  };
+
   const topContent = useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
@@ -131,12 +141,12 @@ export default function PurchaseTable() {
         topContentPlacement="outside"
         bottomContent={
           <div className="flex w-full justify-center">
-            <Button size="sm" variant="flat" color="secondary" onPress={() => setPage((prev) => (prev > 1 ? prev - 1 : prev))}>
+            <Button size="sm" variant="flat" color="secondary" isDisabled={page === 1} onPress={handlePreviousPage}>
               Previous
             </Button>
             <Pagination isCompact showShadow color="secondary" page={page} total={pages} onChange={(page) => setPage(page)} />
             <div className="flex gap-2">
-              <Button size="sm" variant="flat" color="secondary" onPress={() => setPage((prev) => (prev < pages ? prev + 1 : prev))}>
+              <Button size="sm" variant="flat" color="secondary" isDisabled={page === purchases.totalPages} onPress={handleNextPage}>
                 Next
               </Button>
             </div>

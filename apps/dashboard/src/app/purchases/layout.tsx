@@ -1,6 +1,6 @@
 import { Header } from '@/components/Header'
 
-export default async function PurshasesLayout({
+export default async function PurchasesLayout({
     children,
   }: {
     children: React.ReactNode;

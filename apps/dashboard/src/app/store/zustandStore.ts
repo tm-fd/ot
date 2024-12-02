@@ -36,6 +36,8 @@ interface PurchaseState {
   setIsLoading: (isLoading: boolean) => void;
   error: string | null;
   setError: (error: string | null) => void;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
 }
 
 const usePurchaseStore = create<PurchaseState>((set) => ({
@@ -45,6 +47,8 @@ const usePurchaseStore = create<PurchaseState>((set) => ({
   setIsLoading: (isLoading) => set({ isLoading }),
   error: null,
   setError: (error) => set({ error }),
+  currentPage: 0,
+  setCurrentPage: (currentPage) => set({ currentPage }),
 }));
 
 export default usePurchaseStore;
