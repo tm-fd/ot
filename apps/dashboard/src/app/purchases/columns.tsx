@@ -34,10 +34,10 @@ export const columns = [
     key: 'numberOfLicenses',
     label: 'Licenses',
   },
-  {
-    key: 'isSubscription',
-    label: 'Subscription',
-  },
+  // {
+  //   key: 'isSubscription',
+  //   label: 'Subscription',
+  // },
   {
     key: 'duration',
     label: 'Duration',

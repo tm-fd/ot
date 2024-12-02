@@ -12,7 +12,7 @@ import {
   Pagination,
   SortDescriptor,
   Button,
-  Spinner, // Added import for Spinner
+  Spinner,
 } from '@nextui-org/react';
 
 import { Purchase, columns, renderCell } from '../app/purchases/columns';
@@ -32,10 +32,8 @@ export default function PurchaseTable() {
     const searchInObject = (obj: any) => {
       for (const key in obj) {
         if (typeof obj[key] === 'object' && obj[key] !== null) {
-          // Recursively search in nested objects
           if (searchInObject(obj[key])) return true;
         } else if (Array.isArray(obj[key])) {
-          // Search within arrays
           for (const item of obj[key]) {
             if (searchInObject(item)) return true;
           }

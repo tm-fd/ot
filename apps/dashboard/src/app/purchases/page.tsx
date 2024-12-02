@@ -38,9 +38,6 @@ export default function Purshases() {
   const { purchases, setPurchases, setError } = usePurchaseStore();
   const { data, error, isLoading } = useSWR('/purchases', fetchPurchases);
   const router = useRouter()
-  // useEffect(() => {
-  //   window.location.reload();
-  // }, []);
 
   useEffect(() => {
     router.refresh();
