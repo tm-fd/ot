@@ -16,6 +16,8 @@ const nextConfig = {
     POSTNORD_URL: process.env.POSTNORD_URL,
     PN_API_KEY: process.env.PN_API_KEY,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    MAILJET_USERNAME: process.env.MAILJET_USERNAME,
+    MAILJET_PASSWORD: process.env.MAILJET_PASSWORD,
   },
   nx: {
     // Set this to true if you would like to use SVGR
