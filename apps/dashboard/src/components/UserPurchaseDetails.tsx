@@ -13,12 +13,14 @@ import {
   Dropdown,
   DropdownMenu,
   DropdownItem,
+  Tooltip
 } from '@nextui-org/react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { VerticalDotsIcon } from './VerticalDotsIcon';
 import OrderDetails from './OrderDetails';
 import { PurchaseObj } from '../app/store/zustandStore';
+import { EditIcon, DeleteIcon, EyeIcon } from "./icons";
 
 export default function UserPurchaseDetails({
   purchase,
@@ -31,18 +33,24 @@ export default function UserPurchaseDetails({
 
   return (
     <>
-      <Dropdown>
-        <DropdownTrigger>
-          <Button isIconOnly size="sm" variant="light">
-            <VerticalDotsIcon className="text-default-300" />
-          </Button>
-        </DropdownTrigger>
-        <DropdownMenu>
-          <DropdownItem onPress={onOpen}>View</DropdownItem>
-          <DropdownItem>Edit</DropdownItem>
-          <DropdownItem>Delete</DropdownItem>
-        </DropdownMenu>
-      </Dropdown>
+      
+        <div className="relative flex items-center gap-2">
+            <Tooltip content="Details">
+              <span onClick={onOpen} className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                <EyeIcon  />
+              </span>
+            </Tooltip>
+            <Tooltip content="Edit user">
+              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                <EditIcon />
+              </span>
+            </Tooltip>
+            <Tooltip color="danger" content="Delete user">
+              <span className="text-lg text-danger cursor-pointer active:opacity-50">
+                <DeleteIcon />
+              </span>
+            </Tooltip>
+          </div>
       {loading && (
         <Modal
           backdrop="blur"
