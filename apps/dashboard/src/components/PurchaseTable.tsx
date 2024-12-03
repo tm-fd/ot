@@ -19,8 +19,8 @@ import { Purchase, columns, renderCell } from '../app/purchases/columns';
 import { SearchIcon } from './icons';
 import usePurchaseStore from '../app/store/zustandStore';
 
-export default function PurchaseTable() {
-  const { purchases, isLoading, error } = usePurchaseStore();
+export default function PurchaseTable({ data }) {
+  const { currentPage, setCurrentPage, purchases, isLoading, error } = usePurchaseStore();
   const [filterValue, setFilterValue] = useState('');
   const [selectionBehavior, setSelectionBehavior] = useState('replace');
 
@@ -96,6 +96,16 @@ export default function PurchaseTable() {
     setPage(1);
   }, []);
 
+  const handleNextPage = () => {
+    setPage((prev) => (prev < pages ? prev + 1 : prev))
+    setCurrentPage(currentPage - 1);
+  };
+
+  const handlePreviousPage = () => {
+    setPage((prev) => (prev > 1 ? prev - 1 : prev))
+    setCurrentPage(currentPage + 1);
+  };
+
   const topContent = useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
@@ -131,14 +141,14 @@ export default function PurchaseTable() {
         topContentPlacement="outside"
         bottomContent={
           <div className="flex w-full justify-center">
-            <Button size="sm" variant="flat" color="secondary" onPress={() => setPage((prev) => (prev > 1 ? prev - 1 : prev))}>
+            {/* <Button size="sm" variant="flat" color="secondary" isDisabled={currentPage === 8} onPress={handlePreviousPage}>
               Previous
-            </Button>
-            <Pagination isCompact showShadow color="secondary" page={page} total={pages} onChange={(page) => setPage(page)} />
+            </Button> */}
+            <Pagination isCompact showShadow color="secondary" page={page} total={pages} onChange={(page) => setPage(page)} showControls />
             <div className="flex gap-2">
-              <Button size="sm" variant="flat" color="secondary" onPress={() => setPage((prev) => (prev < pages ? prev + 1 : prev))}>
+              {/* <Button size="sm" variant="flat" color="secondary" isDisabled={currentPage === 1} onPress={handleNextPage}>
                 Next
-              </Button>
+              </Button> */}
             </div>
           </div>
         }
