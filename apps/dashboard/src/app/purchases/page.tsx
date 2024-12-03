@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 
 export const fetchPurchases = async (page: number) => {
   try {
-    const res = await fetch(`${process.env.CLOUDRUN_DEV_URL}/purchases/all-purchases?page=${page}`, { cache: 'no-store' });
+    const res = await fetch(`${process.env.CLOUDRUN_DEV_URL}/purchases/all-purchases?limit=370`, { cache: 'no-store' });
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
@@ -44,7 +44,7 @@ export const fetchPurchases = async (page: number) => {
 
 export default function Purshases() {
   const { purchases, setPurchases, setError, currentPage, setCurrentPage } = usePurchaseStore();
-  const { data, error, isLoading } = useSWR(`/purchases?page=${currentPage}`, () => fetchPurchases(currentPage));
+  const { data, error, isLoading } = useSWR(`/purchases`, fetchPurchases);
   const router = useRouter()
 
   useEffect(() => {
@@ -56,8 +56,8 @@ export default function Purshases() {
   }, [setPurchases, isLoading, setError, data, currentPage]);
 
   useEffect(() => {
-    console.log(currentPage)
-  }, [currentPage]);
+    console.log(purchases);
+  }, [purchases]);
 
   return (
     <section className="py-24">
@@ -70,7 +70,7 @@ export default function Purshases() {
         ) : error ? (
           <p className="text-red-500">Failed to load</p>
         ) : (
-          <PurchaseTable />
+          <PurchaseTable data={data} />
         )}
       </div>
     </section>
