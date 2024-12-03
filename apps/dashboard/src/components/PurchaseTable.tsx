@@ -113,7 +113,7 @@ export default function PurchaseTable({ data }) {
           <Input
             isClearable
             className="w-full sm:max-w-[44%]"
-            placeholder="Search by id..."
+            placeholder="Search by anything..."
             startContent={<SearchIcon />}
             value={filterValue}
             onClear={() => onClear()}
@@ -123,6 +123,11 @@ export default function PurchaseTable({ data }) {
       </div>
     );
   }, [filterValue, onSearchChange, onClear]);
+
+  const handlePaginationChange = (page) => {
+    console.log(page)
+    setPage(page)
+  }
 
   if (isLoading) {
     return <Spinner label="Loading..." size="lg" color='secondary' />;
@@ -144,7 +149,7 @@ export default function PurchaseTable({ data }) {
             {/* <Button size="sm" variant="flat" color="secondary" isDisabled={currentPage === 8} onPress={handlePreviousPage}>
               Previous
             </Button> */}
-            <Pagination isCompact showShadow color="secondary" page={page} total={pages} onChange={(page) => setPage(page)} showControls />
+            <Pagination isCompact showShadow color="secondary" page={page} total={pages} onChange={handlePaginationChange} showControls />
             <div className="flex gap-2">
               {/* <Button size="sm" variant="flat" color="secondary" isDisabled={currentPage === 1} onPress={handleNextPage}>
                 Next
