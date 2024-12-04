@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
 import {
   Table,
   TableHeader,
@@ -18,11 +18,15 @@ import {
 import { Purchase, columns, renderCell } from '../app/purchases/columns';
 import { SearchIcon } from './icons';
 import usePurchaseStore from '../app/store/zustandStore';
+import { usePurchasesData } from '@/app/hooks';
 
-export default function PurchaseTable({ data }) {
-  const { currentPage, setCurrentPage, purchases, isLoading, error } = usePurchaseStore();
+export default function PurchaseTable() {
+  const { currentPage, setCurrentPage, purchases } = usePurchaseStore();
   const [filterValue, setFilterValue] = useState('');
   const [selectionBehavior, setSelectionBehavior] = useState('replace');
+  const { data, isLoading, error, mutate } = usePurchasesData({currentPage: currentPage});
+
+  
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -48,14 +52,14 @@ export default function PurchaseTable({ data }) {
   };
 
   const filteredItems = useMemo(() => {
-    let filteredPurchases = [...purchases];
+    let filteredPurchases = [...data.purchases];
 
     if (hasSearchFilter) {
       filteredPurchases = filteredPurchases.filter((purchase) => searchPurchase(purchase, filterValue));
     }
 
     return filteredPurchases;
-  }, [purchases, filterValue, hasSearchFilter]);
+  }, [data, filterValue, hasSearchFilter]);
 
   const rowsPerPage = 20;
   const [page, setPage] = useState(1);
@@ -66,6 +70,10 @@ export default function PurchaseTable({ data }) {
     const end = start + rowsPerPage;
     return filteredItems.slice(start, end);
   }, [page, filteredItems]);
+
+  useEffect(() => {
+    console.log("Props", currentPage , page , pages, data.totalPages)
+  }, [page, currentPage, pages]);
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: 'date',
@@ -123,11 +131,19 @@ export default function PurchaseTable({ data }) {
       </div>
     );
   }, [filterValue, onSearchChange, onClear]);
+  
 
   const handlePaginationChange = (page) => {
-    console.log(page)
+    const isLastPage = page === pages;
+    console.log("Props", currentPage , page , pages, data.totalPages)
+    if(isLastPage)  {
+      console.log(data.currentPage)
+      setCurrentPage(data.currentPage - 1)
+    }
+    console.log(isLastPage)
     setPage(page)
   }
+  
 
   if (isLoading) {
     return <Spinner label="Loading..." size="lg" color='secondary' />;

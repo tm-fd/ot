@@ -42,7 +42,7 @@ interface PurchaseState {
 
 const usePurchaseStore = create<PurchaseState>((set) => ({
   purchases: [],
-  setPurchases: (purchases) => set({ purchases}),
+  setPurchases: (purchases) => set((state) => ({ purchases: [...state.purchases, ...purchases] })),
   isLoading: false,
   setIsLoading: (isLoading) => set({ isLoading }),
   error: null,
