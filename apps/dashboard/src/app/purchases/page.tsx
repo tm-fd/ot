@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import PurchaseTable from '../../components/PurchaseTable';
 import { ZPurchase } from '../store/zustandStore';
 import { Spinner } from '@nextui-org/react';
@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { usePurchasesData } from '../hooks';
 
 export default function Purshases() {
-  const { purchases, setPurchases, setError, currentPage, setCurrentPage } =
+  const { purchases, setPurchases, setError, currentPage, setCurrentPage, reset } =
     usePurchaseStore();
   const { data, isLoading, error, mutate } = usePurchasesData({
     limit: 370,
@@ -25,7 +25,7 @@ export default function Purshases() {
         setCurrentPage(data.currentPage - 1);
       }
     }
-  }, [setPurchases, isLoading, setError, data, currentPage]);
+  }, [data]);
 
   return (
     <section className="py-24">

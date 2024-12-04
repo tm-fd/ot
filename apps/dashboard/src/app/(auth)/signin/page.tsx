@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input, Button } from '@nextui-org/react';
 import { EyeSlashFilledIcon, EyeFilledIcon } from '@/components/icons';
 import { doCredentialLogin } from '@/actions';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
+import usePurchaseStore from '@/app/store/zustandStore';
 
 export default function SignIn() {
   const [isVisible, setIsVisible] = React.useState(false);
@@ -13,15 +14,18 @@ export default function SignIn() {
   const router = useRouter()
   const [error, setError] = useState("");
   const [ isPending, startTransition ] = useTransition();
+  const { reset } = usePurchaseStore();
+  
 
 
    const handleCredentialLogin = async (event) => {
     event.preventDefault();
+    reset();
     try {
       const formData = new FormData(event.currentTarget);
       startTransition( async () => {
         const response = await doCredentialLogin(formData)
-        console.log(response)
+        
       if (!response) {
         setError("Check your email or password");
       }else{
