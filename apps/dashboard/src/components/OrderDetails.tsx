@@ -86,8 +86,7 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
   const [orderEmailError, setOrderEmailError] = useState<string | null>(null);
 
   
-
-  // Fetch order status and shipping information
+  
   useEffect(() => {
     const fetchOrderInformation = async () => {
       setIsLoading(true);

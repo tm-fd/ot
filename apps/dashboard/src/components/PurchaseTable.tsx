@@ -24,9 +24,6 @@ export default function PurchaseTable() {
   const { currentPage, setCurrentPage, purchases } = usePurchaseStore();
   const [filterValue, setFilterValue] = useState('');
   const [selectionBehavior, setSelectionBehavior] = useState('replace');
-  const { data, isLoading, error, mutate } = usePurchasesData({currentPage: currentPage});
-
-  
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -41,7 +38,9 @@ export default function PurchaseTable() {
           for (const item of obj[key]) {
             if (searchInObject(item)) return true;
           }
-        } else if (obj[key]?.toString().toLowerCase().includes(lowerFilterValue)) {
+        } else if (
+          obj[key]?.toString().toLowerCase().includes(lowerFilterValue)
+        ) {
           return true;
         }
       }
@@ -52,14 +51,16 @@ export default function PurchaseTable() {
   };
 
   const filteredItems = useMemo(() => {
-    let filteredPurchases = [...data.purchases];
+    let filteredPurchases = [...purchases];
 
     if (hasSearchFilter) {
-      filteredPurchases = filteredPurchases.filter((purchase) => searchPurchase(purchase, filterValue));
+      filteredPurchases = filteredPurchases.filter((purchase) =>
+        searchPurchase(purchase, filterValue)
+      );
     }
 
     return filteredPurchases;
-  }, [data, filterValue, hasSearchFilter]);
+  }, [purchases, filterValue, hasSearchFilter]);
 
   const rowsPerPage = 20;
   const [page, setPage] = useState(1);
@@ -70,10 +71,6 @@ export default function PurchaseTable() {
     const end = start + rowsPerPage;
     return filteredItems.slice(start, end);
   }, [page, filteredItems]);
-
-  useEffect(() => {
-    console.log("Props", currentPage , page , pages, data.totalPages)
-  }, [page, currentPage, pages]);
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: 'date',
@@ -104,16 +101,6 @@ export default function PurchaseTable() {
     setPage(1);
   }, []);
 
-  const handleNextPage = () => {
-    setPage((prev) => (prev < pages ? prev + 1 : prev))
-    setCurrentPage(currentPage - 1);
-  };
-
-  const handlePreviousPage = () => {
-    setPage((prev) => (prev > 1 ? prev - 1 : prev))
-    setCurrentPage(currentPage + 1);
-  };
-
   const topContent = useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
@@ -131,27 +118,13 @@ export default function PurchaseTable() {
       </div>
     );
   }, [filterValue, onSearchChange, onClear]);
-  
 
   const handlePaginationChange = (page) => {
     const isLastPage = page === pages;
-    console.log("Props", currentPage , page , pages, data.totalPages)
-    if(isLastPage)  {
-      console.log(data.currentPage)
-      setCurrentPage(data.currentPage - 1)
+    if (isLastPage && currentPage > 0) {
     }
-    console.log(isLastPage)
-    setPage(page)
-  }
-  
-
-  if (isLoading) {
-    return <Spinner label="Loading..." size="lg" color='secondary' />;
-  }
-
-  if (error) {
-    return <p>Error: {error}</p>;
-  }
+    setPage(page);
+  };
 
   return (
     <div>
@@ -162,15 +135,16 @@ export default function PurchaseTable() {
         topContentPlacement="outside"
         bottomContent={
           <div className="flex w-full justify-center">
-            {/* <Button size="sm" variant="flat" color="secondary" isDisabled={currentPage === 8} onPress={handlePreviousPage}>
-              Previous
-            </Button> */}
-            <Pagination isCompact showShadow color="secondary" page={page} total={pages} onChange={handlePaginationChange} showControls />
-            <div className="flex gap-2">
-              {/* <Button size="sm" variant="flat" color="secondary" isDisabled={currentPage === 1} onPress={handleNextPage}>
-                Next
-              </Button> */}
-            </div>
+            <Pagination
+              isCompact
+              showShadow
+              color="secondary"
+              page={page}
+              total={pages}
+              onChange={handlePaginationChange}
+              showControls
+            />
+            <div className="flex gap-2"></div>
           </div>
         }
         bottomContentPlacement="outside"
@@ -182,15 +156,23 @@ export default function PurchaseTable() {
       >
         <TableHeader columns={columns}>
           {(column) => (
-            <TableColumn key={column.key} {...(column.key === 'date' ? { allowsSorting: true } : {})}>
+            <TableColumn
+              key={column.key}
+              {...(column.key === 'date' ? { allowsSorting: true } : {})}
+            >
               {column.label}
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody items={sortedItems} emptyContent={'No purchases to display.'}>
+        <TableBody
+          items={sortedItems}
+          emptyContent={'No purchases to display.'}
+        >
           {(purchase) => (
             <TableRow key={purchase.id}>
-              {(columnKey) => <TableCell>{renderCell(purchase, columnKey)}</TableCell>}
+              {(columnKey) => (
+                <TableCell>{renderCell(purchase, columnKey)}</TableCell>
+              )}
             </TableRow>
           )}
         </TableBody>

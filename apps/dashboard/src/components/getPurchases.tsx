@@ -7,5 +7,4 @@ export default function getPurchases() {
   });
  
   const purchasesData = await purchasesResult.json();
-  console.log(purchasesData)
 }

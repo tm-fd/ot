@@ -21,9 +21,9 @@ export default function SignIn() {
       const formData = new FormData(event.currentTarget);
       startTransition( async () => {
         const response = await doCredentialLogin(formData)
-      if (!!response.error) {
-        console.log(response.error)
-        setError(response.error.message);
+        console.log(response)
+      if (!response) {
+        setError("Check your email or password");
       }else{
          router.replace('/purchases')
       }
@@ -38,7 +38,7 @@ export default function SignIn() {
   return (
     <div className="flex justify-center items-center flex-col p-4 mt-24 bg-default-50 rounded-lg shadow-lg max-[600px]:w-full">
       <h3 className="pt-4">Sign in</h3>
-      <div className="text-xl text-red-500">{error}</div>
+      <div className="text-md text-red-500">{error}</div>
       <form onSubmit={handleCredentialLogin} className="flex flex-col gap-4 p-3 max-[600px]:w-full">
         <Input
           type="email"

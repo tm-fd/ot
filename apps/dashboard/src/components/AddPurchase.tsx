@@ -64,13 +64,6 @@ export default function AddPurchase() {
   const [errorMessage, setErorrMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    console.log(isSubmitted);
-
-    // console.log(duration);
-    // console.log(errorMessage);
-  }, [isSubmitted]);
-
   const handleSelectionChange = (e: any) => {
     setDuration(e.target.value);
   };

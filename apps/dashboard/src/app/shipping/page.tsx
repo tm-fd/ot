@@ -6,7 +6,6 @@ async function getShipping(orderNumber: string, orderDate: string): Promise<stri
     
     
   const data = await res.json()
-  console.log("shipping",data)
   return data
 }
 

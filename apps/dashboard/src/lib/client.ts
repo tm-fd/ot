@@ -1,6 +1,16 @@
-export const fetchPurchases = async (url: string, page: number) => {
+const createQueryString = (params?: Record<string, string | number>) => {
+    if (!params) return '';
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      searchParams.append(key, String(value));
+    });
+    return `?${searchParams.toString()}`;
+  };
+
+export const fetchPurchases = async ({url, params}) => {
+    const qp = createQueryString(params);
     try {
-      const res = await fetch(`${process.env.CLOUDRUN_DEV_URL}/purchases/all-purchases?limit=370&page=${page}`, { cache: 'no-store' });
+      const res = await fetch(`${url}${qp}`, { cache: 'no-store' });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -24,7 +34,6 @@ export const fetchPurchases = async (url: string, page: number) => {
         total: response.total,
         totalPages: response.totalPages
       }
-      console.log(data)
       return data
     } catch (err: any) {
       console.error(err.message);

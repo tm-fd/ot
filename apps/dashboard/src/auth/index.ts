@@ -21,14 +21,18 @@ const authOptions: NextAuthConfig = {
         password: {},
       },
       async authorize(credentials): Promise<User | null> {
+        if (credentials === null) return null;
         const { email, password } = credentials
-        console.log('credentials', credentials)
+        try {
         const user = await getUserFromDb(email as string, password as string)
-        console.log('Data', user)
         if (user) {
-          return user 
-        }
-        return null
+            return user;
+        } else {
+          throw new Error("User not found");
+      }
+      } catch (error) {
+        throw new Error(error);
+    }
       },
     }),
   ],
@@ -45,7 +49,6 @@ const authOptions: NextAuthConfig = {
       return token;
     },
     async session({ session, token }) {
-       console.log("LPLPLPLPLPLPLPLPLPLPLPLPLPL",token)
        session.accessToken = token.accessToken;
       return session;
     },
