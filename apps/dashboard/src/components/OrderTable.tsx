@@ -62,16 +62,11 @@ export default function OrderTable({ orders }: { orders: Order[] }) {
   
     const rowsPerPage = 20
     const [page, setPage] = useState(1)
-    useEffect(() => {
-      
-      console.log(page)
-    }, [page]);
     const pages = Math.ceil(filteredItems.length / rowsPerPage)
   
     const items = useMemo(() => {
       const start = (page - 1) * rowsPerPage
       const end = start + rowsPerPage
-      console.log(start, end, rowsPerPage)
       return filteredItems.slice(start, end)
     }, [page, filteredItems])
   

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
 import {
   Table,
   TableHeader,
@@ -18,9 +18,10 @@ import {
 import { Purchase, columns, renderCell } from '../app/purchases/columns';
 import { SearchIcon } from './icons';
 import usePurchaseStore from '../app/store/zustandStore';
+import { usePurchasesData } from '@/app/hooks';
 
-export default function PurchaseTable({ data }) {
-  const { currentPage, setCurrentPage, purchases, isLoading, error } = usePurchaseStore();
+export default function PurchaseTable() {
+  const { currentPage, setCurrentPage, purchases } = usePurchaseStore();
   const [filterValue, setFilterValue] = useState('');
   const [selectionBehavior, setSelectionBehavior] = useState('replace');
 
@@ -37,7 +38,9 @@ export default function PurchaseTable({ data }) {
           for (const item of obj[key]) {
             if (searchInObject(item)) return true;
           }
-        } else if (obj[key]?.toString().toLowerCase().includes(lowerFilterValue)) {
+        } else if (
+          obj[key]?.toString().toLowerCase().includes(lowerFilterValue)
+        ) {
           return true;
         }
       }
@@ -51,7 +54,9 @@ export default function PurchaseTable({ data }) {
     let filteredPurchases = [...purchases];
 
     if (hasSearchFilter) {
-      filteredPurchases = filteredPurchases.filter((purchase) => searchPurchase(purchase, filterValue));
+      filteredPurchases = filteredPurchases.filter((purchase) =>
+        searchPurchase(purchase, filterValue)
+      );
     }
 
     return filteredPurchases;
@@ -96,16 +101,6 @@ export default function PurchaseTable({ data }) {
     setPage(1);
   }, []);
 
-  const handleNextPage = () => {
-    setPage((prev) => (prev < pages ? prev + 1 : prev))
-    setCurrentPage(currentPage - 1);
-  };
-
-  const handlePreviousPage = () => {
-    setPage((prev) => (prev > 1 ? prev - 1 : prev))
-    setCurrentPage(currentPage + 1);
-  };
-
   const topContent = useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
@@ -125,17 +120,11 @@ export default function PurchaseTable({ data }) {
   }, [filterValue, onSearchChange, onClear]);
 
   const handlePaginationChange = (page) => {
-    console.log(page)
-    setPage(page)
-  }
-
-  if (isLoading) {
-    return <Spinner label="Loading..." size="lg" color='secondary' />;
-  }
-
-  if (error) {
-    return <p>Error: {error}</p>;
-  }
+    const isLastPage = page === pages;
+    if (isLastPage && currentPage > 0) {
+    }
+    setPage(page);
+  };
 
   return (
     <div>
@@ -146,15 +135,16 @@ export default function PurchaseTable({ data }) {
         topContentPlacement="outside"
         bottomContent={
           <div className="flex w-full justify-center">
-            {/* <Button size="sm" variant="flat" color="secondary" isDisabled={currentPage === 8} onPress={handlePreviousPage}>
-              Previous
-            </Button> */}
-            <Pagination isCompact showShadow color="secondary" page={page} total={pages} onChange={handlePaginationChange} showControls />
-            <div className="flex gap-2">
-              {/* <Button size="sm" variant="flat" color="secondary" isDisabled={currentPage === 1} onPress={handleNextPage}>
-                Next
-              </Button> */}
-            </div>
+            <Pagination
+              isCompact
+              showShadow
+              color="secondary"
+              page={page}
+              total={pages}
+              onChange={handlePaginationChange}
+              showControls
+            />
+            <div className="flex gap-2"></div>
           </div>
         }
         bottomContentPlacement="outside"
@@ -166,15 +156,23 @@ export default function PurchaseTable({ data }) {
       >
         <TableHeader columns={columns}>
           {(column) => (
-            <TableColumn key={column.key} {...(column.key === 'date' ? { allowsSorting: true } : {})}>
+            <TableColumn
+              key={column.key}
+              {...(column.key === 'date' ? { allowsSorting: true } : {})}
+            >
               {column.label}
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody items={sortedItems} emptyContent={'No purchases to display.'}>
+        <TableBody
+          items={sortedItems}
+          emptyContent={'No purchases to display.'}
+        >
           {(purchase) => (
             <TableRow key={purchase.id}>
-              {(columnKey) => <TableCell>{renderCell(purchase, columnKey)}</TableCell>}
+              {(columnKey) => (
+                <TableCell>{renderCell(purchase, columnKey)}</TableCell>
+              )}
             </TableRow>
           )}
         </TableBody>

@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input, Button } from '@nextui-org/react';
 import { EyeSlashFilledIcon, EyeFilledIcon } from '@/components/icons';
 import { doCredentialLogin } from '@/actions';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
+import usePurchaseStore from '@/app/store/zustandStore';
 
 export default function SignIn() {
   const [isVisible, setIsVisible] = React.useState(false);
@@ -13,17 +14,20 @@ export default function SignIn() {
   const router = useRouter()
   const [error, setError] = useState("");
   const [ isPending, startTransition ] = useTransition();
+  const { reset } = usePurchaseStore();
+  
 
 
    const handleCredentialLogin = async (event) => {
     event.preventDefault();
+    reset();
     try {
       const formData = new FormData(event.currentTarget);
       startTransition( async () => {
         const response = await doCredentialLogin(formData)
-      if (!!response.error) {
-        console.log(response.error)
-        setError(response.error.message);
+        
+      if (!response) {
+        setError("Check your email or password");
       }else{
          router.replace('/purchases')
       }
@@ -38,7 +42,7 @@ export default function SignIn() {
   return (
     <div className="flex justify-center items-center flex-col p-4 mt-24 bg-default-50 rounded-lg shadow-lg max-[600px]:w-full">
       <h3 className="pt-4">Sign in</h3>
-      <div className="text-xl text-red-500">{error}</div>
+      <div className="text-md text-red-500">{error}</div>
       <form onSubmit={handleCredentialLogin} className="flex flex-col gap-4 p-3 max-[600px]:w-full">
         <Input
           type="email"

@@ -42,7 +42,7 @@ export async function doCredentialLogin(formData) {
     console.log("RERERERERERERERERERERR",response)
     return response
   } catch (err) {
-    throw new Error(err)
+    console.error(err)
   }
 }
 
