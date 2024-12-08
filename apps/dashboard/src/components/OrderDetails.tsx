@@ -3,8 +3,6 @@ import { useEffect, useState } from 'react';
 import { Spinner, Chip, Link } from '@nextui-org/react';
 import { PurchaseObj } from '../app/store/zustandStore';
 import axios from 'axios';
-import { db } from '@/lib/firebase'; 
-import { doc, getDoc } from 'firebase/firestore';
 
 
 interface OrderStatus {
@@ -96,6 +94,7 @@ const statusColorMap = {
   processing: 'danger',
   canceled: 'light',
 };
+
 
 export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
   const [orderStatus, setOrderStatus] = useState<OrderStatus | null>(null);
@@ -237,22 +236,25 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
     }
   };
 
-  const fetchUserFirestoreData = async (uuid: string): Promise<UserFirestoreData | null> => {
-    try {
-      const userDocRef = doc(db, 'UserData', uuid);
-      const userDocSnap = await getDoc(userDocRef);
-
-      if (userDocSnap.exists()) {
-        const userData = userDocSnap.data() as UserFirestoreData;
-        console.log(userData)
-        return userData;
-        }
-      return null;
-    } catch (error) {
-      console.error(`Error fetching Firestore data for user ${uuid}:`, error);
-      return null;
+const fetchUserFirestoreData = async (uuid: string): Promise<UserFirestoreData | null> => {
+  try {
+    const response = await fetch(`/api/userData/${uuid}`);
+    console.log(response)
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error('Failed to fetch user data');
     }
-  };
+
+    const userData = await response.json();
+    return userData as UserFirestoreData;
+  } catch (error) {
+    console.error(`Error fetching Firestore data for user ${uuid}:`, error);
+    return null;
+  }
+};
 
   const fetchActivationRecord = async () => {
     try {
