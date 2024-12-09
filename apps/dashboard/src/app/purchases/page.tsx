@@ -8,6 +8,7 @@ import usePurchaseStore from '../store/zustandStore';
 import { useRouter } from 'next/navigation';
 import { usePurchasesData } from '../hooks';
 
+
 export default function Purshases() {
   const { purchases, setPurchases, setError, currentPage, setCurrentPage, reset } =
     usePurchaseStore();
@@ -19,6 +20,9 @@ export default function Purshases() {
 
   useEffect(() => {
     router.refresh();
+  }, []);
+
+  useEffect(() => {
     if (data) {
       setPurchases(data.purchases);
       if (data.currentPage !== 1) {

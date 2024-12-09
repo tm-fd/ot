@@ -5,12 +5,33 @@ import { PurchaseObj } from '../app/store/zustandStore';
 import axios from 'axios';
 
 
-// Type definitions (unchanged from previous version)
 interface OrderStatus {
   id: number;
   order_id: string;
   purchase_id: number | null;
   status: string;
+}
+
+interface UserFirestoreData {
+  Email?: string;
+  FirstName?: string;
+}
+
+interface ActivationRecord {
+  id: number;
+  purchase_id: number;
+  activation_date: string;
+  updated_at: string;
+  user_id: number;
+  user: {
+    id: number;
+    uuid: string;
+    registered_on: string;
+    starred: boolean;
+    type: string;
+    deleted: boolean;
+  };
+  firestoreData?: UserFirestoreData;
 }
 
 interface OrderShipping {
@@ -33,7 +54,6 @@ interface ShippingStatusInfo {
   color: 'warning' | 'primary' | 'secondary' | 'default';
 }
 
-// Utility function to map shipping status (unchanged)
 const getShippingStatusInfo = (trackingStatus: string): ShippingStatusInfo => {
   const statusMap: Record<string, ShippingStatusInfo> = {
     'Electronic shipping instruction received': {
@@ -75,8 +95,8 @@ const statusColorMap = {
   canceled: 'light',
 };
 
+
 export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
-  // State management
   const [orderStatus, setOrderStatus] = useState<OrderStatus | null>(null);
   const [orderShipping, setOrderShipping] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -84,14 +104,17 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
   const [shippingError, setShippingError] = useState<string | null>(null);
   const [orderEmail, setOrderEmail] = useState<string | null>(null);
   const [orderEmailError, setOrderEmailError] = useState<string | null>(null);
+  const [activationRecords, setActivationRecords] = useState<
+    ActivationRecord[]
+  >([]);
+  const [activationError, setActivationError] = useState<string | null>(null);
 
-  
-  
   useEffect(() => {
     const fetchOrderInformation = async () => {
       setIsLoading(true);
       setOrderStatusError(null);
       setShippingError(null);
+      setActivationError(null);
 
       try {
         // Fetch order status
@@ -110,6 +133,12 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
         await fetchOrderShipping();
       } catch (err) {
         console.error('Error fetching shipping information:', err);
+      }
+      try {
+        // Fetch activation record
+        await fetchActivationRecord();
+      } catch (err) {
+        console.error('Error fetching activation record:', err);
       } finally {
         setIsLoading(false);
       }
@@ -189,22 +218,77 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
       }
 
       const data = await response.json();
-      if (data.length === 0) {
-        throw new Error('No emails found');
-      } else {
-        const sentEmails = data.filter(
-          (emailObj) => emailObj.ContactAlt === purchase.email.toLowerCase()
-        );
-        const emailStatus = sentEmails.find(
-          (email) =>
-            email.Subject === 'Tack för din order från imvi labs!' ||
-            email.Subject.includes('förnyelseorder')
-        )?.Status;
-        setOrderEmail(emailStatus);
+      const sentEmails = data.filter(
+        (emailObj) => emailObj.ContactAlt === purchase.email.toLowerCase()
+      );
+      if (sentEmails.length === 0) {
+        setOrderEmailError('No emails found');
       }
+      const emailStatus = sentEmails.find(
+        (email) =>
+          email.Subject === 'Tack för din order från imvi labs!' ||
+          email.Subject.includes('förnyelseorder')
+      )?.Status;
+      setOrderEmail(emailStatus);
     } catch (error) {
-      console.error('Error:', error);
+      console.log('Error:', error);
       setOrderEmailError(error.message);
+    }
+  };
+
+const fetchUserFirestoreData = async (uuid: string): Promise<UserFirestoreData | null> => {
+  try {
+    const response = await fetch(`/api/userData/${uuid}`);
+    console.log(response)
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error('Failed to fetch user data');
+    }
+
+    const userData = await response.json();
+    return userData as UserFirestoreData;
+  } catch (error) {
+    console.error(`Error fetching Firestore data for user ${uuid}:`, error);
+    return null;
+  }
+};
+
+  const fetchActivationRecord = async () => {
+    try {
+      const purchaseId = Number(purchase.id);
+      const res = await fetch(
+        `${process.env.CLOUDRUN_DEV_URL}/purchases/activations/${purchaseId}`,
+        {
+          cache: 'no-store',
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error(
+          `No activation records found for purchase ID ${purchaseId}`
+        );
+      }
+
+      const response = await res.json();
+      if (response && Array.isArray(response)) {
+        // Fetch Firestore data for each activation record
+        const recordsWithFirestoreData = await Promise.all(
+          response.map(async (record) => {
+            const firestoreData = await fetchUserFirestoreData(record.user.uuid);
+            return {
+              ...record,
+              firestoreData
+            };
+          })
+        );
+        console.log(recordsWithFirestoreData)
+        setActivationRecords(recordsWithFirestoreData);
+      }
+    } catch (err: any) {
+      setActivationError(err.message);
     }
   };
 
@@ -220,7 +304,7 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
     );
   }
 
-  // Render component
+  
   return (
     <section className="py-24">
       <div className="container flex flex-col items-center justify-start">
@@ -283,22 +367,55 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
               <p className="text-red-500">{orderEmailError}</p>
             ) : (
               <div>
-              Confirmation email: <Chip
-                className="capitalize"
-                color={emailStatusColorMap[orderEmail]}
-                size="sm"
-                variant="flat"
-              >
-              {orderEmail === 'sent' ? 'Delivered' : orderEmail}
-              </Chip>
+                Confirmation email:{' '}
+                <Chip
+                  className="capitalize"
+                  color={emailStatusColorMap[orderEmail]}
+                  size="sm"
+                  variant="flat"
+                >
+                  {orderEmail === 'sent' ? 'Delivered' : orderEmail}
+                </Chip>
               </div>
             )}
           </div>
         )}
 
-        {orderEmailError && (
-          <div className="flex flex-col items-center justify-center mt-4">
-            <p className="text-red-500">{orderEmailError}</p>
+        {(activationRecords.length > 0 || activationError) && (
+          <div className="flex flex-col items-center justify-center mb-4">
+            {activationError ? (
+              <p className="text-red-500">{activationError}</p>
+            ) : (
+              <div className="text-center">
+                <p className="font-medium mb-2">Activation Details</p>
+                <div className="space-y-4">
+                  {activationRecords.map((record, index) => (
+                    <div 
+                      key={record.id}
+                      className="text-sm border rounded-lg p-4 bg-gray-50"
+                    >
+                      <div className="space-y-2">
+                        <p>
+                          Activated on:{' '}
+                          {new Date(record.activation_date).toLocaleDateString()}
+                        </p>
+                        <p>User ID: {record.user.uuid}</p>
+                        {record.firestoreData && (
+                          <div className="mt-2 space-y-1">
+                            {record.firestoreData.FirstName && (
+                              <p>Name: {record.firestoreData.FirstName}</p>
+                            )}
+                            {record.firestoreData.Email && (
+                              <p>Email: {record.firestoreData.Email}</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
