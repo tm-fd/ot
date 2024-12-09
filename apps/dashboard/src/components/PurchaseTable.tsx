@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   Table,
   TableHeader,
@@ -11,8 +11,6 @@ import {
   Input,
   Pagination,
   SortDescriptor,
-  Button,
-  Spinner,
 } from '@nextui-org/react';
 
 import { Purchase, columns, renderCell } from '../app/purchases/columns';
@@ -21,9 +19,12 @@ import usePurchaseStore from '../app/store/zustandStore';
 import { usePurchasesData } from '@/app/hooks';
 
 export default function PurchaseTable() {
-  const { currentPage, setCurrentPage, purchases } = usePurchaseStore();
+  const { currentPage, purchases } = usePurchaseStore();
   const [filterValue, setFilterValue] = useState('');
-  const [selectionBehavior, setSelectionBehavior] = useState('replace');
+  const { data, isLoading, error, mutate } = usePurchasesData({
+    limit: 370,
+    page: currentPage,
+  });
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -120,9 +121,6 @@ export default function PurchaseTable() {
   }, [filterValue, onSearchChange, onClear]);
 
   const handlePaginationChange = (page) => {
-    const isLastPage = page === pages;
-    if (isLastPage && currentPage > 0) {
-    }
     setPage(page);
   };
 
