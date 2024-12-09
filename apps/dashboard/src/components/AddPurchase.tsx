@@ -19,7 +19,7 @@ import axios from 'axios';
 import cryptoRandomString from 'crypto-random-string';
 import Joi from 'joi';
 import { motion, AnimatePresence } from 'framer-motion';
-import useSWR, { mutate } from 'swr';
+import { mutate } from 'swr';
 
 
 export default function AddPurchase() {
