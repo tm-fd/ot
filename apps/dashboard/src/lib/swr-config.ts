@@ -2,7 +2,8 @@ import { fetchPurchases } from './client';
 
 export const swrConfig = {
   fetcher: (args) => fetchPurchases(args),
-  revalidateOnFocus: false,
+  revalidateOnFocus: true,
   revalidateOnReconnect: true,
-  dedupingInterval: 5000,
+  revalidateIfStale: true,
+  refreshInterval: 600000
 };

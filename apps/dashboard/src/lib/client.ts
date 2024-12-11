@@ -10,7 +10,7 @@ const createQueryString = (params?: Record<string, string | number>) => {
 export const fetchPurchases = async ({url, params}) => {
     const qp = createQueryString(params);
     try {
-      const res = await fetch(`${url}${qp}`, { cache: 'no-store' });
+      const res = await fetch(`${process.env.CLOUDRUN_DEV_URL}/purchases/all-purchases${qp}`, { cache: 'no-store' });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }

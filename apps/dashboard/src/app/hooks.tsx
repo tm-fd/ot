@@ -5,7 +5,7 @@ import { PurchaseObj } from './store/zustandStore';
 
 export function usePurchasesData(params) {
   const { data, error, isLoading, mutate } = useSWR(
-    {url: `${process.env.CLOUDRUN_DEV_URL}/purchases/all-purchases`, params}
+    {url: `/purchases`, params},
   );
 
   return {

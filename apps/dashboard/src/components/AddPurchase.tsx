@@ -19,10 +19,16 @@ import axios from 'axios';
 import cryptoRandomString from 'crypto-random-string';
 import Joi from 'joi';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mutate } from 'swr';
+import { useSWRConfig } from 'swr'
 
 
-export default function AddPurchase() {
+
+
+
+
+
+export default function AddPurchase({ currentPage }) {
+  const { mutate } = useSWRConfig()
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [duration, setDuration] = useState('');
   const startPackage = [
@@ -63,7 +69,7 @@ export default function AddPurchase() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMessage, setErorrMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
+  
   const handleSelectionChange = (e: any) => {
     setDuration(e.target.value);
   };
@@ -139,14 +145,14 @@ export default function AddPurchase() {
         return;
       });
     if (res && res.status == 200) {
-       setLoading(false);
-      setIsSubmitted(true);
-      mutate('/purchases');
-      setErorrMessage('The purchase has been added successfully');
-      setTimeout(() => {
-        setErorrMessage(null);
-        setIsSubmitted(false);
-      }, 4000);
+        setLoading(false);
+        setIsSubmitted(true);
+        mutate('/purchases');
+        setErorrMessage('The purchase has been added successfully');
+        setTimeout(() => {
+          setErorrMessage(null);
+          setIsSubmitted(false);
+        }, 4000);
     } else if(res && res.status !== 200){ 
       setLoading(false);
       setErorrMessage(`Error: Somthing went wrong, response status code  ${res.status}`);

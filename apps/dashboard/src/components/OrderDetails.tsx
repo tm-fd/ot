@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Spinner, Chip, Link } from '@nextui-org/react';
+import { Spinner, Chip, Link, Divider } from '@nextui-org/react';
 import { PurchaseObj } from '../app/store/zustandStore';
 import axios from 'axios';
+import ActivationRecords from './ActivationRecords';
 
 
 interface OrderStatus {
@@ -236,25 +237,25 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
     }
   };
 
-const fetchUserFirestoreData = async (uuid: string): Promise<UserFirestoreData | null> => {
-  try {
-    const response = await fetch(`/api/userData/${uuid}`);
-    console.log(response)
-    
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null;
+  const fetchUserFirestoreData = async (uuid: string): Promise<UserFirestoreData | null> => {
+    try {
+      const response = await fetch(`/api/userData/${uuid}`);
+      console.log(response)
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
+        throw new Error('Failed to fetch user data');
       }
-      throw new Error('Failed to fetch user data');
+  
+      const userData = await response.json();
+      return userData as UserFirestoreData;
+    } catch (error) {
+      console.error(`Error fetching Firestore data for user ${uuid}:`, error);
+      return null;
     }
-
-    const userData = await response.json();
-    return userData as UserFirestoreData;
-  } catch (error) {
-    console.error(`Error fetching Firestore data for user ${uuid}:`, error);
-    return null;
-  }
-};
+  };
 
   const fetchActivationRecord = async () => {
     try {
@@ -265,23 +266,23 @@ const fetchUserFirestoreData = async (uuid: string): Promise<UserFirestoreData |
           cache: 'no-store',
         }
       );
-
       if (!res.ok) {
         throw new Error(
           `No activation records found for purchase ID ${purchaseId}`
         );
       }
-
       const response = await res.json();
       if (response && Array.isArray(response)) {
         // Fetch Firestore data for each activation record
         const recordsWithFirestoreData = await Promise.all(
           response.map(async (record) => {
+            if(record?.user_id){
             const firestoreData = await fetchUserFirestoreData(record.user.uuid);
             return {
               ...record,
               firestoreData
             };
+          }
           })
         );
         console.log(recordsWithFirestoreData)
@@ -306,8 +307,8 @@ const fetchUserFirestoreData = async (uuid: string): Promise<UserFirestoreData |
 
   
   return (
-    <section className="py-24">
-      <div className="container flex flex-col items-center justify-start">
+    <section className="pb-12">
+      <div className="container flex flex-col items-start justify-start">
         {/* Order Status Section */}
         {(orderStatus || orderStatusError) && (
           <div className="flex flex-col items-center justify-center mb-4">
@@ -318,9 +319,27 @@ const fetchUserFirestoreData = async (uuid: string): Promise<UserFirestoreData |
             )}
           </div>
         )}
-
-        {/* Shipping Information Section */}
-        {orderShipping && (
+        {(orderEmail || orderEmailError) && (
+          <div className="flex flex-col items-center justify-center mb-4">
+            {orderEmailError ? (
+              <p className="text-red-500">{orderEmailError}</p>
+            ) : (
+              <div>
+                Confirmation email:{' '}
+                <Chip
+                  className="capitalize"
+                  color={emailStatusColorMap[orderEmail]}
+                  size="sm"
+                  variant="flat"
+                >
+                  {orderEmail === 'sent' ? 'Delivered' : orderEmail}
+                </Chip>
+              </div>
+            )}
+          </div>
+        )}
+{/* Shipping Information Section */}
+{orderShipping && (
           <div className="flex flex-col items-center justify-center mb-4">
             {getShippingStatusInfo(orderShipping.statusText.header).status !==
               'Not shippable' && (
@@ -353,70 +372,20 @@ const fetchUserFirestoreData = async (uuid: string): Promise<UserFirestoreData |
             )}
           </div>
         )}
-
+        
         {/* Shipping Error Section */}
         {shippingError && (
-          <div className="flex flex-col items-center justify-center mb-4">
+          <div className="flex flex-col items-center justify-center mb-8">
             <p className="text-red-500">{shippingError}</p>
           </div>
         )}
-
-        {(orderEmail || orderEmailError) && (
-          <div className="flex flex-col items-center justify-center mb-4">
-            {orderEmailError ? (
-              <p className="text-red-500">{orderEmailError}</p>
-            ) : (
-              <div>
-                Confirmation email:{' '}
-                <Chip
-                  className="capitalize"
-                  color={emailStatusColorMap[orderEmail]}
-                  size="sm"
-                  variant="flat"
-                >
-                  {orderEmail === 'sent' ? 'Delivered' : orderEmail}
-                </Chip>
-              </div>
-            )}
-          </div>
-        )}
-
+      <Divider className="my-4" />
+        {/* Activation Records Section */}
         {(activationRecords.length > 0 || activationError) && (
-          <div className="flex flex-col items-center justify-center mb-4">
-            {activationError ? (
-              <p className="text-red-500">{activationError}</p>
-            ) : (
-              <div className="text-center">
-                <p className="font-medium mb-2">Activation Details</p>
-                <div className="space-y-4">
-                  {activationRecords.map((record, index) => (
-                    <div 
-                      key={record.id}
-                      className="text-sm border rounded-lg p-4 bg-gray-50"
-                    >
-                      <div className="space-y-2">
-                        <p>
-                          Activated on:{' '}
-                          {new Date(record.activation_date).toLocaleDateString()}
-                        </p>
-                        <p>User ID: {record.user.uuid}</p>
-                        {record.firestoreData && (
-                          <div className="mt-2 space-y-1">
-                            {record.firestoreData.FirstName && (
-                              <p>Name: {record.firestoreData.FirstName}</p>
-                            )}
-                            {record.firestoreData.Email && (
-                              <p>Email: {record.firestoreData.Email}</p>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          <ActivationRecords 
+            activationRecords={activationRecords}
+            activationError={activationError}
+          />
         )}
       </div>
     </section>

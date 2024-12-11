@@ -111,11 +111,11 @@ export default function UserPurchaseDetails({
             <EditIcon />
           </span>
         </Tooltip>
-        <Tooltip color="danger" content="Delete purchase">
+        {/* <Tooltip color="danger" content="Delete purchase">
           <span className="text-lg text-danger cursor-pointer active:opacity-50">
             <DeleteIcon />
           </span>
-        </Tooltip>
+        </Tooltip> */}
       </div>
       {loading && (
         <Modal
@@ -145,6 +145,7 @@ export default function UserPurchaseDetails({
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         placement="top-center"
+        scrollBehavior={"inside"}
       >
         <ModalContent>
           {(onClose) => (
@@ -264,12 +265,12 @@ export default function UserPurchaseDetails({
                 </Button>
                   {isEditing && (
                     <Button
-                      color="secondary"
                       disabled={loading}
                       onClick={handleSave}
                       isLoading={loading}
+                      className="bg-blue-700"
                     >
-                      Save Changes
+                      Save
                     </Button>
                   )}
                 
