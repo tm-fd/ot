@@ -5,4 +5,5 @@ export const swrConfig = {
   revalidateOnFocus: true,
   revalidateOnReconnect: true,
   revalidateIfStale: true,
+  refreshInterval: 600000
 };
