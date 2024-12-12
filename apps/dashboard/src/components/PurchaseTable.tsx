@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { use, useCallback, useMemo, useState, useEffect } from 'react';
 import {
   Table,
   TableHeader,
@@ -15,7 +15,7 @@ import {
 
 import { Purchase, columns, renderCell } from '../app/purchases/columns';
 import { SearchIcon } from './icons';
-import usePurchaseStore from '../app/store/zustandStore';
+import usePurchaseStore from '../app/store/purchaseStore';
 import { usePurchasesData } from '@/app/hooks';
 
 export default function PurchaseTable() {
@@ -25,6 +25,8 @@ export default function PurchaseTable() {
     limit: 370,
     page: currentPage,
   });
+
+  
 
   const hasSearchFilter = Boolean(filterValue);
 

@@ -10,7 +10,9 @@ import {
   TableCell,
   Input,
 } from '@nextui-org/react';
-import { SearchIcon } from './icons'; // Make sure to import or create this icon
+import { SearchIcon } from './icons';
+import { useActivationStore } from '@/app/store/purchaseActivactionsStore';
+
 
 interface UserFirestoreData {
   Email?: string;
@@ -40,10 +42,12 @@ interface ActivationRecordsProps {
   isLoading?: boolean;
 }
 
-export default function ActivationRecords({
-  activationRecords,
-  activationError,
-}: ActivationRecordsProps) {
+export default function ActivationRecords() {
+  const { 
+    activationRecords, 
+    activationError,
+    isLoadingActivations 
+  } = useActivationStore();
   const [filterValue, setFilterValue] = useState('');
   const columns = [
     { name: 'NAME', uid: 'name' },
@@ -58,7 +62,7 @@ export default function ActivationRecords({
     if (filterValue) {
       filteredRecords = filteredRecords.filter((record) => {
         const searchValue = filterValue.toLowerCase();
-        if (record) {
+        if (record && record.user) {
           return (
             new Date(record.activation_date)
               .toLocaleDateString()
@@ -75,7 +79,6 @@ export default function ActivationRecords({
         }
       });
     }
-
     return filteredRecords;
   }, [activationRecords, filterValue]);
 
@@ -100,6 +103,9 @@ export default function ActivationRecords({
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">
             Total {filteredItems.length} activation records
+          </span>
+          <span className="text-small text-secondary-500">
+             {filteredItems.filter((record) => record.user_id).length} have completed registration
           </span>
         </div>
       </div>
@@ -143,8 +149,8 @@ export default function ActivationRecords({
               items={filteredItems}
               emptyContent={'No activation records found'}
             >
-              {(record) => (
-                <TableRow key={record.id}>
+              {(record) =>  ( 
+                 <TableRow key={record.id}>
                   <TableCell>
                     {record.firestoreData?.FirstName || '-'}
                   </TableCell>
@@ -153,17 +159,20 @@ export default function ActivationRecords({
                     {new Date(record.activation_date).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
+                  {record.user ?
                     <Link
                       isExternal
                       color="primary"
-                      href={`${process.env.IMVI_USERS_URL}/${record.user.uuid}`}
+                      href={`${process.env.IMVI_USERS_URL}/${record.user?.uuid}`}
                       className="text-xs"
                     >
-                      {record.user.uuid}
+                      {record.user?.uuid}
                     </Link>
+                   :  'The registration is not completed'
+                    }
                   </TableCell>
                 </TableRow>
-              )}
+      )}
             </TableBody>
           </Table>
         </div>

@@ -1,9 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Spinner, Chip, Link, Divider } from '@nextui-org/react';
-import { PurchaseObj } from '../app/store/zustandStore';
+import { PurchaseObj } from '../app/store/purchaseStore';
 import axios from 'axios';
 import ActivationRecords from './ActivationRecords';
+import { useActivationStore } from '@/app/store/purchaseActivactionsStore';
+
 
 
 interface OrderStatus {
@@ -109,6 +111,10 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
     ActivationRecord[]
   >([]);
   const [activationError, setActivationError] = useState<string | null>(null);
+  const { 
+    fetchActivationRecord,
+    clearActivationRecords
+  } = useActivationStore();
 
   useEffect(() => {
     const fetchOrderInformation = async () => {
@@ -137,7 +143,7 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
       }
       try {
         // Fetch activation record
-        await fetchActivationRecord();
+        await fetchActivationRecord(Number(purchase.id));
       } catch (err) {
         console.error('Error fetching activation record:', err);
       } finally {
@@ -146,7 +152,11 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
     };
 
     fetchOrderInformation();
-  }, [purchase]);
+
+    return () => {
+      clearActivationRecords();
+    };
+  }, [purchase, fetchActivationRecord, clearActivationRecords]);
 
   // Fetch order status
   const fetchOrderStatus = async () => {
@@ -257,41 +267,41 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
     }
   };
 
-  const fetchActivationRecord = async () => {
-    try {
-      const purchaseId = Number(purchase.id);
-      const res = await fetch(
-        `${process.env.CLOUDRUN_DEV_URL}/purchases/activations/${purchaseId}`,
-        {
-          cache: 'no-store',
-        }
-      );
-      if (!res.ok) {
-        throw new Error(
-          `No activation records found for purchase ID ${purchaseId}`
-        );
-      }
-      const response = await res.json();
-      if (response && Array.isArray(response)) {
-        // Fetch Firestore data for each activation record
-        const recordsWithFirestoreData = await Promise.all(
-          response.map(async (record) => {
-            if(record?.user_id){
-            const firestoreData = await fetchUserFirestoreData(record.user.uuid);
-            return {
-              ...record,
-              firestoreData
-            };
-          }
-          })
-        );
-        console.log(recordsWithFirestoreData)
-        setActivationRecords(recordsWithFirestoreData);
-      }
-    } catch (err: any) {
-      setActivationError(err.message);
-    }
-  };
+  // const fetchActivationRecord = async () => {
+  //   try {
+  //     const purchaseId = Number(purchase.id);
+  //     const res = await fetch(
+  //       `${process.env.CLOUDRUN_DEV_URL}/purchases/activations/${purchaseId}`,
+  //       {
+  //         cache: 'no-store',
+  //       }
+  //     );
+  //     if (!res.ok) {
+  //       throw new Error(
+  //         `No activation records found for purchase ID ${purchaseId}`
+  //       );
+  //     }
+  //     const response = await res.json();
+  //     if (response && Array.isArray(response)) {
+  //       // Fetch Firestore data for each activation record
+  //       const recordsWithFirestoreData = await Promise.all(
+  //         response.map(async (record) => {
+  //           if(record?.user_id){
+  //           const firestoreData = await fetchUserFirestoreData(record.user.uuid);
+  //           return {
+  //             ...record,
+  //             firestoreData
+  //           };
+  //         }
+  //         })
+  //       );
+  //       console.log(recordsWithFirestoreData)
+  //       setActivationRecords(recordsWithFirestoreData);
+  //     }
+  //   } catch (err: any) {
+  //     setActivationError(err.message);
+  //   }
+  // };
 
   // Render loading state
   if (isLoading) {
@@ -380,13 +390,7 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
           </div>
         )}
       <Divider className="my-4" />
-        {/* Activation Records Section */}
-        {(activationRecords.length > 0 || activationError) && (
-          <ActivationRecords 
-            activationRecords={activationRecords}
-            activationError={activationError}
-          />
-        )}
+          <ActivationRecords />
       </div>
     </section>
   );

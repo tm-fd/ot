@@ -20,7 +20,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { VerticalDotsIcon } from './VerticalDotsIcon';
 import OrderDetails from './OrderDetails';
-import { PurchaseObj } from '../app/store/zustandStore';
+import { PurchaseObj } from '../app/store/purchaseStore';
 import { EditIcon, DeleteIcon, EyeIcon } from './icons';
 import { useEditPurchase } from '@/app/hooks';
 import { mutate } from 'swr';
