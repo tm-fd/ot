@@ -9,9 +9,16 @@ import {
   TableRow,
   TableCell,
   Input,
+  Selection,
+  DropdownTrigger,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem,
+  Button
 } from '@nextui-org/react';
 import { SearchIcon } from './icons';
 import { useActivationStore } from '@/app/store/purchaseActivactionsStore';
+import { ChevronDownIcon } from './icons';
 
 
 interface UserFirestoreData {
@@ -42,6 +49,13 @@ interface ActivationRecordsProps {
   isLoading?: boolean;
 }
 
+interface FirestoreTimestamp {
+  _seconds: number;
+  _nanoseconds: number;
+}
+
+
+
 export default function ActivationRecords() {
   const { 
     activationRecords, 
@@ -49,12 +63,43 @@ export default function ActivationRecords() {
     isLoadingActivations 
   } = useActivationStore();
   const [filterValue, setFilterValue] = useState('');
+  const [statusFilter, setStatusFilter] = useState<Selection>("all");
+
+  const statusOptions = [
+    {name: "Active", uid: "active"},
+    {name: "Inactive", uid: "inactive"},
+  ];
+
   const columns = [
     { name: 'NAME', uid: 'name' },
     { name: 'EMAIL', uid: 'email' },
     { name: 'ACTIVATION DATE', uid: 'activation_date' },
     { name: 'USER ID', uid: 'user_id' },
   ];
+
+  const capitalize =(s: string) => {
+    return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
+  }
+
+
+  const checkActiveOrNot = date => {
+    if (date && checkDateisAfterToday(date)) {
+      return "Active";
+    } else {
+      return "Inactive";
+    }
+  };
+
+  const checkDateisAfterToday = (firestoreTimestamp: FirestoreTimestamp): boolean => {
+    const inputDate = new Date(firestoreTimestamp._seconds * 1000);
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+    inputDate.setHours(0, 0, 0, 0);
+    console.log(inputDate, today, inputDate > today);
+    return inputDate > today;
+  }; 
+
 
   const filteredItems = useMemo(() => {
     let filteredRecords = [...activationRecords];
@@ -79,14 +124,27 @@ export default function ActivationRecords() {
         }
       });
     }
+
+    if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
+      filteredRecords = filteredRecords.filter((record) => {
+        if (!record?.firestoreData?.ValidTill) return false;
+        
+        const status = checkActiveOrNot(record.firestoreData.ValidTill);
+        const selectedStatus = Array.from(statusFilter)[0]?.toLowerCase();
+        console.log(Array.from(statusFilter)[0])
+        return status.toLowerCase() === selectedStatus;
+      });
+    }
     return filteredRecords;
-  }, [activationRecords, filterValue]);
+  }, [activationRecords, filterValue, statusFilter]);
+
+  
 
   const onSearchChange = (value: string) => {
     setFilterValue(value);
   };
 
-  const renderTopContent = () => {
+  const renderTopContent = useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3 items-end">
@@ -97,8 +155,28 @@ export default function ActivationRecords() {
             startContent={<SearchIcon className="text-default-300" />}
             value={filterValue}
             onValueChange={onSearchChange}
-            size="sm"
           />
+              <Dropdown>
+              <DropdownTrigger className="hidden sm:flex">
+                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
+                  Status
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label="Table Columns"
+                closeOnSelect={false}
+                selectedKeys={statusFilter}
+                selectionMode="multiple"
+                onSelectionChange={setStatusFilter}
+              >
+                {statusOptions.map((status) => (
+                  <DropdownItem key={status.uid} className="capitalize">
+                    {capitalize(status.name)}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">
@@ -110,7 +188,10 @@ export default function ActivationRecords() {
         </div>
       </div>
     );
-  };
+  }, [
+    filterValue,
+    statusFilter,
+  ]);;
 
   return (
     <div className="w-full mb-4">
@@ -127,7 +208,7 @@ export default function ActivationRecords() {
               th: 'bg-gray-50',
               td: 'py-3',
             }}
-            topContent={renderTopContent()}
+            topContent={renderTopContent}
             topContentPlacement="outside"
             selectionMode="none"
             bordered
