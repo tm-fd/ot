@@ -2,7 +2,7 @@ import { Chip, Link } from '@nextui-org/react';
 import { DeleteIcon, EditIcon, EyeIcon } from '../../components/icons';
 import Purchase from '../../components/Purchase';
 import Actions from '../../components/Actions';
-import { ZPurchase, PurchaseObj } from '../store/zustandStore';
+import { ZPurchase, PurchaseObj } from '../store/purchaseStore';
 
 
 export const columns = [

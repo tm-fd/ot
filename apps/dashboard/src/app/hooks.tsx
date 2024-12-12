@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import { PurchaseObj } from './store/zustandStore';
+import { PurchaseObj } from './store/purchaseStore';
 
  
 

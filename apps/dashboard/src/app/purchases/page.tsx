@@ -1,10 +1,10 @@
 'use client';
 import { use, useEffect, useState } from 'react';
 import PurchaseTable from '../../components/PurchaseTable';
-import { ZPurchase } from '../store/zustandStore';
+import { ZPurchase } from '../store/purchaseStore';
 import { Spinner } from '@nextui-org/react';
 import AddPurchase from '../../components/AddPurchase';
-import usePurchaseStore from '../store/zustandStore';
+import usePurchaseStore from '../store/purchaseStore';
 import { useRouter } from 'next/navigation';
 import { usePurchasesData } from '../hooks';
 import useSWR from 'swr'

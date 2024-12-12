@@ -6,7 +6,7 @@ import { EyeSlashFilledIcon, EyeFilledIcon } from '@/components/icons';
 import { doCredentialLogin } from '@/actions';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
-import usePurchaseStore from '@/app/store/zustandStore';
+import usePurchaseStore from '@/app/store/purchaseStore';
 
 export default function SignIn() {
   const [isVisible, setIsVisible] = React.useState(false);
