@@ -63,7 +63,7 @@ export default function ActivationRecords() {
     isLoadingActivations 
   } = useActivationStore();
   const [filterValue, setFilterValue] = useState('');
-  const [statusFilter, setStatusFilter] = useState<Selection>("all");
+  const [statusFilter, setStatusFilter] = useState<Selection>(new Set(["active"]));
 
   const statusOptions = [
     {name: "Active", uid: "active"},
