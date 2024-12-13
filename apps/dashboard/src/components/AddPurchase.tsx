@@ -200,7 +200,7 @@ export default function AddPurchase({ currentPage }) {
         </Modal>
       )}
       <Modal
-        size="full"
+        size="lg"
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         placement="top-center"
@@ -234,7 +234,7 @@ export default function AddPurchase({ currentPage }) {
                 )}
               </AnimatePresence>
               </div>
-              <ModalBody className="pt-14">
+              <ModalBody className="pt-5">
                 <Input
                   autoFocus
                   label="Email"
