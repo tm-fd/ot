@@ -95,27 +95,21 @@ export default function UserPurchaseDetails({
   return (
     <>
       <div className="relative flex items-center gap-2">
-        <Tooltip content="Details">
           <span
             onClick={handleViewClick}
             className="text-lg text-default-400 cursor-pointer active:opacity-50"
           >
             <EyeIcon />
           </span>
-        </Tooltip>
-        <Tooltip content="Edit purchase">
           <span
             onClick={handleEditClick}
             className="text-lg text-default-400 cursor-pointer active:opacity-50"
           >
             <EditIcon />
           </span>
-        </Tooltip>
-        {/* <Tooltip color="danger" content="Delete purchase">
-          <span className="text-lg text-danger cursor-pointer active:opacity-50">
+          {/* <span className="text-lg text-danger cursor-pointer active:opacity-50">
             <DeleteIcon />
-          </span>
-        </Tooltip> */}
+          </span> */}
       </div>
       {loading && (
         <Modal

@@ -267,41 +267,7 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
     }
   };
 
-  // const fetchActivationRecord = async () => {
-  //   try {
-  //     const purchaseId = Number(purchase.id);
-  //     const res = await fetch(
-  //       `${process.env.CLOUDRUN_DEV_URL}/purchases/activations/${purchaseId}`,
-  //       {
-  //         cache: 'no-store',
-  //       }
-  //     );
-  //     if (!res.ok) {
-  //       throw new Error(
-  //         `No activation records found for purchase ID ${purchaseId}`
-  //       );
-  //     }
-  //     const response = await res.json();
-  //     if (response && Array.isArray(response)) {
-  //       // Fetch Firestore data for each activation record
-  //       const recordsWithFirestoreData = await Promise.all(
-  //         response.map(async (record) => {
-  //           if(record?.user_id){
-  //           const firestoreData = await fetchUserFirestoreData(record.user.uuid);
-  //           return {
-  //             ...record,
-  //             firestoreData
-  //           };
-  //         }
-  //         })
-  //       );
-  //       console.log(recordsWithFirestoreData)
-  //       setActivationRecords(recordsWithFirestoreData);
-  //     }
-  //   } catch (err: any) {
-  //     setActivationError(err.message);
-  //   }
-  // };
+  
 
   // Render loading state
   if (isLoading) {
