@@ -19,16 +19,10 @@ import axios from 'axios';
 import cryptoRandomString from 'crypto-random-string';
 import Joi from 'joi';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSWRConfig } from 'swr'
-
-
-
-
-
-
+import { useSWRConfig } from 'swr';
 
 export default function AddPurchase({ currentPage }) {
-  const { mutate } = useSWRConfig()
+  const { mutate } = useSWRConfig();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [duration, setDuration] = useState('');
   const startPackage = [
@@ -60,16 +54,17 @@ export default function AddPurchase({ currentPage }) {
       label: '12 months',
     },
   ];
-  const [email, setEmail] = useState("");
-  const [firstName, setFistname] = useState("");
-  const [lastName, setLastname] = useState("");
-  const [numberOfVrGlasses, setNumberOfVrGlasses] = useState("");
-  const [numberOfLicenses, setNumberOfLicenses] = useState("");
+  const [email, setEmail] = useState('');
+  const [firstName, setFistname] = useState('');
+  const [lastName, setLastname] = useState('');
+  const [numberOfVrGlasses, setNumberOfVrGlasses] = useState('');
+  const [numberOfLicenses, setNumberOfLicenses] = useState('');
   const [isSubscription, setIsSubscription] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [errorMessage, setErorrMessage] = useState("");
+  const [errorMessage, setErorrMessage] = useState('');
+  const [additionalInfo, setAdditionalInfo] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const handleSelectionChange = (e: any) => {
     setDuration(e.target.value);
   };
@@ -79,33 +74,32 @@ export default function AddPurchase({ currentPage }) {
       email: Joi.string()
         .email({ minDomainSegments: 2, tlds: { allow: false } })
         .required()
-        .trim().messages({
-          "string.email": `Enmail must be valid`,
-          "string.required": `Email is required`,
-      }),
-      firstName: Joi.string().required().messages({
-        "string.required": `First Name is required`,
-    }),
-      lastName: Joi.string().required().messages({
-        "string.required": `Last Name is required`,
-    }),
-      numberOfVrGlasses: Joi.number().min(0).max(1000).required().messages({
-        "number.min": `Number of VR glasses must be greater than or equal to 0`,
-        "number.required": `Number of VR glasses is required`,
-    }),
-      numberOfLicenses: Joi.number().min(1).max(1000).required().messages({
-        "number.required": `Number of Licenses is required`,
-        "number.min": `Number of Licenses must be greater than or equal to 1`,
-    }),
-      duration: Joi.number()
-        .min(1)
-        .required()
+        .trim()
         .messages({
-          "number.min": `Duration is required`,
+          'string.email': `Enmail must be valid`,
+          'string.required': `Email is required`,
+        }),
+      firstName: Joi.string().required().messages({
+        'string.required': `First Name is required`,
+      }),
+      lastName: Joi.string().required().messages({
+        'string.required': `Last Name is required`,
+      }),
+      numberOfVrGlasses: Joi.number().min(0).max(1000).required().messages({
+        'number.min': `Number of VR glasses must be greater than or equal to 0`,
+        'number.required': `Number of VR glasses is required`,
+      }),
+      numberOfLicenses: Joi.number().min(1).max(1000).required().messages({
+        'number.required': `Number of Licenses is required`,
+        'number.min': `Number of Licenses must be greater than or equal to 1`,
+      }),
+      duration: Joi.number().min(1).required().messages({
+        'number.min': `Duration is required`,
       }),
       code: Joi.string().required(),
       orderNumber: Joi.string().required(),
       isSubscription: Joi.boolean().required(),
+      additionalInfo: Joi.string().allow('').optional(),
     });
     // returns the schema and validates whatever obj we put in
     return schema.validate(obj);
@@ -127,7 +121,7 @@ export default function AddPurchase({ currentPage }) {
       orderNumber,
     };
     const { error } = JoiValidatePurchase(purchaseObj);
-    
+
     if (error) {
       setErorrMessage(error.details[0].message);
       return;
@@ -135,27 +129,78 @@ export default function AddPurchase({ currentPage }) {
       setErorrMessage(null);
       setLoading(true);
     }
-    const res = await axios.post(
+
+    try {
+      const purchaseRes = await axios.post(
         `${process.env.CLOUDRUN_DEV_URL}/purchases/addPurchase`,
         purchaseObj
-      )
-      .catch((error) => {
-        setLoading(false);
-        setErorrMessage(`Error: Somthing went wrong, please retry... ${error}`);
-        return;
-      });
-    if (res && res.status == 200) {
+      );
+
+      if (purchaseRes.status === 200) {
+        const purchaseId = purchaseRes.data.id;
+
+        if (additionalInfo) {
+          console.log('additionalInfo:', additionalInfo, purchaseId);
+          try {
+            const additionalInfoRes = await axios.post(
+              `${process.env.CLOUDRUN_DEV_URL}/purchases/additional-info/${purchaseId}`,
+              { info: additionalInfo }
+            );
+            console.log(additionalInfoRes)
+            if (additionalInfoRes.status !== 200 && additionalInfoRes.status !== 201) {
+              throw new Error('Failed to add additional info');
+            }
+          } catch (additionalInfoError) {
+            console.error('Error adding additional info:', additionalInfoError);
+            setErorrMessage(
+              'Purchase added, but failed to add additional info. Please try updating the purchase later.'
+            );
+            setLoading(false);
+            return;
+          }
+        }
+
         setLoading(false);
         setIsSubmitted(true);
-        mutate('/purchases');
+        mutate(['/purchases', {
+          limit: 370,
+          page: currentPage,
+        }]);
         setErorrMessage('The purchase has been added successfully');
+
+        // Clear form fields
+        setEmail('');
+        setFistname('');
+        setLastname('');
+        setNumberOfVrGlasses('');
+        setNumberOfLicenses('');
+        setIsSubscription(false);
+        setDuration('');
+        setAdditionalInfo('');
+
         setTimeout(() => {
           setErorrMessage(null);
           setIsSubmitted(false);
+          setAdditionalInfo(''); // Clear the additional info field
         }, 4000);
-    } else if(res && res.status !== 200){ 
+      } else {
+        throw new Error(
+          `Error: Something went wrong, response status code ${purchaseRes.status}`
+        );
+      }
+    } catch (error) {
       setLoading(false);
-      setErorrMessage(`Error: Somthing went wrong, response status code  ${res.status}`);
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        setErorrMessage(`Error: ${error.response.data.message || 'Server error'}`);
+      } else if (error.request) {
+        // The request was made but no response was received
+        setErorrMessage('Error: No response from server. Please check your internet connection.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setErorrMessage(`Error: ${error.message}`);
+      }
     }
   }, [
     email,
@@ -165,6 +210,8 @@ export default function AddPurchase({ currentPage }) {
     numberOfLicenses,
     isSubscription,
     duration,
+    additionalInfo,
+    mutate,
   ]);
 
   const handleInputChange = (e) => {
@@ -174,7 +221,7 @@ export default function AddPurchase({ currentPage }) {
   return (
     <>
       <Button onPress={onOpen} className="bg-blue-700">
-        Add user 
+        Add user
       </Button>
       {loading && (
         <Modal
@@ -192,7 +239,7 @@ export default function AddPurchase({ currentPage }) {
             {(onClose) => (
               <>
                 <ModalBody className="flex flex-col h-20">
-                  <Spinner size="lg" color='secondary' />
+                  <Spinner size="lg" color="secondary" />
                 </ModalBody>
               </>
             )}
@@ -208,31 +255,31 @@ export default function AddPurchase({ currentPage }) {
         <ModalContent>
           {(onClose) => (
             <>
-            <div className='h-20'>
-              <AnimatePresence initial={false} mode="wait">
-                {errorMessage && (
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0, y: 50, scale: 0.3 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{
-                      opacity: 0,
-                      scale: 0.5,
-                      transition: { duration: 0.2 },
-                    }}
-                  >
-                    <ModalHeader
-                      className={`flex flex-col gap-1 ${
-                        isSubmitted
-                          ? 'bg-green-500 text-green-50'
-                          : 'bg-warning-100 text-warning-700'
-                      }`}
+              <div className="h-20">
+                <AnimatePresence initial={false} mode="wait">
+                  {errorMessage && (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, y: 50, scale: 0.3 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{
+                        opacity: 0,
+                        scale: 0.5,
+                        transition: { duration: 0.2 },
+                      }}
                     >
-                      {errorMessage}
-                    </ModalHeader>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                      <ModalHeader
+                        className={`flex flex-col gap-1 ${
+                          isSubmitted
+                            ? 'bg-green-500 text-green-50'
+                            : 'bg-warning-100 text-warning-700'
+                        }`}
+                      >
+                        {errorMessage}
+                      </ModalHeader>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
               <ModalBody className="pt-5">
                 <Input
@@ -270,6 +317,14 @@ export default function AddPurchase({ currentPage }) {
                   variant="bordered"
                   value={numberOfLicenses}
                   onValueChange={setNumberOfLicenses}
+                  onChange={handleInputChange}
+                />
+                <Input
+                  autoFocus
+                  label="Additional Info"
+                  variant="bordered"
+                  value={additionalInfo}
+                  onValueChange={setAdditionalInfo}
                   onChange={handleInputChange}
                 />
                 <Checkbox

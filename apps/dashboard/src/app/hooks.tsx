@@ -1,5 +1,7 @@
 import useSWR from 'swr'
 import { PurchaseObj } from './store/purchaseStore';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
  
 
@@ -54,3 +56,67 @@ export function useEditPurchase() {
 
   return { updatePurchase };
 }
+
+// useAdditionalInfo
+interface AdditionalInfo {
+  id: number;
+  purchase_id: number;
+  info: string;
+}
+
+export const useAdditionalInfo = (purchaseId: number) => {
+  const [additionalInfos, setAdditionalInfos] = useState<AdditionalInfo[]>([]);
+  const [editedAdditionalInfos, setEditedAdditionalInfos] = useState<Record<any>>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchAdditionalInfo = async () => {
+    setError(null);
+    try {
+      const response = await axios.get(`${process.env.CLOUDRUN_DEV_URL}/purchases/additional-info/${purchaseId}`);
+      if (response.status === 200 && Array.isArray(response.data)) {
+        setAdditionalInfos(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching additional info:', error);
+      setError('No additional info');
+    }
+  };
+
+  useEffect(() => {
+    fetchAdditionalInfo();
+  }, [purchaseId]);
+
+  useEffect(() => {
+    console.log(editedAdditionalInfos)
+  }, [editedAdditionalInfos]);
+
+ 
+
+  const editAdditionalInfo = (id: number, newInfo: string) => {
+    setEditedAdditionalInfos({id, info: newInfo});
+    setAdditionalInfos((prev) => prev.map((info) => (info.id === id ? { ...info, info: newInfo } : info)));
+  };
+
+ 
+
+  const saveAdditionalInfo = async () => {
+    try {
+      await axios.patch(`${process.env.CLOUDRUN_DEV_URL}/purchases/additional-info/${editedAdditionalInfos.id}`, {
+        info: editedAdditionalInfos.info
+      });
+    } catch (error) {
+      console.error('Error saving additional info:', error);
+      throw error;
+    }
+  };
+
+  return {
+    additionalInfos,
+    error,
+    setEditedAdditionalInfos,
+    editedAdditionalInfos,
+    editAdditionalInfo,
+    saveAdditionalInfo,
+    refetchAdditionalInfo: fetchAdditionalInfo
+  };
+};

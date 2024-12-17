@@ -1,5 +1,5 @@
 'use client';
-import { use, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import PurchaseTable from '../../components/PurchaseTable';
 import { ZPurchase } from '../store/purchaseStore';
 import { Spinner } from '@nextui-org/react';
@@ -7,7 +7,7 @@ import AddPurchase from '../../components/AddPurchase';
 import usePurchaseStore from '../store/purchaseStore';
 import { useRouter } from 'next/navigation';
 import { usePurchasesData } from '../hooks';
-import useSWR from 'swr'
+import useSWR from'swr';
 
 
 
@@ -48,11 +48,11 @@ export const fetchPurchases = async (page: number) => {
 export default function Purshases() {
   const { purchases, setPurchases, setError, currentPage, setCurrentPage, reset } =
     usePurchaseStore();
-  const { data, isLoading, error, mutate } = usePurchasesData({
+  const { data, isLoading, error } = usePurchasesData({
     limit: 370,
     page: currentPage,
   });
-    // const { data, error, isLoading } = useSWR(`/purchases`, fetchPurchases);
+    //  const { data, error, isLoading } = useSWR('/purchases', page => fetchPurchases({ page: currentPage}));
 
   const router = useRouter();
 

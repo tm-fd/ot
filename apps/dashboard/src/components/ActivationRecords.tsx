@@ -96,7 +96,6 @@ export default function ActivationRecords() {
 
     today.setHours(0, 0, 0, 0);
     inputDate.setHours(0, 0, 0, 0);
-    console.log(inputDate, today, inputDate > today);
     return inputDate > today;
   }; 
 
@@ -131,7 +130,6 @@ export default function ActivationRecords() {
         
         const status = checkActiveOrNot(record.firestoreData.ValidTill);
         const selectedStatus = Array.from(statusFilter)[0]?.toLowerCase();
-        console.log(Array.from(statusFilter)[0])
         return status.toLowerCase() === selectedStatus;
       });
     }

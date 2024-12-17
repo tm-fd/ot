@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   Modal,
   ModalContent,
@@ -9,21 +9,16 @@ import {
   Button,
   useDisclosure,
   Spinner,
-  DropdownTrigger,
-  Dropdown,
-  DropdownMenu,
-  DropdownItem,
-  Tooltip,
   Input,
 } from '@nextui-org/react';
-import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { VerticalDotsIcon } from './VerticalDotsIcon';
 import OrderDetails from './OrderDetails';
 import { PurchaseObj } from '../app/store/purchaseStore';
 import { EditIcon, DeleteIcon, EyeIcon } from './icons';
 import { useEditPurchase } from '@/app/hooks';
 import { mutate } from 'swr';
+import { useAdditionalInfo } from '@/app/hooks';
+
 
 export default function UserPurchaseDetails({
   purchase,
@@ -38,6 +33,14 @@ export default function UserPurchaseDetails({
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [editedPurchase, setEditedPurchase] = useState(purchase);
   const { updatePurchase } = useEditPurchase();
+
+  const {
+    additionalInfos,
+    editAdditionalInfo,
+    saveAdditionalInfo
+  } = useAdditionalInfo(purchase.id);
+
+  
 
   const handleEditClick = () => {
     onOpen();
@@ -60,10 +63,16 @@ export default function UserPurchaseDetails({
     try {
       setLoading(true);
       const updatedPurchase = await updatePurchase(purchase.id, editedPurchase);
+        console.log(additionalInfos, editedPurchase)
+      // Update additional info
+      if (additionalInfos.length > 0) {
+        await saveAdditionalInfo();
+      }
+
       if (updatedPurchase) {
         setIsSubmitted(true);
-        setErorrMessage('The purchase has been added successfully');
-        mutate(`/purchases`);
+        setErorrMessage('The purchase has been updated successfully');
+        mutate(['/purchases', params]);
         setTimeout(() => {
           setErorrMessage(null);
           setIsSubmitted(false);
@@ -73,7 +82,7 @@ export default function UserPurchaseDetails({
       }
     } catch (error) {
       console.error('Failed to update purchase:', error);
-      setErorrMessage(`Failed to update purchase:  ${error.message}`);
+      setErorrMessage(`Failed to update purchase: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -91,23 +100,24 @@ export default function UserPurchaseDetails({
     setIsViewing(false);
     onClose();
   }, []);
+ 
 
   return (
     <>
       <div className="relative flex items-center gap-2">
-          <span
-            onClick={handleViewClick}
-            className="text-lg text-default-400 cursor-pointer active:opacity-50"
-          >
-            <EyeIcon />
-          </span>
-          <span
-            onClick={handleEditClick}
-            className="text-lg text-default-400 cursor-pointer active:opacity-50"
-          >
-            <EditIcon />
-          </span>
-          {/* <span className="text-lg text-danger cursor-pointer active:opacity-50">
+        <span
+          onClick={handleViewClick}
+          className="text-lg text-default-400 cursor-pointer active:opacity-50"
+        >
+          <EyeIcon />
+        </span>
+        <span
+          onClick={handleEditClick}
+          className="text-lg text-default-400 cursor-pointer active:opacity-50"
+        >
+          <EditIcon />
+        </span>
+        {/* <span className="text-lg text-danger cursor-pointer active:opacity-50">
             <DeleteIcon />
           </span> */}
       </div>
@@ -139,41 +149,44 @@ export default function UserPurchaseDetails({
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         placement="top-center"
-        scrollBehavior={"inside"}
+        scrollBehavior={'inside'}
       >
         <ModalContent>
           {(onClose) => (
             <>
-              {isEditing && <div className="h-20">
-                <AnimatePresence initial={false} mode="wait">
-                  {errorMessage && (
-                    <motion.div
-                      layout
-                      initial={{ opacity: 0, y: 50, scale: 0.3 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{
-                        opacity: 0,
-                        scale: 0.5,
-                        transition: { duration: 0.2 },
-                      }}
-                    >
-                      <ModalHeader
-                        className={`flex flex-col gap-1 ${
-                          isSubmitted
-                            ? 'bg-green-500 text-green-50'
-                            : 'bg-warning-100 text-warning-700'
-                        }`}
+              {isEditing && (
+                <div className="h-20">
+                  <AnimatePresence initial={false} mode="wait">
+                    {errorMessage && (
+                      <motion.div
+                        layout
+                        initial={{ opacity: 0, y: 50, scale: 0.3 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{
+                          opacity: 0,
+                          scale: 0.5,
+                          transition: { duration: 0.2 },
+                        }}
                       >
-                        {errorMessage}
-                      </ModalHeader>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>}
+                        <ModalHeader
+                          className={`flex flex-col gap-1 ${
+                            isSubmitted
+                              ? 'bg-green-500 text-green-50'
+                              : 'bg-warning-100 text-warning-700'
+                          }`}
+                        >
+                          {errorMessage}
+                        </ModalHeader>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
               <ModalBody className="pt-14">
                 <>
                   {isViewing && <OrderDetails purchase={purchase} />}
-                  {isEditing && <div className="flex flex-col gap-4 w-full">
+                  {isEditing && (
+                    <div className="flex flex-col gap-4 w-full">
                       <div className="grid grid-cols-2 gap-4">
                         {/* <Input
                               label="First Name"
@@ -225,11 +238,11 @@ export default function UserPurchaseDetails({
                           }
                         />
                         {/* <Input
-              type="number"
-              label="Number of VR Glasses"
-              value={editedPurchase.number_of_vr_glasses.toString()}
-              onChange={(e) => handleInputChange('number_of_vr_glasses', parseInt(e.target.value))}
-            /> */}
+                          type="number"
+                          label="Number of VR Glasses"
+                          value={editedPurchase.number_of_vr_glasses.toString()}
+                          onChange={(e) => handleInputChange('number_of_vr_glasses', parseInt(e.target.value))}
+                        /> */}
                         <Input
                           label="Order Number"
                           value={editedPurchase.orderNumber}
@@ -238,14 +251,24 @@ export default function UserPurchaseDetails({
                           }
                         />
                         {/* <Checkbox
-              isSelected={editedPurchase.is_subscription}
-              onChange={(checked) => handleInputChange('is_subscription', checked)}
-            >
-              Is Subscription
-            </Checkbox> */}
+                        isSelected={editedPurchase.is_subscription}
+                        onChange={(checked) => handleInputChange('is_subscription', checked)}
+                      >
+                        Is Subscription
+                      </Checkbox> */}
+                      {additionalInfos.map((pi, index) => (
+                        <Input
+                        key={index}
+                        label="Additional info"
+                        value={pi.info}
+                        onChange={(e) =>
+                          editAdditionalInfo(pi.id, e.target.value)
+                        }
+                      />  
+                   ))}
                       </div>
                     </div>
-                  }
+                  )}
                 </>
               </ModalBody>
               <ModalFooter>
@@ -257,17 +280,16 @@ export default function UserPurchaseDetails({
                 >
                   {isEditing ? 'Cancel' : 'Close'}
                 </Button>
-                  {isEditing && (
-                    <Button
-                      disabled={loading}
-                      onClick={handleSave}
-                      isLoading={loading}
-                      className="bg-blue-700"
-                    >
-                      Save
-                    </Button>
-                  )}
-                
+                {isEditing && (
+                  <Button
+                    disabled={loading}
+                    onClick={handleSave}
+                    isLoading={loading}
+                    className="bg-blue-700"
+                  >
+                    Save
+                  </Button>
+                )}
               </ModalFooter>
             </>
           )}
