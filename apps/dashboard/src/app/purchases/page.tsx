@@ -1,5 +1,5 @@
 'use client';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import PurchaseTable from '../../components/PurchaseTable';
 import { ZPurchase } from '../store/purchaseStore';
 import { Spinner } from '@nextui-org/react';
@@ -7,7 +7,7 @@ import AddPurchase from '../../components/AddPurchase';
 import usePurchaseStore from '../store/purchaseStore';
 import { useRouter } from 'next/navigation';
 import { usePurchasesData } from '../hooks';
-import useSWR from 'swr'
+import useSWR from'swr';
 
 
 
@@ -46,31 +46,36 @@ export const fetchPurchases = async (page: number) => {
 
 
 export default function Purshases() {
+  const router = useRouter();
+  const isInitialRender = useRef(true);
   const { purchases, setPurchases, setError, currentPage, setCurrentPage, reset } =
     usePurchaseStore();
-  const { data, isLoading, error, mutate } = usePurchasesData({
+  const { data, isLoading, error } = usePurchasesData({
     limit: 370,
     page: currentPage,
+    skip: isInitialRender.current,
   });
-    // const { data, error, isLoading } = useSWR(`/purchases`, fetchPurchases);
+    //  const { data, error, isLoading } = useSWR('/purchases', page => fetchPurchases({ page: currentPage}));
+    useEffect(() => {
+      router.refresh();
+   }, []);
 
-  const router = useRouter();
-
-  useEffect(() => {
-    router.refresh();
-    if (data) {
-      setPurchases(data.purchases);
-      console.log("setPurchases")
-      if (data.currentPage !== 1) {
-        setCurrentPage(data.currentPage - 1);
+    useEffect(() => {
+      if (isInitialRender.current) {
+        isInitialRender.current = false;
+        return;
       }
-      
-    }
-  }, [setPurchases, isLoading, setError, data, currentPage]);
+  
+      if (data) {
+        setPurchases(data.purchases);
+        if (data.currentPage !== 1) {
+          setCurrentPage(data.currentPage - 1);
+        }
+        console.log(currentPage);
+      }
+    }, [setPurchases, isLoading, setError, data, currentPage]);
 
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
+  
 
   return (
     <section className="py-24">

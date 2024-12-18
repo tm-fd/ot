@@ -5,8 +5,7 @@ import { PurchaseObj } from '../app/store/purchaseStore';
 import axios from 'axios';
 import ActivationRecords from './ActivationRecords';
 import { useActivationStore } from '@/app/store/purchaseActivactionsStore';
-
-
+import { useAdditionalInfo } from '@/app/hooks';
 
 interface OrderStatus {
   id: number;
@@ -37,14 +36,6 @@ interface ActivationRecord {
   firestoreData?: UserFirestoreData;
 }
 
-interface OrderShipping {
-  id: number;
-  purchase_id: number | null;
-  shipping_date: string;
-  tracking_number: string;
-  tracking_status: string;
-}
-
 export type SentEmails = {
   ContactAlt: string;
   ArrivedAt: string;
@@ -55,6 +46,12 @@ export type SentEmails = {
 interface ShippingStatusInfo {
   status: string;
   color: 'warning' | 'primary' | 'secondary' | 'default';
+}
+
+interface AdditionalInfo {
+  id: number;
+  info: string;
+  purchase_id: number;
 }
 
 const getShippingStatusInfo = (trackingStatus: string): ShippingStatusInfo => {
@@ -98,7 +95,6 @@ const statusColorMap = {
   canceled: 'light',
 };
 
-
 export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
   const [orderStatus, setOrderStatus] = useState<OrderStatus | null>(null);
   const [orderShipping, setOrderShipping] = useState<string | null>(null);
@@ -107,21 +103,20 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
   const [shippingError, setShippingError] = useState<string | null>(null);
   const [orderEmail, setOrderEmail] = useState<string | null>(null);
   const [orderEmailError, setOrderEmailError] = useState<string | null>(null);
-  const [activationRecords, setActivationRecords] = useState<
-    ActivationRecord[]
-  >([]);
-  const [activationError, setActivationError] = useState<string | null>(null);
-  const { 
-    fetchActivationRecord,
-    clearActivationRecords
-  } = useActivationStore();
+  const { fetchActivationRecord, clearActivationRecords } =
+    useActivationStore();
+
+  const {
+    additionalInfos,
+    setEditedAdditionalInfos,
+    error: additionalInfoError,
+  } = useAdditionalInfo(purchase.id);
 
   useEffect(() => {
     const fetchOrderInformation = async () => {
       setIsLoading(true);
       setOrderStatusError(null);
       setShippingError(null);
-      setActivationError(null);
 
       try {
         // Fetch order status
@@ -247,28 +242,6 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
     }
   };
 
-  const fetchUserFirestoreData = async (uuid: string): Promise<UserFirestoreData | null> => {
-    try {
-      const response = await fetch(`/api/userData/${uuid}`);
-      console.log(response)
-      
-      if (!response.ok) {
-        if (response.status === 404) {
-          return null;
-        }
-        throw new Error('Failed to fetch user data');
-      }
-  
-      const userData = await response.json();
-      return userData as UserFirestoreData;
-    } catch (error) {
-      console.error(`Error fetching Firestore data for user ${uuid}:`, error);
-      return null;
-    }
-  };
-
-  
-
   // Render loading state
   if (isLoading) {
     return (
@@ -281,10 +254,26 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
     );
   }
 
-  
   return (
     <section className="pb-12">
       <div className="container flex flex-col items-start justify-start">
+        {/* Additional Info Section */}
+        {additionalInfoError ? (
+          <p className="text-red-500">{additionalInfoError}</p>
+        ) : (
+          additionalInfos.length > 0 && (
+            <div className="flex flex-col items-start justify-center mb-4">
+              <h4 className="text-lg font-semibold mb-2">
+                Additional Information:
+              </h4>
+              {additionalInfos.map((pi, index) => (
+                <p className="text-sm" key={pi.id}>
+                  {pi.info}
+                </p>
+              ))}
+            </div>
+          )
+        )}
         {/* Order Status Section */}
         {(orderStatus || orderStatusError) && (
           <div className="flex flex-col items-center justify-center mb-4">
@@ -314,8 +303,8 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
             )}
           </div>
         )}
-{/* Shipping Information Section */}
-{orderShipping && (
+        {/* Shipping Information Section */}
+        {orderShipping && (
           <div className="flex flex-col items-center justify-center mb-4">
             {getShippingStatusInfo(orderShipping.statusText.header).status !==
               'Not shippable' && (
@@ -348,15 +337,15 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
             )}
           </div>
         )}
-        
+
         {/* Shipping Error Section */}
         {shippingError && (
           <div className="flex flex-col items-center justify-center mb-8">
             <p className="text-red-500">{shippingError}</p>
           </div>
         )}
-      <Divider className="my-4" />
-          <ActivationRecords />
+        <Divider className="my-4" />
+        <ActivationRecords />
       </div>
     </section>
   );
