@@ -61,7 +61,7 @@ export default function AddPurchase({ currentPage }) {
   const [numberOfLicenses, setNumberOfLicenses] = useState('');
   const [isSubscription, setIsSubscription] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [errorMessage, setErorrMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [additionalInfo, setAdditionalInfo] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -76,7 +76,7 @@ export default function AddPurchase({ currentPage }) {
         .required()
         .trim()
         .messages({
-          'string.email': `Enmail must be valid`,
+          'string.email': `Email must be valid`,
           'string.required': `Email is required`,
         }),
       firstName: Joi.string().required().messages({
@@ -123,10 +123,10 @@ export default function AddPurchase({ currentPage }) {
     const { error } = JoiValidatePurchase(purchaseObj);
 
     if (error) {
-      setErorrMessage(error.details[0].message);
+      setErrorMessage(error.details[0].message);
       return;
     } else {
-      setErorrMessage(null);
+      setErrorMessage(null);
       setLoading(true);
     }
 
@@ -146,13 +146,16 @@ export default function AddPurchase({ currentPage }) {
               `${process.env.CLOUDRUN_DEV_URL}/purchases/additional-info/${purchaseId}`,
               { info: additionalInfo }
             );
-            console.log(additionalInfoRes)
-            if (additionalInfoRes.status !== 200 && additionalInfoRes.status !== 201) {
+            console.log(additionalInfoRes);
+            if (
+              additionalInfoRes.status !== 200 &&
+              additionalInfoRes.status !== 201
+            ) {
               throw new Error('Failed to add additional info');
             }
           } catch (additionalInfoError) {
             console.error('Error adding additional info:', additionalInfoError);
-            setErorrMessage(
+            setErrorMessage(
               'Purchase added, but failed to add additional info. Please try updating the purchase later.'
             );
             setLoading(false);
@@ -162,11 +165,14 @@ export default function AddPurchase({ currentPage }) {
 
         setLoading(false);
         setIsSubmitted(true);
-        mutate(['/purchases', {
-          limit: 370,
-          page: currentPage,
-        }]);
-        setErorrMessage('The purchase has been added successfully');
+        mutate([
+          '/purchases',
+          {
+            limit: 370,
+            page: currentPage,
+          },
+        ]);
+        setErrorMessage('The purchase has been added successfully');
 
         // Clear form fields
         setEmail('');
@@ -179,7 +185,7 @@ export default function AddPurchase({ currentPage }) {
         setAdditionalInfo('');
 
         setTimeout(() => {
-          setErorrMessage(null);
+          setErrorMessage(null);
           setIsSubmitted(false);
           setAdditionalInfo(''); // Clear the additional info field
         }, 4000);
@@ -193,13 +199,17 @@ export default function AddPurchase({ currentPage }) {
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        setErorrMessage(`Error: ${error.response.data.message || 'Server error'}`);
+        setErrorMessage(
+          `Error: ${error.response.data.message || 'Server error'}`
+        );
       } else if (error.request) {
         // The request was made but no response was received
-        setErorrMessage('Error: No response from server. Please check your internet connection.');
+        setErrorMessage(
+          'Error: No response from server. Please check your internet connection.'
+        );
       } else {
         // Something happened in setting up the request that triggered an Error
-        setErorrMessage(`Error: ${error.message}`);
+        setErrorMessage(`Error: ${error.message}`);
       }
     }
   }, [
@@ -215,7 +225,7 @@ export default function AddPurchase({ currentPage }) {
   ]);
 
   const handleInputChange = (e) => {
-    setErorrMessage(null);
+    setErrorMessage(null);
   };
 
   return (

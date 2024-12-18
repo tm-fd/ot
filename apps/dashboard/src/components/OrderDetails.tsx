@@ -7,8 +7,6 @@ import ActivationRecords from './ActivationRecords';
 import { useActivationStore } from '@/app/store/purchaseActivactionsStore';
 import { useAdditionalInfo } from '@/app/hooks';
 
-
-
 interface OrderStatus {
   id: number;
   order_id: string;
@@ -37,7 +35,6 @@ interface ActivationRecord {
   };
   firestoreData?: UserFirestoreData;
 }
-
 
 export type SentEmails = {
   ContactAlt: string;
@@ -98,7 +95,6 @@ const statusColorMap = {
   canceled: 'light',
 };
 
-
 export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
   const [orderStatus, setOrderStatus] = useState<OrderStatus | null>(null);
   const [orderShipping, setOrderShipping] = useState<string | null>(null);
@@ -107,13 +103,12 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
   const [shippingError, setShippingError] = useState<string | null>(null);
   const [orderEmail, setOrderEmail] = useState<string | null>(null);
   const [orderEmailError, setOrderEmailError] = useState<string | null>(null);
-  const { 
-    fetchActivationRecord,
-    clearActivationRecords
-  } = useActivationStore();
+  const { fetchActivationRecord, clearActivationRecords } =
+    useActivationStore();
 
   const {
     additionalInfos,
+    setEditedAdditionalInfos,
     error: additionalInfoError,
   } = useAdditionalInfo(purchase.id);
 
@@ -140,12 +135,6 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
         await fetchOrderShipping();
       } catch (err) {
         console.error('Error fetching shipping information:', err);
-      }
-      try {
-        // Fetch additional information
-        await fetchAdditionalInfo();
-      } catch (err) {
-        console.error('Error fetching additional purchase information:', err);
       }
       try {
         // Fetch activation record
@@ -253,21 +242,6 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
     }
   };
 
-  const fetchAdditionalInfo = async () => {
-    try {
-      const purchaseId = Number(purchase.id);
-      const response = await axios.get(`${process.env.CLOUDRUN_DEV_URL}/purchases/additional-info/${purchaseId}`);
-      console.log(response)
-      if (response.status === 200 && response.data) {
-        setAdditionalInfo(response.data);
-      }
-    } catch (error) {
-      console.error('Error fetching additional info:', error);
-      setAdditionalInfo(null);
-    }
-  };
-  
-
   // Render loading state
   if (isLoading) {
     return (
@@ -280,23 +254,25 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
     );
   }
 
-  
   return (
     <section className="pb-12">
       <div className="container flex flex-col items-start justify-start">
         {/* Additional Info Section */}
         {additionalInfoError ? (
           <p className="text-red-500">{additionalInfoError}</p>
-        ) : additionalInfos.length > 0 && (
-          <div className="flex flex-col items-start justify-center mb-4">
-            <h4 className="text-lg font-semibold mb-2">Additional Information:</h4>
-            {additionalInfos.map((pi, index) => (
-              <p className="text-sm" key={pi.id}>
-                {pi.info}
-              </p>
-            ))
-            }
-          </div>
+        ) : (
+          additionalInfos.length > 0 && (
+            <div className="flex flex-col items-start justify-center mb-4">
+              <h4 className="text-lg font-semibold mb-2">
+                Additional Information:
+              </h4>
+              {additionalInfos.map((pi, index) => (
+                <p className="text-sm" key={pi.id}>
+                  {pi.info}
+                </p>
+              ))}
+            </div>
+          )
         )}
         {/* Order Status Section */}
         {(orderStatus || orderStatusError) && (
@@ -327,8 +303,8 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
             )}
           </div>
         )}
-{/* Shipping Information Section */}
-{orderShipping && (
+        {/* Shipping Information Section */}
+        {orderShipping && (
           <div className="flex flex-col items-center justify-center mb-4">
             {getShippingStatusInfo(orderShipping.statusText.header).status !==
               'Not shippable' && (
@@ -361,15 +337,15 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
             )}
           </div>
         )}
-        
+
         {/* Shipping Error Section */}
         {shippingError && (
           <div className="flex flex-col items-center justify-center mb-8">
             <p className="text-red-500">{shippingError}</p>
           </div>
         )}
-      <Divider className="my-4" />
-          <ActivationRecords />
+        <Divider className="my-4" />
+        <ActivationRecords />
       </div>
     </section>
   );
