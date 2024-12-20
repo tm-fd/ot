@@ -7,6 +7,15 @@ const { composePlugins, withNx } = require('@nx/next');
  * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
  **/
 const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/purchases',
+        permanent: true,
+      },
+    ]
+  },
   typescript: {
     ignoreBuildErrors: true, // Ignores TypeScript errors during the build process
   },
