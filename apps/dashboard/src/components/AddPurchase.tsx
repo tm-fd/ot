@@ -107,7 +107,7 @@ export default function AddPurchase({ currentPage }) {
 
   const submitPurchase = useCallback(async () => {
     const orderNumber = cryptoRandomString({ length: 10, type: 'numeric' });
-    const code = cryptoRandomString({ length: 4, type: 'alphanumeric' });
+    const code = cryptoRandomString({ length: 4, characters: '2346789abcdefghjkmnpqrtuvwxyzABCDEFGHJKMNPQRTUVWXYZ' });
 
     const purchaseObj = {
       email,
