@@ -1,6 +1,6 @@
 import NextAuth, { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { getUserFromDb } from "@/actions"
+import { getUserLogin } from "@/actions"
 
 export const BASE_PATH = "/api/auth"
 
@@ -24,7 +24,7 @@ const authOptions: NextAuthConfig = {
         if (credentials === null) return null;
         const { email, password } = credentials
         try {
-        const user = await getUserFromDb(email as string, password as string)
+        const user = await getUserLogin(email as string, password as string)
         if (user) {
             return user;
         } else {
