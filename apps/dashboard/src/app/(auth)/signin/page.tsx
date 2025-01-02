@@ -7,6 +7,7 @@ import { doCredentialLogin } from '@/actions';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import usePurchaseStore from '@/app/store/purchaseStore';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SignIn() {
   const [isVisible, setIsVisible] = React.useState(false);
@@ -29,7 +30,7 @@ export default function SignIn() {
       if (!response) {
         setError("Check your email or password");
       }else{
-         router.replace('/purchases')
+         router.push('/purchases')
       }
       })
     } catch (err) {

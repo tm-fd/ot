@@ -8,12 +8,17 @@ import { getSession } from "@/lib/getSession";
 
 
 
-const NavigationList = () => {
+const NavigationList = ({ user }: { user: any }) => {
   return (
     <ul className="flex gap-6 flex-row">
       <li>
-        <Link href="/purchases">Licenses</Link>
+        <Link href="/purchases">Users</Link>
       </li>
+      {user && (
+        <li>
+          <Link href="/register">Register admin</Link>
+        </li>
+      )}
     </ul>
   );
 };
@@ -24,12 +29,12 @@ const Header = async() => {
   return (
     <header className="py-6">
       <nav className="container flex items-center justify-between">
-        <NavigationList />
+        <NavigationList user={user} />
         <div className="flex gap-4"> {/* Added a div for better spacing */}
           <ThemeSwitcher />
-          {user && (
+          {user ? 
             <Logout />
-          )}
+           : <Link href="/signin">Login</Link>}
         </div>
       </nav>
     </header>
