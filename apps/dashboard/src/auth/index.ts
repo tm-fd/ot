@@ -4,12 +4,16 @@ import { getUserLogin } from "@/actions"
 
 export const BASE_PATH = "/api/auth"
 
-export interface User {
-  id?: string
-  name?: string | null
-  email?: string | null
-  image?: string | null
-  token?: string | null
+interface LoginResponse {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    emailVerified: string | null;
+  };
+  sessionToken: string;
+  expiresAt: string;
 }
 
 const authOptions: NextAuthConfig = {
@@ -20,13 +24,13 @@ const authOptions: NextAuthConfig = {
         email: {},
         password: {},
       },
-      async authorize(credentials): Promise<User | null> {
+      async authorize(credentials): Promise<LoginResponse | null> {
         if (credentials === null) return null;
         const { email, password } = credentials
         try {
         const user = await getUserLogin(email as string, password as string)
         if (user) {
-            return user;
+          return user;
         } else {
           throw new Error("User not found");
       }
@@ -49,7 +53,7 @@ const authOptions: NextAuthConfig = {
       return token;
     },
     async session({ session, token }) {
-       session.accessToken = token.accessToken;
+         session.accessToken = token.accessToken;
       return session;
     },
   },

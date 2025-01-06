@@ -1,22 +1,31 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Input, Button } from '@nextui-org/react';
+import React, { useState, useEffect } from 'react';
+import { Input, Button, Spinner } from '@nextui-org/react';
 import { EyeSlashFilledIcon, EyeFilledIcon } from '@/components/icons';
 import { doCredentialLogin } from '@/actions';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import usePurchaseStore from '@/app/store/purchaseStore';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useSession } from 'next-auth/react';
+
+
 
 export default function SignIn() {
   const [isVisible, setIsVisible] = React.useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
-  const router = useRouter()
+  const router = useRouter();
   const [error, setError] = useState("");
-  const [ isPending, startTransition ] = useTransition();
+  const [isPending, startTransition] = useTransition();
   const { reset } = usePurchaseStore();
+  const { data: session, status } = useSession();
   
+  
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/purchases');
+    }
+  }, [status, session, router]);
 
 
    const handleCredentialLogin = async (event) => {
@@ -26,17 +35,21 @@ export default function SignIn() {
       const formData = new FormData(event.currentTarget);
       startTransition( async () => {
         const response = await doCredentialLogin(formData)
-        
+        console.log(response)
       if (!response) {
         setError("Check your email or password");
       }else{
-         router.push('/purchases')
+        //  router.push('/purchases')
       }
       })
     } catch (err) {
       console.error(err)
       setError("Check your Credentials");
     }
+  }
+
+  if (status === 'loading') {
+    return <Spinner size="lg" color='secondary' />;
   }
   
 
