@@ -112,6 +112,7 @@ export default function SignIn() {
               placeholder="Enter your email"
               variant="bordered"
               className="lg:w-96 sm:w-64"
+              onChange={(e) => setError(null)}
             />
             <Input
               name="password"
@@ -134,6 +135,7 @@ export default function SignIn() {
               }
               type={isVisible ? 'text' : 'password'}
               className="lg:w-96 sm:w-64"
+              onChange={(e) => setError(null)}
             />
 
             <Button

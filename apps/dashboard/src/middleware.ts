@@ -11,9 +11,6 @@ export async function middleware(request) {
   const session = await auth();
   const isAuthenticated = !!session?.user;
 
-  console.log('Session in middleware:', session);
-  console.log('User in session:', session?.user);
-
   // Check if the user's email is verified
   const isEmailVerified = session?.user?.emailVerified;
   
