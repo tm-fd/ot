@@ -32,6 +32,9 @@ export default function Register() {
   const roleOptions = [
     { label: 'Admin', value: 'ADMIN' },
     { label: 'User', value: 'USER' },
+    { label: 'Subadmin', value: 'SUBADMIN' },
+    { label: 'Teacher', value: 'TEACHER' },
+    { label: 'Editor', value: 'EDITOR' },
   ];
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -158,7 +161,6 @@ export default function Register() {
         {errors.form}
       </motion.div>
     )}
-      
       </AnimatePresence>
           <Form
             className="flex flex-col gap-4 max-[600px]:w-full"

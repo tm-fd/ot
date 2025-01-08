@@ -23,10 +23,9 @@ const NavigationList = ({ user }: { user: any }) => {
   );
 };
 
-const Header = async() => {
+const Header = async () => {
   const session = await getSession();
   const user = session?.user;
-  
   return (
     <header className="py-6">
       <nav className="container flex items-center justify-between">
