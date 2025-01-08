@@ -4,55 +4,66 @@ import { getUserLogin } from "@/actions"
 
 export const BASE_PATH = "/api/auth"
 
-export interface User {
-  id?: string
-  name?: string | null
-  email?: string | null
-  image?: string | null
-  token?: string | null
+interface LoginResponse {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    emailVerified: string | null;
+  };
+  sessionToken: string;
+  expiresAt: string;
 }
 
 const authOptions: NextAuthConfig = {
-  providers: [
-    Credentials({
-      name: "Credentials",
-      credentials: {
-        email: {},
-        password: {},
-      },
-      async authorize(credentials): Promise<User | null> {
-        if (credentials === null) return null;
-        const { email, password } = credentials
-        try {
-        const user = await getUserLogin(email as string, password as string)
-        if (user) {
-            return user;
-        } else {
-          throw new Error("User not found");
-      }
-      } catch (error) {
-        throw new Error(error);
-    }
-      },
-    }),
-  ],
   callbacks: {
     async jwt({ token, user, trigger, session }) {
-      if (trigger === "update") {
-        return {...token, ...session}
-      }
       if (user) {
-        if ('token' in user) {
-          token.accessToken = user.token;
-        }
+        token.user = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          emailVerified: user.emailVerified
+        };
       }
       return token;
     },
     async session({ session, token }) {
-       session.accessToken = token.accessToken;
+      if (token.user) {
+        session.user = token.user;
+      }
       return session;
-    },
+    }
   },
+  providers: [
+    Credentials({
+      async authorize(credentials) {
+        const { email, password } = credentials as {
+          email: string;
+          password: string;
+        };
+        try {
+        const userData = await getUserLogin(email, password);
+
+        if (!userData || !userData.user) {
+          return null;
+        }
+
+        // Check if email is verified
+        if (!userData.user.emailVerified) {
+          return null;
+        }
+
+        return userData.user;
+      } catch (error) {
+        console.error('Auth error:', error);
+        return null;
+      }
+      }
+    })
+  ],
   pages: {  
     signIn: "/signin",
   },
