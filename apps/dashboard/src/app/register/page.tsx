@@ -55,7 +55,7 @@ export default function Register() {
           'string.email': `Email must be valid`,
           'string.required': `Email is required`,
         }),
-      role: Joi.string().required().valid('ADMIN', 'USER').messages({
+      role: Joi.string().required().valid('ADMIN', 'USER', 'SUBADMIN', 'TEACHER', 'EDITOR').messages({
         'string.empty': `Role is required`,
         'any.only': 'Please select a valid role',
       }),
@@ -112,7 +112,6 @@ export default function Register() {
             setIsSuccess(true);
           setTimeout(() => {
             setIsSuccess(false);
-            // router.push('/signin');
           }, 3000);
         }
       });
