@@ -42,7 +42,7 @@ export default function AddPurchase({ currentPage }) {
       label: '6 weeks',
     },
     {
-      key: '8 4',
+      key: '84',
       label: '12 weeks',
     },
     {

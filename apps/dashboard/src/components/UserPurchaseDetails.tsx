@@ -1,6 +1,5 @@
-// UserPurchaseDetails.tsx
 'use client';
-import React, { useState } from 'react';
+import React, { use, useState, useEffect } from 'react';
 import { useDisclosure } from '@nextui-org/react';
 import { EditIcon, EyeIcon } from './icons';
 import { SharedModal } from './SharedModal';
@@ -12,9 +11,14 @@ interface UserPurchaseDetailsProps {
   purchase: PurchaseObj;
 }
 
-export default function UserPurchaseDetails({ purchase }: UserPurchaseDetailsProps) {
+export default function UserPurchaseDetails({
+  purchase,
+}: UserPurchaseDetailsProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isEditing, setIsEditing] = useState(false);
+  const [purchaseStatuses, setPurchaseStatuses] = useState<
+    Record<number, boolean>
+  >({});
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -34,6 +38,9 @@ export default function UserPurchaseDetails({ purchase }: UserPurchaseDetailsPro
   return (
     <>
       <div className="relative flex items-center gap-2">
+      <div className={`w-3 h-3 rounded-full ${
+        purchaseStatuses[purchase.id] ? 'bg-green-500' : 'bg-gray-300'
+      }`} />
         <span
           onClick={handleViewClick}
           className="text-lg text-default-400 cursor-pointer active:opacity-50"
@@ -50,12 +57,20 @@ export default function UserPurchaseDetails({ purchase }: UserPurchaseDetailsPro
       <SharedModal
         isOpen={isOpen}
         onOpenChange={handleCloseModal}
-        title={isEditing ? "Edit Purchase" : "Purchase Details"}
+        title={isEditing ? 'Edit Purchase' : 'Purchase Details'}
       >
         {isEditing ? (
           <EditPurchase purchase={purchase} onClose={handleCloseModal} />
         ) : (
-          <OrderDetails purchase={purchase} />
+          <OrderDetails
+            purchase={purchase}
+            onStatusComplete={(isComplete) => {
+              setPurchaseStatuses((prev) => ({
+                ...prev,
+                [purchase.id]: isComplete,
+              }));
+            }}
+          />
         )}
       </SharedModal>
     </>

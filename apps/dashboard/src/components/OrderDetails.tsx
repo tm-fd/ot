@@ -54,7 +54,44 @@ interface AdditionalInfo {
   purchase_id: number;
 }
 
-const getShippingStatusInfo = (trackingStatus: string): ShippingStatusInfo => {
+interface OrderDetailsProps {
+  purchase: PurchaseObj;
+  onStatusComplete?: (isComplete: boolean) => void;
+}
+
+// DHL staus mapping
+//"delivered","failure","pre-transit","transit","unknown"
+
+const getDHLShippingStatusInfo = (trackingStatus: string): ShippingStatusInfo => {
+  const statusMap: Record<string, ShippingStatusInfo> = {
+    'pre-transitd': {
+      status: 'pre-transit',
+      color: 'warning',
+    },
+    'delivered': {
+      status: 'Delivered',
+      color: 'primary',
+    },
+    'transit': {
+      status: 'Transporting',
+      color: 'secondary',
+    },
+    'unknown': {
+      status: 'Unknown',
+      color: 'default',
+    },
+  };
+
+  return (
+    statusMap[trackingStatus] || {
+      status: 'Not shippable',
+      color: 'default',
+    }
+  );
+};
+
+
+const getPNShippingStatusInfo = (trackingStatus: string): ShippingStatusInfo => {
   const statusMap: Record<string, ShippingStatusInfo> = {
     'Electronic shipping instruction received': {
       status: 'Informed',
@@ -95,9 +132,10 @@ const statusColorMap = {
   canceled: 'light',
 };
 
-export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
+export default function OrderDetails({ purchase, onStatusComplete }: OrderDetailsProps) {
   const [orderStatus, setOrderStatus] = useState<OrderStatus | null>(null);
-  const [orderShipping, setOrderShipping] = useState<string | null>(null);
+  const [postNordShipping, setPostNordShipping] = useState<string | null>(null);
+  const [dhlShipping, setDHLShipping] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [orderStatusError, setOrderStatusError] = useState<string | null>(null);
   const [shippingError, setShippingError] = useState<string | null>(null);
@@ -153,6 +191,18 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
     };
   }, [purchase, fetchActivationRecord, clearActivationRecords]);
 
+  useEffect(() => {
+    // Check if all required statuses are present
+    const isComplete = Boolean(
+      orderStatus && 
+      orderEmail && 
+      (postNordShipping || dhlShipping)
+    );
+    console.log(orderStatus, orderEmail, postNordShipping, isComplete )
+    // Notify parent component
+     onStatusComplete?.(isComplete);
+  }, [orderStatus, orderEmail, postNordShipping, dhlShipping]);
+
   // Fetch order status
   const fetchOrderStatus = async () => {
     try {
@@ -194,19 +244,37 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
 
       const response = await res.json();
       if (response?.tracking_number) {
-        const pnResponse = await axios.get(
-          'https://api2.postnord.com/rest/shipment/v5/trackandtrace/findByIdentifier.json',
-          {
-            params: {
-              apikey: process.env.PN_API_KEY,
-              id: response.tracking_number,
-              locale: 'en',
-            },
-          }
-        );
-        const trackingStatus =
-          pnResponse.data.TrackingInformationResponse.shipments[0];
-        setOrderShipping(trackingStatus);
+        if (response.tracking_number.startsWith('UU')) {
+          const pnResponse = await axios.get(
+            'https://api2.postnord.com/rest/shipment/v5/trackandtrace/findByIdentifier.json',
+            {
+              params: {
+                apikey: process.env.PN_API_KEY,
+                id: response.tracking_number,
+                locale: 'en',
+              },
+            }
+          );
+          const trackingStatus =
+            pnResponse.data.TrackingInformationResponse.shipments[0];
+            setPostNordShipping(trackingStatus);
+        } else {
+          const myHeaders = new Headers();
+          myHeaders.append('DHL-API-Key', process.env.DHL_API_KEY);
+          const requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow',
+          };
+
+          fetch(
+            `https://api-eu.dhl.com/track/shipments?trackingNumber=${response.tracking_number}`,
+            requestOptions
+          )
+            .then((response) => response.json())
+            .then((result) => setDHLShipping(result.shipments[0]))
+            .catch((error) => console.error(error));
+        }
       }
     } catch (err: any) {
       setShippingError(err.message);
@@ -259,7 +327,7 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
       <div className="container flex flex-col items-start justify-start">
         {/* Additional Info Section */}
         {additionalInfoError ? (
-          <p className="text-red-500">{additionalInfoError}</p>
+          <p className="text-red-500 mb-4">{additionalInfoError}</p>
         ) : (
           additionalInfos.length > 0 && (
             <div className="flex flex-col items-start justify-center mb-4">
@@ -304,16 +372,16 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
           </div>
         )}
         {/* Shipping Information Section */}
-        {orderShipping && (
+        {postNordShipping && (
           <div className="flex flex-col items-center justify-center mb-4">
-            {getShippingStatusInfo(orderShipping.statusText.header).status !==
+            {getPNShippingStatusInfo(postNordShipping.statusText.header).status !==
               'Not shippable' && (
               <div>
                 Order Shipping:{' '}
                 <Chip
                   className="capitalize"
                   color={
-                    getShippingStatusInfo(orderShipping.statusText.header).color
+                    getPNShippingStatusInfo(postNordShipping.statusText.header).color
                   }
                   size="sm"
                   variant="faded"
@@ -321,14 +389,47 @@ export default function OrderDetails({ purchase }: { purchase: PurchaseObj }) {
                   <Link
                     isExternal
                     color={
-                      getShippingStatusInfo(orderShipping.statusText.header)
+                      getPNShippingStatusInfo(postNordShipping.statusText.header)
                         .color
                     }
-                    href={`https://tracking.postnord.com/en/?id=${orderShipping.shipmentId}`}
+                    href={`https://tracking.postnord.com/en/?id=${postNordShipping.shipmentId}`}
                     className="text-xs"
                   >
                     {
-                      getShippingStatusInfo(orderShipping.statusText.header)
+                      getPNShippingStatusInfo(postNordShipping.statusText.header)
+                        .status
+                    }
+                  </Link>
+                </Chip>
+              </div>
+            )}
+          </div>
+        )}
+        {dhlShipping && (
+          <div className="flex flex-col items-center justify-center mb-4">
+            {getDHLShippingStatusInfo(dhlShipping.status.statusCode).status !==
+              'Not shippable' && (
+              <div>
+                Order Shipping:{' '}
+                <Chip
+                  className="capitalize"
+                  color={
+                    getDHLShippingStatusInfo(dhlShipping.status.statusCode).color
+                  }
+                  size="sm"
+                  variant="faded"
+                >
+                  <Link
+                    isExternal
+                    color={
+                      getDHLShippingStatusInfo(dhlShipping.status.statusCode)
+                        .color
+                    }
+                    href={`https://www.dhl.com/se-en/home/tracking/tracking-freight.html?submit=1&tracking-id=${dhlShipping.id}`}
+                    className="text-xs"
+                  >
+                    {
+                      getDHLShippingStatusInfo(dhlShipping.status.statusCode)
                         .status
                     }
                   </Link>
