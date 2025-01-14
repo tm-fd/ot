@@ -198,7 +198,6 @@ export default function OrderDetails({ purchase, onStatusComplete }: OrderDetail
       orderEmail && 
       (postNordShipping || dhlShipping)
     );
-    console.log(orderStatus, orderEmail, postNordShipping, isComplete )
     // Notify parent component
      onStatusComplete?.(isComplete);
   }, [orderStatus, orderEmail, postNordShipping, dhlShipping]);
