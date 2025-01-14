@@ -11,21 +11,25 @@ import {
   CardHeader,
 } from '@nextui-org/react';
 import { EyeSlashFilledIcon, EyeFilledIcon } from '@/components/icons';
-import { doCredentialLogin } from '@/actions';
+import { doCredentialLogin, resendVerificationEmail } from '@/actions';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import usePurchaseStore from '@/app/store/purchaseStore';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 export default function SignIn() {
   const [isVisible, setIsVisible] = React.useState(false);
-  const toggleVisibility = () => setIsVisible(!isVisible);
-  const router = useRouter();
   const [error, setError] = useState(null);
+  const [isResending, setIsResending] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [email, setEmail] = useState('');
   const [isPending, startTransition] = useTransition();
   const { reset } = usePurchaseStore();
   const { data: session, status } = useSession();
+  const toggleVisibility = () => setIsVisible(!isVisible);
+  const router = useRouter();
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -53,6 +57,25 @@ export default function SignIn() {
     } catch (err) {
       console.error(err);
       setError('Check your Credentials');
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setIsResending(true);
+    try {
+      const result = await resendVerificationEmail(email);
+      if (result.success) {
+        setResendSuccess(true);
+        setError(null);
+        // Reset success message after 5 seconds
+        setTimeout(() => setResendSuccess(false), 5000);
+      } else {
+        setError(result.error);
+      }
+    } catch (err) {
+      setError('Failed to resend verification email');
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -97,6 +120,35 @@ export default function SignIn() {
                   ⚠️
                 </motion.span>
                 {error}
+                {error ===
+                  'Please check your email to verify it before logging in' && (
+                  <div className="mt-2">
+                    <Button
+                      size="sm"
+                      variant="light"
+                      color="secondary"
+                      onClick={handleResendVerification}
+                      disabled={isResending}
+                      className="text-sm"
+                    >
+                      {isResending ? (
+                        <Spinner size="sm" color="secondary" />
+                      ) : (
+                        'Resend verification email'
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </motion.div>
+            )}
+            {resendSuccess && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="text-md text-green-500 p-2 mb-4 text-center"
+              >
+                Verification email has been resent successfully!
               </motion.div>
             )}
           </AnimatePresence>
@@ -112,7 +164,10 @@ export default function SignIn() {
               placeholder="Enter your email"
               variant="bordered"
               className="lg:w-96 sm:w-64"
-              onChange={(e) => setError(null)}
+              onChange={(e) => {
+                setError(null);
+                setEmail(e.target.value);
+              }}
             />
             <Input
               name="password"
@@ -137,7 +192,12 @@ export default function SignIn() {
               className="lg:w-96 sm:w-64"
               onChange={(e) => setError(null)}
             />
-
+            <Link
+              href="/forgot-password"
+              className="text-sm text-secondary hover:text-secondary-400 text-right"
+            >
+              Forgot password?
+            </Link>
             <Button
               color="secondary"
               type="submit"

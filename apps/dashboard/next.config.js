@@ -31,6 +31,7 @@ const nextConfig = {
     FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL,
     FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY,
     IMVI_USERS_URL: process.env.IMVI_USERS_URL,
+    DHL_API_KEY: process.env.DHL_API_KEY,
   },
   nx: {
     // Set this to true if you would like to use SVGR

@@ -105,3 +105,23 @@ export async function registerUser({ email, password, name, role }) {
 
 }
 
+export async function resendVerificationEmail(email) {
+  try {
+    const res = await fetch(`${process.env.CLOUDRUN_DEV_URL}/auth_admin/resend-verification`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return { error: data.error || 'Failed to resend verification email' };
+    }
+
+    return { success: true, message: data.message };
+  } catch (err) {
+    return { error: 'An error occurred while resending verification email' };
+  }
+}
+
