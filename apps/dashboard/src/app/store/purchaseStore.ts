@@ -30,14 +30,23 @@ export interface PurchaseObj {
   isSubscription: boolean,
   duration: number,       
 }
+interface PurchaseStatus {
+  orderStatus: any;
+  orderEmail: string | null;
+  shippingInfo: any;
+  isComplete: boolean;
+}
+
 interface State {
   purchases: PurchaseObj[];
+  purchaseStatuses: Record<number, PurchaseStatus>;
   isLoading: boolean;
   error: string | null;
   currentPage: number;
 }
 interface Actions {
   setPurchases: (purchases: ZPurchase[]) => void;
+  setPurchaseStatus: (purchaseId: number, status: PurchaseStatus) => void;
   setIsLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
   setCurrentPage: (page: number) => void;
@@ -46,20 +55,27 @@ interface Actions {
 
 const initialState: State = {
   purchases: [],
+  purchaseStatuses: {},
   isLoading: false,
   error: null,
   currentPage: 0,
 }
 
-const usePurchaseStore = create<State & Actions>((set, get, store) => ({
+const usePurchaseStore = create<State & Actions>((set) => ({
   ...initialState,
-  setPurchases: (purchases) => set((state) => ({ purchases: [...state.purchases, ...purchases] })),
+  setPurchases: (purchases) => set((state) => ({ 
+    purchases: [...state.purchases, ...purchases] 
+  })),
+  setPurchaseStatus: (purchaseId, status) => set((state) => ({
+    purchaseStatuses: {
+      ...state.purchaseStatuses,
+      [purchaseId]: status
+    }
+  })),
   setIsLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error }),
   setCurrentPage: (currentPage) => set({ currentPage }),
-  reset: () => {
-    set(initialState)
-  },
+  reset: () => set(initialState),
 }));
 
 export default usePurchaseStore;

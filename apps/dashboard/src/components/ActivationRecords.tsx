@@ -14,40 +14,14 @@ import {
   Dropdown,
   DropdownMenu,
   DropdownItem,
-  Button
+  Button,
+  Spinner
 } from '@nextui-org/react';
 import { SearchIcon } from './icons';
 import { useActivationStore } from '@/app/store/purchaseActivactionsStore';
 import { ChevronDownIcon } from './icons';
-
-
-interface UserFirestoreData {
-  Email?: string;
-  FirstName?: string;
-}
-
-interface ActivationRecord {
-  id: number;
-  purchase_id: number;
-  activation_date: string;
-  updated_at: string;
-  user_id: number;
-  user: {
-    id: number;
-    uuid: string;
-    registered_on: string;
-    starred: boolean;
-    type: string;
-    deleted: boolean;
-  };
-  firestoreData?: UserFirestoreData;
-}
-
-interface ActivationRecordsProps {
-  activationRecords: ActivationRecord[];
-  activationError: string | null;
-  isLoading?: boolean;
-}
+import { UserFirestoreData, ActivationRecord } from '@/app/store/purchaseActivactionsStore';
+import Loading from '@/app/loading';
 
 interface FirestoreTimestamp {
   _seconds: number;
@@ -190,6 +164,10 @@ export default function ActivationRecords() {
     filterValue,
     statusFilter,
   ]);;
+
+  if (isLoadingActivations) {
+    return <Loading style_inline={{width: "30px"}} />;
+  }
 
   return (
     <div className="w-full mb-4">

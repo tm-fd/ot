@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-interface UserFirestoreData {
+export interface UserFirestoreData {
   Email?: string;
   FirstName?: string;
 }
 
-interface ActivationRecord {
+export interface ActivationRecord {
   id: number;
   purchase_id: number;
   activation_date: string;
