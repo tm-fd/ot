@@ -1,12 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { use } from 'react';
 import { useDisclosure } from '@nextui-org/react';
 import {
   EditIcon,
-  EyeIconStatic,
   EyeIconLoading,
-  EyeIconAnimated,
 } from './icons';
 import { SharedModal } from './SharedModal';
 import { EditPurchase } from './EditPurchase';
@@ -15,6 +12,8 @@ import usePurchaseStore, { PurchaseObj } from '@/app/store/purchaseStore';
 import axios from 'axios';
 import Loading from '@/app/loading';
 import moment from 'moment';
+import { SquareStack } from 'lucide-react';
+
 
 
 interface UserPurchaseDetailsProps {
@@ -252,6 +251,10 @@ export default function UserPurchaseDetails({
             moment.unix(activationRecords[0]?.firestoreData?.ValidTill._seconds).isBefore(moment())
         );
 
+        const multipleActivations = Boolean(
+          activationRecords && activationRecords.length > 1 
+        );
+
         // Store the results in Zustand
         setPurchaseStatus(Number(purchase.id), {
           orderStatus,
@@ -262,6 +265,7 @@ export default function UserPurchaseDetails({
           startedTraining,
           hasOrderStatus_email,
           isValidAccount,
+          multipleActivations,
         });
         
         setLocalLoading(false);
@@ -302,7 +306,8 @@ export default function UserPurchaseDetails({
 
   return (
     <>
-      <div className="relative flex items-center gap-2">
+      <div className="relative flex items-center justify-center gap-2 min-w-20">
+        {purchaseStatus?.multipleActivations && <SquareStack size={20} color="#999999" strokeWidth={1.5} />}
         <span
           onClick={handleViewClick}
           className={`text-lg text-default-400 ${

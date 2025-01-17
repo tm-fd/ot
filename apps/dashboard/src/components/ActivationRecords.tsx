@@ -15,33 +15,34 @@ import {
   DropdownMenu,
   DropdownItem,
   Button,
-  Spinner
+  Spinner,
 } from '@nextui-org/react';
 import { SearchIcon } from './icons';
 import { useActivationStore } from '@/app/store/purchaseActivactionsStore';
 import { ChevronDownIcon } from './icons';
 import usePurchaseStore from '@/app/store/purchaseStore';
 import Loading from '@/app/loading';
-
-
+import moment from 'moment';
 
 interface FirestoreTimestamp {
   _seconds: number;
   _nanoseconds: number;
 }
 
-
-
-export default function ActivationRecords({ purchaseId }: { purchaseId: number }) {
+export default function ActivationRecords({
+  purchaseId,
+}: {
+  purchaseId: number;
+}) {
   const { purchaseStatuses } = usePurchaseStore();
   const purchaseStatus = purchaseStatuses[purchaseId];
   const activationRecords = purchaseStatus?.activationRecords || [];
   const [filterValue, setFilterValue] = useState('');
-  const [statusFilter, setStatusFilter] = useState<Selection>(new Set(["active"]));
+  const [statusFilter, setStatusFilter] = useState<Selection>('all');
 
   const statusOptions = [
-    {name: "Active", uid: "active"},
-    {name: "Inactive", uid: "inactive"},
+    { name: 'Active', uid: 'active' },
+    { name: 'Inactive', uid: 'inactive' },
   ];
 
   const columns = [
@@ -49,30 +50,31 @@ export default function ActivationRecords({ purchaseId }: { purchaseId: number }
     { name: 'EMAIL', uid: 'email' },
     { name: 'ACTIVATION DATE', uid: 'activation_date' },
     { name: 'USER ID', uid: 'user_id' },
+    { name: 'Training started on', uid: 'training_started_on' },
   ];
 
-  const capitalize =(s: string) => {
-    return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : "";
-  }
+  const capitalize = (s: string) => {
+    return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : '';
+  };
 
-
-  const checkActiveOrNot = date => {
+  const checkActiveOrNot = (date) => {
     if (date && checkDateisAfterToday(date)) {
-      return "Active";
+      return 'Active';
     } else {
-      return "Inactive";
+      return 'Inactive';
     }
   };
 
-  const checkDateisAfterToday = (firestoreTimestamp: FirestoreTimestamp): boolean => {
+  const checkDateisAfterToday = (
+    firestoreTimestamp: FirestoreTimestamp
+  ): boolean => {
     const inputDate = new Date(firestoreTimestamp._seconds * 1000);
     const today = new Date();
 
     today.setHours(0, 0, 0, 0);
     inputDate.setHours(0, 0, 0, 0);
     return inputDate > today;
-  }; 
-
+  };
 
   const filteredItems = useMemo(() => {
     let filteredRecords = [...activationRecords];
@@ -98,10 +100,13 @@ export default function ActivationRecords({ purchaseId }: { purchaseId: number }
       });
     }
 
-    if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
+    if (
+      statusFilter !== 'all' &&
+      Array.from(statusFilter).length !== statusOptions.length
+    ) {
       filteredRecords = filteredRecords.filter((record) => {
         if (!record?.firestoreData?.ValidTill) return false;
-        
+
         const status = checkActiveOrNot(record.firestoreData.ValidTill);
         const selectedStatus = Array.from(statusFilter)[0]?.toLowerCase();
         return status.toLowerCase() === selectedStatus;
@@ -109,8 +114,6 @@ export default function ActivationRecords({ purchaseId }: { purchaseId: number }
     }
     return filteredRecords;
   }, [activationRecords, filterValue, statusFilter]);
-
-  
 
   const onSearchChange = (value: string) => {
     setFilterValue(value);
@@ -128,42 +131,43 @@ export default function ActivationRecords({ purchaseId }: { purchaseId: number }
             value={filterValue}
             onValueChange={onSearchChange}
           />
-              <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Status
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={statusFilter}
-                selectionMode="multiple"
-                onSelectionChange={setStatusFilter}
+          <Dropdown>
+            <DropdownTrigger className="hidden sm:flex">
+              <Button
+                endContent={<ChevronDownIcon className="text-small" />}
+                variant="flat"
               >
-                {statusOptions.map((status) => (
-                  <DropdownItem key={status.uid} className="capitalize">
-                    {capitalize(status.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
+                Status
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu
+              disallowEmptySelection
+              aria-label="Table Columns"
+              closeOnSelect={false}
+              selectedKeys={statusFilter}
+              selectionMode="multiple"
+              onSelectionChange={setStatusFilter}
+            >
+              {statusOptions.map((status) => (
+                <DropdownItem key={status.uid} className="capitalize">
+                  {capitalize(status.name)}
+                </DropdownItem>
+              ))}
+            </DropdownMenu>
+          </Dropdown>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">
             Total {filteredItems.length} activation records
           </span>
           <span className="text-small text-secondary-500">
-             {filteredItems.filter((record) => record.user_id).length} have completed registration
+            {filteredItems.filter((record) => record.user_id).length} have
+            completed registration
           </span>
         </div>
       </div>
     );
-  }, [
-    filterValue,
-    statusFilter,
-  ]);;
+  }, [filterValue, statusFilter]);
 
   // if (isLoadingActivations) {
   //   return <Loading style_inline={{width: "30px"}} />;
@@ -206,8 +210,8 @@ export default function ActivationRecords({ purchaseId }: { purchaseId: number }
               items={filteredItems}
               emptyContent={'No activation records found'}
             >
-              {(record) =>  ( 
-                 <TableRow key={record.id}>
+              {(record) => (
+                <TableRow key={record.id}>
                   <TableCell>
                     {record.firestoreData?.FirstName || '-'}
                   </TableCell>
@@ -216,20 +220,28 @@ export default function ActivationRecords({ purchaseId }: { purchaseId: number }
                     {new Date(record.activation_date).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                  {record.user ?
-                    <Link
-                      isExternal
-                      color="primary"
-                      href={`${process.env.IMVI_USERS_URL}/${record.user?.uuid}`}
-                      className="text-xs"
-                    >
-                      {record.user?.uuid}
-                    </Link>
-                   :  'The registration is not completed'
-                    }
+                    {record.user ? (
+                      <Link
+                        isExternal
+                        color="primary"
+                        href={`${process.env.IMVI_USERS_URL}/${record.user?.uuid}`}
+                        className="text-xs"
+                      >
+                        {record.user?.uuid}
+                      </Link>
+                    ) : (
+                      'The registration is not completed'
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {record.firestoreData?.TrainingStartedOn?._seconds
+                      ? moment
+                          .unix(record.firestoreData.TrainingStartedOn._seconds)
+                          .format('DD/MM/YYYY')
+                      : '-'}
                   </TableCell>
                 </TableRow>
-      )}
+              )}
             </TableBody>
           </Table>
         </div>
