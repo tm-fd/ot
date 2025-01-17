@@ -40,6 +40,7 @@ interface PurchaseStatus {
   isActivated_VReceived: boolean;
   startedTraining: boolean;
   isValidAccount: boolean;
+  multipleActivations: boolean;
 }
 
 interface State {
