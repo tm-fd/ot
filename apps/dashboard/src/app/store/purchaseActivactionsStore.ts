@@ -59,6 +59,7 @@ export const useActivationStore = create<StoreState>()(
       isLoadingActivations: false,
 
       fetchActivationRecord: async (purchaseId: number) => {
+        console.log(purchaseId)
         set({ isLoadingActivations: true, activationError: null });
         try {
           const res = await fetch(

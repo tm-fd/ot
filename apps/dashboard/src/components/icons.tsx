@@ -1,3 +1,8 @@
+import { motion, useAnimationControls } from 'framer-motion';
+import { useEffect } from 'react';
+
+
+
 type IconProps = React.SVGProps<SVGSVGElement>
 
 export const EditIcon = (props: IconProps) => (
@@ -87,7 +92,8 @@ export const DeleteIcon = (props: IconProps) => (
   </svg>
 )
 
-export const EyeIcon = (props: IconProps) => (
+
+export const EyeIconStatic = ({ strokeColor = 'currentColor', ...props }: IconProps & { strokeColor?: string }) => (
   <svg
     aria-hidden='true'
     fill='none'
@@ -100,20 +106,176 @@ export const EyeIcon = (props: IconProps) => (
   >
     <path
       d='M12.9833 10C12.9833 11.65 11.65 12.9833 10 12.9833C8.35 12.9833 7.01666 11.65 7.01666 10C7.01666 8.35 8.35 7.01666 10 7.01666C11.65 7.01666 12.9833 8.35 12.9833 10Z'
-      stroke='currentColor'
+      stroke={strokeColor}
       strokeLinecap='round'
       strokeLinejoin='round'
       strokeWidth={1.5}
     />
     <path
       d='M9.99999 16.8916C12.9417 16.8916 15.6833 15.1583 17.5917 12.1583C18.3417 10.9833 18.3417 9.00831 17.5917 7.83331C15.6833 4.83331 12.9417 3.09998 9.99999 3.09998C7.05833 3.09998 4.31666 4.83331 2.40833 7.83331C1.65833 9.00831 1.65833 10.9833 2.40833 12.1583C4.31666 15.1583 7.05833 16.8916 9.99999 16.8916Z'
-      stroke='currentColor'
+      stroke={strokeColor}
       strokeLinecap='round'
       strokeLinejoin='round'
       strokeWidth={1.5}
     />
   </svg>
 )
+
+export const EyeIconAnimated = ({ strokeColor = 'currentColor', ...props }: IconProps & { strokeColor?: string }) => {
+  const pathVariants = {
+    initial: { 
+      pathLength: 0,
+      opacity: 0 
+    },
+    animate: { 
+      pathLength: 1,
+      opacity: 1,
+      transition: {
+        duration: 1.5,
+        ease: "easeInOut",
+        repeat: Infinity,
+        repeatType: "reverse"
+      }
+    },
+    hover: {
+      scale: 1.1,
+      transition: { duration: 0.3 }
+    }
+  };
+
+  const svgVariants = {
+    hover: {
+      rotate: [0, -10, 10, -10, 0],
+      transition: {
+        duration: 0.5,
+        ease: "easeInOut"
+      }
+    }
+  };
+
+  return (
+    <motion.svg
+      aria-hidden='true'
+      fill='none'
+      focusable='false'
+      height='1em'
+      role='presentation'
+      viewBox='0 0 20 20'
+      width='1em'
+      whileHover="hover"
+      variants={svgVariants}
+      {...props}
+    >
+      <motion.path
+        d='M12.9833 10C12.9833 11.65 11.65 12.9833 10 12.9833C8.35 12.9833 7.01666 11.65 7.01666 10C7.01666 8.35 8.35 7.01666 10 7.01666C11.65 7.01666 12.9833 8.35 12.9833 10Z'
+        stroke={strokeColor}
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        strokeWidth={1.5}
+        variants={pathVariants}
+        initial="initial"
+        animate="animate"
+      />
+      <motion.path
+        d='M9.99999 16.8916C12.9417 16.8916 15.6833 15.1583 17.5917 12.1583C18.3417 10.9833 18.3417 9.00831 17.5917 7.83331C15.6833 4.83331 12.9417 3.09998 9.99999 3.09998C7.05833 3.09998 4.31666 4.83331 2.40833 7.83331C1.65833 9.00831 1.65833 10.9833 2.40833 12.1583C4.31666 15.1583 7.05833 16.8916 9.99999 16.8916Z'
+        stroke={strokeColor}
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        strokeWidth={1.5}
+        variants={pathVariants}
+        initial="initial"
+        animate="animate"
+      />
+    </motion.svg>
+  );
+};
+
+export const EyeIconLoading = ({ 
+  strokeColor = 'currentColor', 
+  isLoading = false,
+  ...props 
+}: IconProps & { 
+  strokeColor?: string;
+  isLoading?: boolean;
+}) => {
+  const controls = useAnimationControls();
+
+  const pathVariants = {
+    loading: { 
+      pathLength: [0, 1],
+      opacity: 1,
+      transition: {
+        pathLength: {
+          duration: 1.5,
+          ease: "easeInOut",
+          repeat: Infinity,
+          repeatType: "reverse"
+        }
+      }
+    },
+    idle: { 
+      pathLength: 1,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    },
+    hover: {
+      scale: 1.1,
+      transition: { duration: 0.3 }
+    }
+  };
+
+  const svgVariants = {
+    hover: {
+      rotate: [0, -10, 10, -10, 0],
+      transition: {
+        duration: 0.5,
+        ease: "easeInOut"
+      }
+    }
+  };
+
+  useEffect(() => {
+    controls.start(isLoading ? "loading" : "idle");
+  }, [isLoading, controls]);
+
+  return (
+    <motion.svg
+      aria-hidden='true'
+      fill='none'
+      focusable='false'
+      height='1em'
+      role='presentation'
+      viewBox='0 0 20 20'
+      width='1em'
+      whileHover="hover"
+      variants={svgVariants}
+      {...props}
+    >
+      <motion.path
+        d='M12.9833 10C12.9833 11.65 11.65 12.9833 10 12.9833C8.35 12.9833 7.01666 11.65 7.01666 10C7.01666 8.35 8.35 7.01666 10 7.01666C11.65 7.01666 12.9833 8.35 12.9833 10Z'
+        stroke={strokeColor}
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        strokeWidth={1.5}
+        variants={pathVariants}
+        animate={controls}
+      />
+      <motion.path
+        d='M9.99999 16.8916C12.9417 16.8916 15.6833 15.1583 17.5917 12.1583C18.3417 10.9833 18.3417 9.00831 17.5917 7.83331C15.6833 4.83331 12.9417 3.09998 9.99999 3.09998C7.05833 3.09998 4.31666 4.83331 2.40833 7.83331C1.65833 9.00831 1.65833 10.9833 2.40833 12.1583C4.31666 15.1583 7.05833 16.8916 9.99999 16.8916Z'
+        stroke={strokeColor}
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        strokeWidth={1.5}
+        variants={pathVariants}
+        animate={controls}
+      />
+    </motion.svg>
+  );
+};
+
 
 export const SearchIcon = (props: IconProps) => (
   <svg

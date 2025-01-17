@@ -14,40 +14,16 @@ import {
   Dropdown,
   DropdownMenu,
   DropdownItem,
-  Button
+  Button,
+  Spinner
 } from '@nextui-org/react';
 import { SearchIcon } from './icons';
 import { useActivationStore } from '@/app/store/purchaseActivactionsStore';
 import { ChevronDownIcon } from './icons';
+import usePurchaseStore from '@/app/store/purchaseStore';
+import Loading from '@/app/loading';
 
 
-interface UserFirestoreData {
-  Email?: string;
-  FirstName?: string;
-}
-
-interface ActivationRecord {
-  id: number;
-  purchase_id: number;
-  activation_date: string;
-  updated_at: string;
-  user_id: number;
-  user: {
-    id: number;
-    uuid: string;
-    registered_on: string;
-    starred: boolean;
-    type: string;
-    deleted: boolean;
-  };
-  firestoreData?: UserFirestoreData;
-}
-
-interface ActivationRecordsProps {
-  activationRecords: ActivationRecord[];
-  activationError: string | null;
-  isLoading?: boolean;
-}
 
 interface FirestoreTimestamp {
   _seconds: number;
@@ -56,12 +32,10 @@ interface FirestoreTimestamp {
 
 
 
-export default function ActivationRecords() {
-  const { 
-    activationRecords, 
-    activationError,
-    isLoadingActivations 
-  } = useActivationStore();
+export default function ActivationRecords({ purchaseId }: { purchaseId: number }) {
+  const { purchaseStatuses } = usePurchaseStore();
+  const purchaseStatus = purchaseStatuses[purchaseId];
+  const activationRecords = purchaseStatus?.activationRecords || [];
   const [filterValue, setFilterValue] = useState('');
   const [statusFilter, setStatusFilter] = useState<Selection>(new Set(["active"]));
 
@@ -191,10 +165,14 @@ export default function ActivationRecords() {
     statusFilter,
   ]);;
 
+  // if (isLoadingActivations) {
+  //   return <Loading style_inline={{width: "30px"}} />;
+  // }
+
   return (
     <div className="w-full mb-4">
-      {activationError ? (
-        <p className="text-red-500">{activationError}</p>
+      {activationRecords.length === 0 ? (
+        <p className="text-red-500">No activation records found</p>
       ) : (
         <div className="w-full">
           <p className="font-medium mb-2">Activation Details</p>

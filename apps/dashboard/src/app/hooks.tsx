@@ -116,8 +116,13 @@ export const useAdditionalInfo = (purchaseId: number) => {
         setAdditionalInfos(response.data);
       }
     } catch (error) {
-      console.error('Error fetching additional info:', error);
-      setError('No additional info');
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        // Handle 404 silently, just set empty array
+        setAdditionalInfos([]);
+      } else {
+        console.error('Error fetching additional info:', error);
+        setError('Failed to fetch additional info');
+      }
     }
   };
 
