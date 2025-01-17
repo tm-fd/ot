@@ -83,22 +83,7 @@ export default function OrderDetails({ purchase }: OrderDetailsProps) {
     additionalInfos,
     error: additionalInfoError,
   } = useAdditionalInfo(purchase.id);
-
-  // useEffect(() => {
-  //   const fetchActivations = async () => {
-  //     try {
-  //       await fetchActivationRecord(Number(purchase.id));
-  //     } catch (err) {
-  //       console.error('Error fetching activation record:', err);
-  //     }
-  //   };
-
-  //   fetchActivations();
-
-  //   return () => {
-  //     clearActivationRecords();
-  //   };
-  // }, [purchase.id, fetchActivationRecord, clearActivationRecords]);
+ 
 
   if (!purchaseStatus) {
     return (
@@ -211,7 +196,7 @@ export default function OrderDetails({ purchase }: OrderDetailsProps) {
         )}
 
         <Divider className="my-4" />
-        <ActivationRecords />
+        <ActivationRecords purchaseId={purchase.id} />
       </div>
     </section>
   );

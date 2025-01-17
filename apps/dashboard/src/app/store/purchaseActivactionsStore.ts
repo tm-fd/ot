@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export interface UserFirestoreData {
+interface UserFirestoreData {
   Email?: string;
   FirstName?: string;
 }
 
-export interface ActivationRecord {
+interface ActivationRecord {
   id: number;
   purchase_id: number;
   activation_date: string;
@@ -59,6 +59,7 @@ export const useActivationStore = create<StoreState>()(
       isLoadingActivations: false,
 
       fetchActivationRecord: async (purchaseId: number) => {
+        console.log(purchaseId)
         set({ isLoadingActivations: true, activationError: null });
         try {
           const res = await fetch(

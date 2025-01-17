@@ -37,7 +37,7 @@ export const fetchPurchases = async (page: number) => {
       total: response.total,
       totalPages: response.totalPages
     }
-    console.log(data)
+    
     return data
   } catch (err: any) {
     console.error(err.message);
@@ -71,7 +71,6 @@ export default function Purshases() {
         if (data.currentPage !== 1) {
           setCurrentPage(data.currentPage - 1);
         }
-        console.log(currentPage);
       }
     }, [setPurchases, isLoading, setError, data, currentPage]);
 
