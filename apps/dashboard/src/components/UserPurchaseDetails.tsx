@@ -14,6 +14,8 @@ import OrderDetails from './OrderDetails';
 import usePurchaseStore, { PurchaseObj } from '@/app/store/purchaseStore';
 import axios from 'axios';
 import Loading from '@/app/loading';
+import moment from 'moment';
+
 
 interface UserPurchaseDetailsProps {
   purchase: PurchaseObj;
@@ -245,6 +247,11 @@ export default function UserPurchaseDetails({
             activationRecords.length > 0
         );
 
+        const isValidAccount = Boolean(
+            activationRecords[0]?.firestoreData?.ValidTill && 
+            moment.unix(activationRecords[0]?.firestoreData?.ValidTill._seconds).isBefore(moment())
+        );
+
         // Store the results in Zustand
         setPurchaseStatus(Number(purchase.id), {
           orderStatus,
@@ -254,16 +261,10 @@ export default function UserPurchaseDetails({
           isActivated_VReceived,
           startedTraining,
           hasOrderStatus_email,
+          isValidAccount,
         });
-
-        // if (
-        //   orderStatus &&
-        //   orderEmail &&
-        //   (shippingInfo || purchase.shippable === false) &&
-        //   activationRecords
-        // ) {
+        
         setLocalLoading(false);
-        // }
       } catch (error) {
         console.error('Error fetching data:', error);
         setError(
@@ -317,7 +318,9 @@ export default function UserPurchaseDetails({
                 ? '#e8cd1e'
                 : purchaseStatus?.isActivated_VReceived
                 ? '#1e9ee8'
-                : '#a1a1a1'
+                : purchaseStatus?.isValidAccount
+                ? '#959595'
+                : '#eb1717'
             }
           />
         </span>
