@@ -11,7 +11,7 @@ export const LicensesCell = ({ purchase }: { purchase: PurchaseObj }) => {
       <Purchase>
         {purchase.numberOfLicenses}{' '}
         {purchase.numberOfLicenses > 1 ? <span className="text-gray-500">
-          ({purchase.numberOfLicenses - purchasedLicenses})
+          ({purchasedLicenses})
         </span> : ''}
       </Purchase>
     );
