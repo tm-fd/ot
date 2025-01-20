@@ -230,7 +230,7 @@ export default function ActivationRecords({
                         {record.user?.uuid}
                       </Link>
                     ) : (
-                      'The registration is not completed'
+                      'The activation is not completed'
                     )}
                   </TableCell>
                   <TableCell>
