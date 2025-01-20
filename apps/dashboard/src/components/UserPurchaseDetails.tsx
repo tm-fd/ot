@@ -307,7 +307,7 @@ export default function UserPurchaseDetails({
 
   return (
     <>
-      <div className="relative flex items-center justify-center gap-2 min-w-20">
+      <div className="relative flex items-center justify-end gap-2 min-w-20">
         {purchaseStatus?.multipleActivations && <SquareStack size={20} color="#999999" strokeWidth={1.5} />}
         <span
           onClick={handleViewClick}

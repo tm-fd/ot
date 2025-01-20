@@ -3,6 +3,8 @@ import { DeleteIcon, EditIcon, EyeIcon } from '../../components/icons';
 import Purchase from '../../components/Purchase';
 import Actions from '../../components/Actions';
 import { ZPurchase, PurchaseObj } from '../store/purchaseStore';
+import { LicensesCell } from '@/components/LicensesCell'; // Add this import
+
 
 
 export const columns = [
@@ -66,7 +68,7 @@ export const renderCell = (purchase: PurchaseObj, columnKey: React.Key) => {
     case 'numberOfVrGlasses':
       return <Purchase>{purchase.numberOfVrGlasses}</Purchase>;
     case 'numberOfLicenses':
-      return <Purchase>{purchase.numberOfLicenses}</Purchase>;
+      return <LicensesCell purchase={purchase} />;
     case 'isSubscription':
       return <Purchase>{purchase.isSubscription ? 'Yes' : 'No'}</Purchase>;
     case 'duration':
