@@ -229,12 +229,18 @@ export default function UserPurchaseDetails({
         }
         const activationRecords = await fetchActivationRecord(purchase.id);
 
+        const isInvalidAccount = Boolean(
+          activationRecords[0]?.firestoreData?.ValidTill && 
+          moment.unix(activationRecords[0]?.firestoreData?.ValidTill._seconds).isBefore(moment())
+      );
+
         const hasOrderStatus_email = Boolean(orderStatus && orderEmail);
 
         const startedTraining = Boolean(
           activationRecords &&
             activationRecords.length > 0 &&
-            activationRecords[0]?.firestoreData?.TrainingStartedOn
+            activationRecords[0]?.firestoreData?.TrainingStartedOn &&
+            !isInvalidAccount
         );
 
         // Calculate completion status
@@ -244,11 +250,6 @@ export default function UserPurchaseDetails({
             (shippingInfo || purchase.shippable === false) &&
             activationRecords &&
             activationRecords.length > 0
-        );
-
-        const isValidAccount = Boolean(
-            activationRecords[0]?.firestoreData?.ValidTill && 
-            moment.unix(activationRecords[0]?.firestoreData?.ValidTill._seconds).isBefore(moment())
         );
 
         const multipleActivations = Boolean(
@@ -264,7 +265,7 @@ export default function UserPurchaseDetails({
           isActivated_VReceived,
           startedTraining,
           hasOrderStatus_email,
-          isValidAccount,
+          isInvalidAccount,
           multipleActivations,
         });
         
@@ -323,7 +324,7 @@ export default function UserPurchaseDetails({
                 ? '#e8cd1e'
                 : purchaseStatus?.isActivated_VReceived
                 ? '#1e9ee8'
-                : purchaseStatus?.isValidAccount
+                : purchaseStatus?.isInvalidAccount
                 ? '#959595'
                 : '#eb1717'
             }

@@ -39,7 +39,7 @@ interface PurchaseStatus {
   hasOrderStatus_email: boolean;
   isActivated_VReceived: boolean;
   startedTraining: boolean;
-  isValidAccount: boolean;
+  isInvalidAccount: boolean;
   multipleActivations: boolean;
 }
 
