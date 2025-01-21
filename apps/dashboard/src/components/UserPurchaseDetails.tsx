@@ -234,16 +234,16 @@ export default function UserPurchaseDetails({
           moment.unix(activationRecords[0]?.firestoreData?.ValidTill._seconds).isBefore(moment())
       );
 
-        const hasOrderStatus_email = Boolean(orderStatus && orderEmail);
+        const hasOrderStatus_email = Boolean(orderStatus && orderEmail && !(shippingInfo || purchase.shippable === false));
 
         const startedTraining = Boolean(
           activationRecords &&
             activationRecords.length > 0 &&
-            activationRecords[0]?.firestoreData?.TrainingStartedOn &&
+            activationRecords[0]?.firestoreData?uTrainingStartedOn &&
             !isInvalidAccount
         );
 
-        // Calculate completion status
+        // Calculate complet
         const isActivated_VReceived = Boolean(
           orderStatus &&
             orderEmail &&
