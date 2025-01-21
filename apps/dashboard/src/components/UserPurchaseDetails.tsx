@@ -235,7 +235,7 @@ export default function UserPurchaseDetails({
         const hasOrderStatus_email = Boolean(
           orderStatus &&
             orderEmail &&
-            !(shippingInfo || purchase.shippable === false)
+            !shippingInfo
         );
 
         const startedTraining = Boolean(
@@ -244,29 +244,29 @@ export default function UserPurchaseDetails({
             activationRecords[0]?.firestoreData?.TrainingStartedOn &&
             !isInvalidAccount
         );
-
-        // Calculate completion status
-        const isActivated_VReceived = Boolean(
+      
+        
+        const isActivated_and_VR_delivered = Boolean(
           orderStatus &&
             orderEmail &&
-            (shippingInfo && getPNShippingStatusInfo(shippingInfo?.statusText?.header).status ===
-              'Delivered' ||
-              getDHLShippingStatusInfo(shippingInfo?.statusText?.header)
-                .status === 'Delivered') &&
+            shippingInfo && (shippingInfo.status === 'DELIVERED' || shippingInfo.status?.statusCode === 'delivered') &&
             activationRecords &&
-            activationRecords.length > 0
+            activationRecords.length > 0 &&
+            !activationRecords[0]?.firestoreData?.TrainingStartedOn &&
+            !isInvalidAccount
         );
 
-        const isActivated_VRNotReceived = Boolean(
+        const isActivated_and_VR_not_delivered = Boolean(
           orderStatus &&
             orderEmail &&
-            (shippingInfo && getPNShippingStatusInfo(shippingInfo?.statusText?.header).status !==
-              'Delivered' ||
-              getDHLShippingStatusInfo(shippingInfo?.statusText?.header)
-                .status !== 'Delivered') &&
+            shippingInfo && shippingInfo.status !== 'DELIVERED' &&
             activationRecords &&
-            activationRecords.length > 0
+            activationRecords.length > 0 &&
+            !activationRecords[0]?.firestoreData?.TrainingStartedOn &&
+            !isInvalidAccount
         );
+
+        
 
         const multipleActivations = Boolean(
           activationRecords && activationRecords.length > 1
@@ -278,8 +278,8 @@ export default function UserPurchaseDetails({
           orderEmail,
           shippingInfo,
           activationRecords,
-          isActivated_VReceived,
-          isActivated_VRNotReceived,
+          isActivated_and_VR_delivered,
+          isActivated_and_VR_not_delivered,
           startedTraining,
           hasOrderStatus_email,
           isInvalidAccount,
@@ -340,9 +340,11 @@ export default function UserPurchaseDetails({
             strokeColor={
               purchaseStatus?.startedTraining
                 ? '#02bc12'
-                : purchaseStatus?.hasOrderStatus_email || purchaseStatus?.isActivated_VRNotReceived
+                : purchaseStatus?.hasOrderStatus_email
                 ? '#e8cd1e'
-                : purchaseStatus?.isActivated_VReceived
+                : purchaseStatus?.isActivated_and_VR_not_delivered
+                ? '#e8cd1e'
+                : purchaseStatus?.isActivated_and_VR_delivered
                 ? '#1e9ee8'
                 : purchaseStatus?.isInvalidAccount
                 ? '#959595'

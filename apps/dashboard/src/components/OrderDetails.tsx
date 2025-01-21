@@ -33,6 +33,28 @@ export default function OrderDetails({ purchase }: OrderDetailsProps) {
     additionalInfos,
     error: additionalInfoError,
   } = useAdditionalInfo(purchase.id);
+
+  const {
+    orderStatus,
+    orderEmail,
+    shippingInfo,
+    activationRecords,
+    isActivated_and_VR_delivered,
+    startedTraining,
+    hasOrderStatus_email,
+    isInvalidAccount,
+    multipleActivations,
+  } = purchaseStatus
+
+  useEffect(() => {
+    
+    console.log(
+      shippingInfo,
+      hasOrderStatus_email,
+      isActivated_and_VR_delivered
+    )
+      
+  }, [purchaseStatus]);
  
 
   if (!purchaseStatus) {
@@ -46,7 +68,7 @@ export default function OrderDetails({ purchase }: OrderDetailsProps) {
     );
   }
 
-  const { orderStatus, orderEmail, shippingInfo } = purchaseStatus;
+  // const { orderStatus, orderEmail, shippingInfo } = purchaseStatus;
 
   return (
     <section className="pb-12">
