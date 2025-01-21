@@ -6,7 +6,7 @@ import ActivationRecords from './ActivationRecords';
 import { useActivationStore } from '@/app/store/purchaseActivactionsStore';
 import { useAdditionalInfo } from '@/app/hooks';
 import usePurchaseStore from '@/app/store/purchaseStore';
-import {getPNShippingStatusInfo, getDHLShippingStatusInfo} from '@/lib/utils'
+import { getPNShippingStatusInfo, getDHLShippingStatusInfo } from '@/lib/utils'
 
 interface OrderDetailsProps {
   purchase: PurchaseObj;
