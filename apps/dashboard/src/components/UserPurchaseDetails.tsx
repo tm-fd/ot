@@ -1,10 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useDisclosure } from '@nextui-org/react';
-import {
-  EditIcon,
-  EyeIconLoading,
-} from './icons';
+import { EditIcon, EyeIconLoading } from './icons';
 import { SharedModal } from './SharedModal';
 import { EditPurchase } from './EditPurchase';
 import OrderDetails from './OrderDetails';
@@ -13,8 +10,7 @@ import axios from 'axios';
 import Loading from '@/app/loading';
 import moment from 'moment';
 import { SquareStack } from 'lucide-react';
-
-
+import { getPNShippingStatusInfo, getDHLShippingStatusInfo } from '@/lib/utils';
 
 interface UserPurchaseDetailsProps {
   purchase: PurchaseObj;
@@ -230,30 +226,50 @@ export default function UserPurchaseDetails({
         const activationRecords = await fetchActivationRecord(purchase.id);
 
         const isInvalidAccount = Boolean(
-          activationRecords[0]?.firestoreData?.ValidTill && 
-          moment.unix(activationRecords[0]?.firestoreData?.ValidTill._seconds).isBefore(moment())
-      );
+          activationRecords[0]?.firestoreData?.ValidTill &&
+            moment
+              .unix(activationRecords[0]?.firestoreData?.ValidTill._seconds)
+              .isBefore(moment())
+        );
 
-        const hasOrderStatus_email = Boolean(orderStatus && orderEmail && !(shippingInfo || purchase.shippable === false));
+        const hasOrderStatus_email = Boolean(
+          orderStatus &&
+            orderEmail &&
+            !(shippingInfo || purchase.shippable === false)
+        );
 
         const startedTraining = Boolean(
           activationRecords &&
             activationRecords.length > 0 &&
-            activationRecords[0]?.firestoreData?uTrainingStartedOn &&
+            activationRecords[0]?.firestoreData?.TrainingStartedOn &&
             !isInvalidAccount
         );
 
-        // Calculate complet
+        // Calculate completion status
         const isActivated_VReceived = Boolean(
           orderStatus &&
             orderEmail &&
-            (shippingInfo || purchase.shippable === false) &&
+            (shippingInfo && getPNShippingStatusInfo(shippingInfo?.statusText?.header).status ===
+              'Delivered' ||
+              getDHLShippingStatusInfo(shippingInfo?.statusText?.header)
+                .status === 'Delivered') &&
+            activationRecords &&
+            activationRecords.length > 0
+        );
+
+        const isActivated_VRNotReceived = Boolean(
+          orderStatus &&
+            orderEmail &&
+            (shippingInfo && getPNShippingStatusInfo(shippingInfo?.statusText?.header).status !==
+              'Delivered' ||
+              getDHLShippingStatusInfo(shippingInfo?.statusText?.header)
+                .status !== 'Delivered') &&
             activationRecords &&
             activationRecords.length > 0
         );
 
         const multipleActivations = Boolean(
-          activationRecords && activationRecords.length > 1 
+          activationRecords && activationRecords.length > 1
         );
 
         // Store the results in Zustand
@@ -263,12 +279,13 @@ export default function UserPurchaseDetails({
           shippingInfo,
           activationRecords,
           isActivated_VReceived,
+          isActivated_VRNotReceived,
           startedTraining,
           hasOrderStatus_email,
           isInvalidAccount,
           multipleActivations,
         });
-        
+
         setLocalLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -308,7 +325,10 @@ export default function UserPurchaseDetails({
   return (
     <>
       <div className="relative flex items-center justify-end gap-2 min-w-20">
-        {purchaseStatus?.multipleActivations && purchase.numberOfLicenses > 1 && <SquareStack size={20} color="#999999" strokeWidth={1.5} />}
+        {purchaseStatus?.multipleActivations &&
+          purchase.numberOfLicenses > 1 && (
+            <SquareStack size={20} color="#999999" strokeWidth={1.5} />
+          )}
         <span
           onClick={handleViewClick}
           className={`text-lg text-default-400 ${
@@ -320,7 +340,7 @@ export default function UserPurchaseDetails({
             strokeColor={
               purchaseStatus?.startedTraining
                 ? '#02bc12'
-                : purchaseStatus?.hasOrderStatus_email
+                : purchaseStatus?.hasOrderStatus_email || purchaseStatus?.isActivated_VRNotReceived
                 ? '#e8cd1e'
                 : purchaseStatus?.isActivated_VReceived
                 ? '#1e9ee8'

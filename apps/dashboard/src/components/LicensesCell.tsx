@@ -6,7 +6,6 @@ export const LicensesCell = ({ purchase }: { purchase: PurchaseObj }) => {
     const purchaseStatus = purchaseStatuses[purchase.id];
     const activationRecords = purchaseStatus?.activationRecords || [];
     const purchasedLicenses = Math.abs(purchase.numberOfLicenses - activationRecords.length);
-    console.log(purchase.numberOfLicenses ,activationRecords.length)
     return (
       <Purchase>
         {purchase.numberOfLicenses}{' '}
