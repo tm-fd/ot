@@ -4,7 +4,7 @@ import { ZPurchase, PurchaseObj } from '@/app/store/purchaseStore';
 export const LicensesCell = ({ purchase }: { purchase: PurchaseObj }) => {
     const { purchaseStatuses } = usePurchaseStore();
     const purchaseStatus = purchaseStatuses[purchase.id];
-    const activationRecords = purchaseStatus?.activationRecords || [];
+    const activationRecords = purchaseStatus?.activationRecords.filter(record => record.user_id !== null) || [];
     const purchasedLicenses = Math.abs(purchase.numberOfLicenses - activationRecords.length);
     return (
       <Purchase>

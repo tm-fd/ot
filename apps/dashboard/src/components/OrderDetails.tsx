@@ -46,15 +46,11 @@ export default function OrderDetails({ purchase }: OrderDetailsProps) {
     multipleActivations,
   } = purchaseStatus
 
-  useEffect(() => {
+  // useEffect(() => {
     
-    console.log(
-      shippingInfo,
-      hasOrderStatus_email,
-      isActivated_and_VR_delivered
-    )
+  //   console.log(activationRecords.filter(record => record.user_id !== null) , purchase.numberOfLicenses)
       
-  }, [purchaseStatus]);
+  // }, [purchaseStatus]);
  
 
   if (!purchaseStatus) {
