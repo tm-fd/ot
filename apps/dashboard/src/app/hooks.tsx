@@ -129,10 +129,7 @@ export const useAdditionalInfo = (purchaseId: number) => {
   useEffect(() => {
     fetchAdditionalInfo();
   }, [purchaseId]);
-
-  useEffect(() => {
-    console.log(editedAdditionalInfos, additionalInfos);
-  }, [editedAdditionalInfos, additionalInfos]);
+  
 
   const editAdditionalInfo = (id: number, newInfo: string) => {
     setEditedAdditionalInfos({ id, info: newInfo });
