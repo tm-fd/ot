@@ -345,7 +345,7 @@ export default function UserPurchaseDetails({
                 : purchaseStatus?.isActivated_and_VR_not_delivered
                 ? '#e8cd1e'
                 : purchaseStatus?.isActivated_and_VR_delivered
-                ? '#1e9ee8'
+                ? '#a44bca'
                 : purchaseStatus?.isInvalidAccount
                 ? '#959595'
                 : '#eb1717'
