@@ -339,15 +339,15 @@ export default function UserPurchaseDetails({
             isLoading={localLoading}
             strokeColor={
               purchaseStatus?.startedTraining
-                ? '#02bc12'
+                ? '#0062ff'
                 : purchaseStatus?.hasOrderStatus_email
                 ? '#e8cd1e'
                 : purchaseStatus?.isActivated_and_VR_not_delivered
                 ? '#e8cd1e'
                 : purchaseStatus?.isActivated_and_VR_delivered
-                ? '#a44bca'
+                ? '#ac54d2'
                 : purchaseStatus?.isInvalidAccount
-                ? '#959595'
+                ? '#cdcdcd'
                 : '#eb1717'
             }
           />
