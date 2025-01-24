@@ -11,6 +11,8 @@ import {
   Input,
   Pagination,
   SortDescriptor,
+  Checkbox,
+  Tooltip
 } from '@nextui-org/react';
 
 import { Purchase, columns, renderCell } from '../app/purchases/columns';
@@ -20,8 +22,7 @@ import usePurchaseStore from '../app/store/purchaseStore';
 export default function PurchaseTable() {
   const { purchases } = usePurchaseStore();
   const [filterValue, setFilterValue] = useState('');
-  
-
+const [showHidden, setShowHidden] = useState(false);
   
 
   const hasSearchFilter = Boolean(filterValue);
@@ -51,15 +52,23 @@ export default function PurchaseTable() {
 
   const filteredItems = useMemo(() => {
     let filteredPurchases = [...purchases];
-
+  
+    // Filter out hidden purchases if showHidden is false
+    if (!showHidden) {
+      filteredPurchases = filteredPurchases.filter((purchase) => {
+        const isHidden = purchase.additionalInfo?.some(info => info.is_hidden);
+        return !isHidden;
+      });
+    }
+  
     if (hasSearchFilter) {
       filteredPurchases = filteredPurchases.filter((purchase) =>
         searchPurchase(purchase, filterValue)
       );
     }
-
+  
     return filteredPurchases;
-  }, [purchases, filterValue, hasSearchFilter]);
+  }, [purchases, filterValue, hasSearchFilter, showHidden]);
 
   const rowsPerPage = 20;
   const [page, setPage] = useState(1);
@@ -113,10 +122,17 @@ export default function PurchaseTable() {
             onClear={() => onClear()}
             onValueChange={onSearchChange}
           />
+          <Checkbox
+  isSelected={showHidden}
+  onValueChange={setShowHidden}
+  color="secondary"
+>
+  Show Hidden Purchases
+</Checkbox>
         </div>
       </div>
     );
-  }, [filterValue, onSearchChange, onClear]);
+  }, [filterValue, onSearchChange, onClear, showHidden]);
 
   const handlePaginationChange = (page) => {
     setPage(page);
@@ -156,7 +172,27 @@ export default function PurchaseTable() {
               key={column.key}
               {...(column.key === 'date' ? { allowsSorting: true } : {})}
             >
-              {column.label}
+              <div className="flex items-center gap-2">
+        {column.label}
+        {column.key === "actions" && (
+          <Tooltip
+            content={
+              <div className="px-1 py-2">
+                <div className="text-tiny">
+                <p><span className="inline-block w-3 h-3 rounded-full bg-yallow-500 mr-2"></span>Activation code is sent / Is activated & VR not delivered</p>
+                <p><span className="inline-block w-3 h-3 rounded-full bg-pink-500 mr-2"></span>Is activated & VR delivered</p>
+                  <p><span className="inline-block w-3 h-3 rounded-full bg-blue-500 mr-2"></span>Started training</p>
+                  <p><span className="inline-block w-3 h-3 rounded-full bg-zinc-300 mr-2"></span>Inactive</p>
+                  <p><span className="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>All other cases</p>
+                </div>
+              </div>
+            }
+            placement="right"
+          >
+            <div className="cursor-help text-default-400 text-small">ⓘ</div>
+          </Tooltip>
+        )}
+      </div>
             </TableColumn>
           )}
         </TableHeader>

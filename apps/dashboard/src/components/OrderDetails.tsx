@@ -10,6 +10,9 @@ import { getPNShippingStatusInfo, getDHLShippingStatusInfo } from '@/lib/utils'
 
 interface OrderDetailsProps {
   purchase: PurchaseObj;
+  onStatusComplete?: (status: boolean) => void;
+  isChildPurchase?: boolean;
+
 }
 
 const emailStatusColorMap = {
@@ -45,14 +48,9 @@ export default function OrderDetails({ purchase }: OrderDetailsProps) {
     isInvalidAccount,
     multipleActivations,
   } = purchaseStatus
-
-  // useEffect(() => {
-    
-  //   console.log(activationRecords.filter(record => record.user_id !== null) , purchase.numberOfLicenses)
-      
-  // }, [purchaseStatus]);
  
-
+ 
+  
   if (!purchaseStatus) {
     return (
       <Spinner
@@ -63,8 +61,7 @@ export default function OrderDetails({ purchase }: OrderDetailsProps) {
       />
     );
   }
-
-  // const { orderStatus, orderEmail, shippingInfo } = purchaseStatus;
+  
 
   return (
     <section className="pb-12">
@@ -73,7 +70,7 @@ export default function OrderDetails({ purchase }: OrderDetailsProps) {
         {additionalInfoError ? (
           <p className="text-red-500 mb-4">{additionalInfoError}</p>
         ) : (
-          additionalInfos.length > 0 && (
+          additionalInfos.length > 0 && additionalInfos[0].info !== '' && (
             <div className="flex flex-col items-start justify-center mb-4">
               <h4 className="text-lg font-semibold mb-2">
                 Additional Information:

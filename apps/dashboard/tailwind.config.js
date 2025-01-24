@@ -61,7 +61,7 @@ module.exports = {
           colors: {
             transparent: 'transparent',
             success: '#8e9bef',
-            pending: '#ecde4b',
+            pending: '#ffea00',
             light: '#ccc',
             primary: {
               700: '#27551b',
@@ -90,6 +90,10 @@ module.exports = {
               50: '#043320',
               500: '#62ed6b',
             },
+            yallow: {
+              50: '#f5ee34',
+              500: '#ffee00',
+            },
           },
         },
         dark: {
@@ -103,10 +107,10 @@ module.exports = {
             secondary: {
               700: '#62a3d5',
               foreground: "#9bb7e3",
-              DEFAULT: "#286ed7",
+              DEFAULT: "#0165fb",
             },
             success: '#8e9bef',
-            pending: '#ecde4b',
+            pending: '#ffea00',
             light: '#ccc',
             blue: {
               50: '#e6f1fe',
@@ -126,7 +130,7 @@ module.exports = {
             },
             yallow: {
               50: '#f5ee34',
-              500: '#f6f20c',
+              500: '#ffee00',
             },
           },
         },
@@ -153,6 +157,10 @@ module.exports = {
             green: {
               50: '#043320',
               500: '#62ed6b',
+            },
+            yallow: {
+              50: '#f5ee34',
+              500: '#ffee00',
             },
           },
           layout: {

@@ -1,6 +1,6 @@
 // EditPurchase.tsx
 import React, { useState } from 'react';
-import { Input, Button } from '@nextui-org/react';
+import { Input, Button, Switch } from '@nextui-org/react';
 import { PurchaseObj } from '../app/store/purchaseStore';
 import { useEditPurchase, useAdditionalInfo } from '@/app/hooks';
 import { mutate } from 'swr';
@@ -22,7 +22,6 @@ export function EditPurchase({ purchase, onClose }: EditPurchaseProps) {
     saveAdditionalInfo,
   } = useAdditionalInfo(purchase.id);
   const [isSubmitted, setIsSubmitted] = useState(false);
-
   const handleInputChange = (field: keyof PurchaseObj, value: any) => {
     setEditedPurchase((prev) => ({
       ...prev,
@@ -118,12 +117,16 @@ export function EditPurchase({ purchase, onClose }: EditPurchaseProps) {
           onChange={(e) => handleInputChange('orderNumber', e.target.value)}
         />
         {additionalInfos.map((pi, index) => (
-          <Input
-            key={index}
-            label="Additional info"
-            value={pi.info}
-            onChange={(e) => editAdditionalInfo(pi.id, e.target.value)}
-          />
+          <div key={index} className="flex flex-col gap-4 items-center">
+            <Switch
+              defaultSelected={pi.is_hidden}
+              size="sm"
+              color="success"
+              onChange={(e) => editAdditionalInfo(pi.id, pi.info, e.target.checked)}
+            >
+              {pi.is_hidden ? 'Hidden' : 'Visible'}
+            </Switch>
+          </div>
         ))}
       </div>
       <div className="flex justify-end gap-2 mt-4">

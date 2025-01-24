@@ -131,10 +131,22 @@ export const useAdditionalInfo = (purchaseId: number) => {
   }, [purchaseId]);
   
 
-  const editAdditionalInfo = (id: number, newInfo: string) => {
-    setEditedAdditionalInfos({ id, info: newInfo });
+  const editAdditionalInfo = (id: number, newInfo: string, isHidden?: boolean) => {
+    setEditedAdditionalInfos({
+      id,
+      info: newInfo,
+      ...(isHidden !== undefined && { is_hidden: isHidden }),
+    });
     setAdditionalInfos((prev) =>
-      prev.map((info) => (info.id === id ? { ...info, info: newInfo } : info))
+      prev.map((info) =>
+        info.id === id
+          ? {
+              ...info,
+              info: newInfo,
+              ...(isHidden !== undefined && { is_hidden: isHidden }),
+            }
+          : info
+      )
     );
   };
 
@@ -144,6 +156,7 @@ export const useAdditionalInfo = (purchaseId: number) => {
         `${process.env.CLOUDRUN_DEV_URL}/purchases/additional-info/${editedAdditionalInfos.id}`,
         {
           info: editedAdditionalInfos.info,
+          is_hidden: editedAdditionalInfos.is_hidden,
         }
       );
     } catch (error) {

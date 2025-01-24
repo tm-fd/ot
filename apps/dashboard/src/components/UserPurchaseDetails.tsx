@@ -25,6 +25,7 @@ export default function UserPurchaseDetails({
   const [localLoading, setLocalLoading] = useState(true);
 
   const {
+    purchases,
     purchaseStatuses,
     setPurchaseStatus,
     setError,
@@ -32,9 +33,7 @@ export default function UserPurchaseDetails({
     isLoading,
     setIsLoading,
   } = usePurchaseStore();
-
   const purchaseStatus = purchaseStatuses[Number(purchase.id)];
-
   const fetchUserFirestoreData = async (
     uuid: string
   ): Promise<UserFirestoreData | null> => {
@@ -304,6 +303,8 @@ export default function UserPurchaseDetails({
     purchaseStatus,
     setPurchaseStatus,
   ]);
+
+  
 
   const handleEditClick = () => {
     setIsEditing(true);
