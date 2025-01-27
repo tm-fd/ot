@@ -14,10 +14,12 @@ import { getPNShippingStatusInfo, getDHLShippingStatusInfo } from '@/lib/utils';
 
 interface UserPurchaseDetailsProps {
   purchase: PurchaseObj;
+  oldPurchases?: PurchaseObj[];
 }
 
 export default function UserPurchaseDetails({
   purchase,
+  oldPurchases,
 }: UserPurchaseDetailsProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isEditing, setIsEditing] = useState(false);
@@ -368,7 +370,7 @@ export default function UserPurchaseDetails({
         {isEditing ? (
           <EditPurchase purchase={purchase} onClose={handleCloseModal} />
         ) : (
-          <OrderDetails purchase={purchase} onStatusComplete={setIsComplete} />
+          <OrderDetails purchase={purchase} onStatusComplete={setIsComplete} oldPurchases={oldPurchases} />
         )}
       </SharedModal>
     </>

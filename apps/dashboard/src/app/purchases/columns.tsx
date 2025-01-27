@@ -50,7 +50,7 @@ export const columns = [
   },
 ];
 
-export const renderCell = (purchase: PurchaseObj, columnKey: React.Key) => {
+export const renderCell = (purchase: PurchaseObj, columnKey: React.Key, oldPurchases?: Purchase[] = []) => {
   const cellValue = purchase[columnKey as keyof PurchaseObj];
   switch (columnKey) {
     case 'orderNumber':
@@ -75,7 +75,7 @@ export const renderCell = (purchase: PurchaseObj, columnKey: React.Key) => {
       return <Purchase>{purchase.duration}</Purchase>;
       case "actions":
         return (
-          <Actions purchase={purchase} />
+          <Actions purchase={purchase} oldPurchases={oldPurchases}/>
         );
 
     default:

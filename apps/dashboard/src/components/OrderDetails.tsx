@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Spinner, Chip, Link, Divider } from '@nextui-org/react';
+import { Spinner, Chip, Link, Divider, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@nextui-org/react';
 import { PurchaseObj } from '../app/store/purchaseStore';
 import ActivationRecords from './ActivationRecords';
 import { useActivationStore } from '@/app/store/purchaseActivactionsStore';
@@ -10,9 +10,7 @@ import { getPNShippingStatusInfo, getDHLShippingStatusInfo } from '@/lib/utils'
 
 interface OrderDetailsProps {
   purchase: PurchaseObj;
-  onStatusComplete?: (status: boolean) => void;
-  isChildPurchase?: boolean;
-
+  oldPurchases: PurchaseObj[];
 }
 
 const emailStatusColorMap = {
@@ -27,7 +25,7 @@ const emailStatusColorMap = {
 
 
 
-export default function OrderDetails({ purchase }: OrderDetailsProps) {
+export default function OrderDetails({ purchase, oldPurchases }: OrderDetailsProps) {
   const { fetchActivationRecord, clearActivationRecords } = useActivationStore();
   const { purchaseStatuses } = usePurchaseStore();
   const purchaseStatus = purchaseStatuses[purchase.id];
@@ -48,8 +46,6 @@ export default function OrderDetails({ purchase }: OrderDetailsProps) {
     isInvalidAccount,
     multipleActivations,
   } = purchaseStatus
- 
- 
   
   if (!purchaseStatus) {
     return (
@@ -162,6 +158,39 @@ export default function OrderDetails({ purchase }: OrderDetailsProps) {
 
         <Divider className="my-4" />
         <ActivationRecords purchaseId={purchase.id} />
+        <Divider className="my-4" />
+         {/* Previous Purchases Section */}
+         {oldPurchases && oldPurchases.length > 0 && (
+          <div className="w-full mb-6">
+            <h4 className="text-lg font-semibold mb-3">Previous Purchases</h4>
+            <Table
+              aria-label="Old Purchases Table"
+              isStriped
+              className="w-full"
+            >
+              <TableHeader>
+              <TableColumn>Order Number</TableColumn>
+              <TableColumn>Code</TableColumn>
+                <TableColumn>Created Date</TableColumn>
+                <TableColumn>VR Glasses</TableColumn>
+                <TableColumn>Licenses</TableColumn>
+                <TableColumn>Duration</TableColumn>
+              </TableHeader>
+              <TableBody>
+                {oldPurchases.map((oldPurchase) => (
+                  <TableRow key={oldPurchase.id}>
+                    <TableCell>{oldPurchase.orderNumber}</TableCell>
+                    <TableCell>{oldPurchase.confirmationCode}</TableCell>
+                    <TableCell>{new Date(oldPurchase.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{oldPurchase.numberOfVrGlasses}</TableCell>
+                    <TableCell>{oldPurchase.numberOfLicenses}</TableCell>
+                    <TableCell>{oldPurchase.duration}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </div>
     </section>
   );
