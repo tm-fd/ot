@@ -26,7 +26,6 @@ const emailStatusColorMap = {
 
 
 export default function OrderDetails({ purchase, oldPurchases }: OrderDetailsProps) {
-  const { fetchActivationRecord, clearActivationRecords } = useActivationStore();
   const { purchaseStatuses } = usePurchaseStore();
   const purchaseStatus = purchaseStatuses[purchase.id];
 
@@ -58,7 +57,7 @@ export default function OrderDetails({ purchase, oldPurchases }: OrderDetailsPro
     );
   }
   
-
+console.log(additionalInfos)
   return (
     <section className="pb-12">
       <div className="container flex flex-col items-start justify-start">

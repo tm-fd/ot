@@ -32,6 +32,11 @@ const nextConfig = {
     FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY,
     IMVI_USERS_URL: process.env.IMVI_USERS_URL,
     DHL_API_KEY: process.env.DHL_API_KEY,
+    IMVI_WOOCOMMERCE_URL: process.env.IMVI_WOOCOMMERCE_URL,
+    NEXT_PUBLIC_VR_GLASSES_PRODUCT_ID: process.env.NEXT_PUBLIC_VR_GLASSES_PRODUCT_ID,
+    NEXT_PUBLIC_LICENSE_PRODUCT_ID: process.env.NEXT_PUBLIC_LICENSE_PRODUCT_ID,
+    WOO_API_KEY: process.env.WOO_API_KEY,
+    WOO_API_SECERT: process.env.WOO_API_SECERT,
   },
   nx: {
     // Set this to true if you would like to use SVGR
