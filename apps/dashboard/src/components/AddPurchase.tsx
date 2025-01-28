@@ -217,12 +217,12 @@ export default function AddPurchase({ currentPage }) {
               },
               line_items: [
                 {
-                  product_id: process.env.NEXT_PUBLIC_VR_GLASSES_PRODUCT_ID,
+                  product_id: process.env.VR_GLASSES_PRODUCT_ID,
                   quantity: Number(numberOfVrGlasses) || 0,
                   total: "0",
                 },
                 {
-                  product_id: process.env.NEXT_PUBLIC_LICENSE_PRODUCT_ID,
+                  product_id: process.env.LICENSE_PRODUCT_ID,
                   quantity: Number(numberOfLicenses),
                   total: "0",
                 },
