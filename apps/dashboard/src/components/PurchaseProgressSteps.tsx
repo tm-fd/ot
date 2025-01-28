@@ -37,7 +37,7 @@ export function PurchaseProgressSteps({ purchaseStatus }: StepProps) {
       case 'vrShipped':
         return !!purchaseStatus.shippingInfo;
       case 'vrDelivered':
-        return purchaseStatus.isActivated_and_VR_delivered;
+        return purchaseStatus.shippingInfo && (purchaseStatus.shippingInfo.status === 'DELIVERED' || purchaseStatus.shippingInfo.status?.statusCode === 'delivered');
       case 'accountActivated':
         return purchaseStatus.activationRecords.length > 0;
       case 'trainingStarted':
