@@ -27,6 +27,7 @@ export const fetchPurchases = async ({url, params}) => {
         numberOfLicenses: obj.number_of_licenses,
         isSubscription: obj.is_subscription,
         duration: obj.duration,
+        additionalInfo: obj.additional_info,
       }));
       const data = {
         purchases: customData.reverse(),

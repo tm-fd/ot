@@ -1,23 +1,25 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useDisclosure } from '@nextui-org/react';
+import { useDisclosure, Tooltip } from '@nextui-org/react';
 import { EditIcon, EyeIconLoading } from './icons';
 import { SharedModal } from './SharedModal';
 import { EditPurchase } from './EditPurchase';
 import OrderDetails from './OrderDetails';
 import usePurchaseStore, { PurchaseObj } from '@/app/store/purchaseStore';
 import axios from 'axios';
-import Loading from '@/app/loading';
 import moment from 'moment';
 import { SquareStack } from 'lucide-react';
-import { getPNShippingStatusInfo, getDHLShippingStatusInfo } from '@/lib/utils';
+import { PurchaseProgressSteps } from './PurchaseProgressSteps';
+
 
 interface UserPurchaseDetailsProps {
   purchase: PurchaseObj;
+  oldPurchases?: PurchaseObj[];
 }
 
 export default function UserPurchaseDetails({
   purchase,
+  oldPurchases,
 }: UserPurchaseDetailsProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isEditing, setIsEditing] = useState(false);
@@ -25,6 +27,7 @@ export default function UserPurchaseDetails({
   const [localLoading, setLocalLoading] = useState(true);
 
   const {
+    purchases,
     purchaseStatuses,
     setPurchaseStatus,
     setError,
@@ -32,9 +35,7 @@ export default function UserPurchaseDetails({
     isLoading,
     setIsLoading,
   } = usePurchaseStore();
-
   const purchaseStatus = purchaseStatuses[Number(purchase.id)];
-
   const fetchUserFirestoreData = async (
     uuid: string
   ): Promise<UserFirestoreData | null> => {
@@ -305,6 +306,8 @@ export default function UserPurchaseDetails({
     setPurchaseStatus,
   ]);
 
+  
+
   const handleEditClick = () => {
     setIsEditing(true);
     onOpen();
@@ -324,7 +327,21 @@ export default function UserPurchaseDetails({
 
   return (
     <>
-      <div className="relative flex items-center justify-end gap-2 min-w-20">
+    <Tooltip
+      content={
+        purchaseStatus ? (
+          <PurchaseProgressSteps purchaseStatus={purchaseStatus} />
+        ) : (
+          <div className="p-2">Loading status...</div>
+        )
+      }
+      placement="top"
+      showArrow
+      delay={0}
+      closeDelay={0}
+      className="w-[500px]"
+    >
+       <div className="relative flex items-center justify-end gap-2 min-w-20">
         {purchaseStatus?.multipleActivations &&
           purchase.numberOfLicenses > 1 && (
             <SquareStack size={20} color="#999999" strokeWidth={1.5} />
@@ -359,6 +376,42 @@ export default function UserPurchaseDetails({
           <EditIcon />
         </span>
       </div>
+    </Tooltip>
+      {/* <div className="relative flex items-center justify-end gap-2 min-w-20">
+        {purchaseStatus?.multipleActivations &&
+          purchase.numberOfLicenses > 1 && (
+            <SquareStack size={20} color="#999999" strokeWidth={1.5} />
+          )}
+        <span
+          onClick={handleViewClick}
+          className={`text-lg text-default-400 ${
+            !localLoading && purchaseStatus ? 'cursor-pointer' : 'cursor-wait'
+          } active:opacity-50`}
+        >
+          <EyeIconLoading
+            isLoading={localLoading}
+            strokeColor={
+              purchaseStatus?.startedTraining
+                ? '#0062ff'
+                : purchaseStatus?.hasOrderStatus_email
+                ? '#e8cd1e'
+                : purchaseStatus?.isActivated_and_VR_not_delivered
+                ? '#e8cd1e'
+                : purchaseStatus?.isActivated_and_VR_delivered
+                ? '#ec4fba'
+                : purchaseStatus?.isInvalidAccount
+                ? '#bababa'
+                : '#eb1717'
+            }
+          />
+        </span>
+        <span
+          onClick={handleEditClick}
+          className="text-lg text-default-400 cursor-pointer active:opacity-50"
+        >
+          <EditIcon />
+        </span>
+      </div> */}
       <SharedModal
         isOpen={isOpen}
         onOpenChange={handleCloseModal}
@@ -367,7 +420,7 @@ export default function UserPurchaseDetails({
         {isEditing ? (
           <EditPurchase purchase={purchase} onClose={handleCloseModal} />
         ) : (
-          <OrderDetails purchase={purchase} onStatusComplete={setIsComplete} />
+          <OrderDetails purchase={purchase} onStatusComplete={setIsComplete} oldPurchases={oldPurchases} />
         )}
       </SharedModal>
     </>

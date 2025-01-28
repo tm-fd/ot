@@ -21,6 +21,7 @@ import Joi from 'joi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSWRConfig } from 'swr';
 
+
 export default function AddPurchase({ currentPage }) {
   const { mutate } = useSWRConfig();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -57,20 +58,30 @@ export default function AddPurchase({ currentPage }) {
   const [email, setEmail] = useState('');
   const [firstName, setFistname] = useState('');
   const [lastName, setLastname] = useState('');
-  const [numberOfVrGlasses, setNumberOfVrGlasses] = useState('');
-  const [numberOfLicenses, setNumberOfLicenses] = useState('');
+  const [numberOfVrGlasses, setNumberOfVrGlasses] = useState('1');
+  const [numberOfLicenses, setNumberOfLicenses] = useState('1');
   const [isSubscription, setIsSubscription] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [additionalInfo, setAdditionalInfo] = useState('');
   const [loading, setLoading] = useState(false);
+  const [createWooCommerceOrder, setCreateWooCommerceOrder] = useState(false);
+  const [shippingAddress, setShippingAddress] = useState({
+    address1: '',
+    address2: '',
+    city: '',
+    state: '',
+    postcode: '',
+    country: '',
+    phone: '',
+  });
 
   const handleSelectionChange = (e: any) => {
     setDuration(e.target.value);
   };
 
-  function JoiValidatePurchase(obj: any) {
-    const schema = Joi.object({
+  const JoiValidatePurchase = (obj: any) => {
+    const baseSchema = {
       email: Joi.string()
         .email({ minDomainSegments: 2, tlds: { allow: false } })
         .required()
@@ -100,14 +111,44 @@ export default function AddPurchase({ currentPage }) {
       orderNumber: Joi.string().required(),
       isSubscription: Joi.boolean().required(),
       additionalInfo: Joi.string().allow('').optional(),
-    });
-    // returns the schema and validates whatever obj we put in
+      createWooCommerceOrder: Joi.boolean().required(),
+    };
+
+    // Add shipping address validation when WooCommerce order is enabled
+    if (obj.createWooCommerceOrder) {
+      baseSchema.shippingAddress = Joi.object({
+        address1: Joi.string().required().messages({
+          'string.required': 'Address Line 1 is required',
+        }),
+        address2: Joi.string().allow('').optional(),
+        city: Joi.string().required().messages({
+          'string.required': 'City is required',
+        }),
+        state: Joi.string().required().messages({
+          'string.required': 'State is required',
+        }),
+        postcode: Joi.string().required().messages({
+          'string.required': 'Postal Code is required',
+        }),
+        country: Joi.string().required().messages({
+          'string.required': 'Country is required',
+        }),
+        phone: Joi.string().required().messages({
+          'string.required': 'Phone is required',
+        }),
+      }).required();
+    }
+
+    const schema = Joi.object(baseSchema);
     return schema.validate(obj);
-  }
+  };
 
   const submitPurchase = useCallback(async () => {
     const orderNumber = cryptoRandomString({ length: 10, type: 'numeric' });
-    const code = cryptoRandomString({ length: 4, characters: '2346789abcdefghjkmnpqrtuvwxyzABCDEFGHJKMNPQRTUVWXYZ' });
+    const code = cryptoRandomString({
+      length: 4,
+      characters: '2346789abcdefghjkmnpqrtuvwxyzABCDEFGHJKMNPQRTUVWXYZ',
+    });
 
     const purchaseObj = {
       email,
@@ -119,7 +160,11 @@ export default function AddPurchase({ currentPage }) {
       isSubscription,
       duration: Number(duration),
       orderNumber,
+      createWooCommerceOrder,
+      ...(createWooCommerceOrder && { shippingAddress }),
+      additionalInfo,
     };
+
     const { error } = JoiValidatePurchase(purchaseObj);
 
     if (error) {
@@ -131,6 +176,7 @@ export default function AddPurchase({ currentPage }) {
     }
 
     try {
+      // First, create the purchase in your SQL database
       const purchaseRes = await axios.post(
         `${process.env.CLOUDRUN_DEV_URL}/purchases/addPurchase`,
         purchaseObj
@@ -139,14 +185,102 @@ export default function AddPurchase({ currentPage }) {
       if (purchaseRes.status === 200) {
         const purchaseId = purchaseRes.data.id;
 
+        // If WooCommerce order creation is enabled, create the order
+        if (createWooCommerceOrder) {
+          try {
+            const wooCommerceOrderData = {
+              payment_method: 'bacs',
+              payment_method_title: 'Unknown Payment Transfer',
+              set_paid: true,
+              status: 'processing',
+              billing: {
+                first_name: firstName,
+                last_name: lastName,
+                address_1: shippingAddress.address1,
+                address_2: shippingAddress.address2 || '',
+                city: shippingAddress.city,
+                state: shippingAddress.state,
+                postcode: shippingAddress.postcode,
+                country: shippingAddress.country,
+                email: email,
+                phone: shippingAddress.phone,
+              },
+              shipping: {
+                first_name: firstName,
+                last_name: lastName,
+                address_1: shippingAddress.address1,
+                address_2: shippingAddress.address2 || '',
+                city: shippingAddress.city,
+                state: shippingAddress.state,
+                postcode: shippingAddress.postcode,
+                country: shippingAddress.country,
+              },
+              line_items: [
+                {
+                  product_id: process.env.NEXT_PUBLIC_VR_GLASSES_PRODUCT_ID,
+                  quantity: Number(numberOfVrGlasses) || 0,
+                  total: "0",
+                },
+                {
+                  product_id: process.env.NEXT_PUBLIC_LICENSE_PRODUCT_ID,
+                  quantity: Number(numberOfLicenses),
+                  total: "0",
+                },
+              ],
+              shipping_lines: [
+                {
+                  method_id: 'flat_rate',
+                  method_title: 'Flat Rate',
+                  total: '0.00',
+                },
+              ],
+              // fee_lines: 
+              //   [ { total: "2000", name: "Start package"}]
+            };
+
+            // Remove line items with quantity 0
+            wooCommerceOrderData.line_items = wooCommerceOrderData.line_items.filter(
+              item => item.quantity > 0
+            );
+
+            const wooCommerceRes = await axios.post(
+              `${process.env.IMVI_WOOCOMMERCE_URL}/wp-json/wc/v3/orders`,
+              wooCommerceOrderData,
+              {
+                auth: {
+                  username: process.env.WOO_API_KEY,
+                  password: process.env.WOO_API_SECERT,
+                },
+              }
+            );
+
+            if (
+              wooCommerceRes.status !== 200 &&
+              wooCommerceRes.status !== 201
+            ) {
+              throw new Error('Failed to create WooCommerce order');
+            }
+          } catch (wooCommerceError) {
+            console.error(
+              'Error creating WooCommerce order:',
+              wooCommerceError
+            );
+            setErrorMessage(
+              'Purchase added, but failed to create WooCommerce order. Please try creating the order manually.'
+            );
+            setLoading(false);
+            return;
+          }
+        }
+
+        // Handle additional info if present
         if (additionalInfo) {
-          console.log('additionalInfo:', additionalInfo, purchaseId);
           try {
             const additionalInfoRes = await axios.post(
               `${process.env.CLOUDRUN_DEV_URL}/purchases/additional-info/${purchaseId}`,
               { info: additionalInfo }
             );
-            console.log(additionalInfoRes);
+
             if (
               additionalInfoRes.status !== 200 &&
               additionalInfoRes.status !== 201
@@ -174,7 +308,7 @@ export default function AddPurchase({ currentPage }) {
         ]);
         setErrorMessage('The purchase has been added successfully');
 
-        // Clear form fields
+        // Clear all form fields
         setEmail('');
         setFistname('');
         setLastname('');
@@ -183,11 +317,20 @@ export default function AddPurchase({ currentPage }) {
         setIsSubscription(false);
         setDuration('');
         setAdditionalInfo('');
+        setCreateWooCommerceOrder(false);
+        setShippingAddress({
+          address1: '',
+          address2: '',
+          city: '',
+          state: '',
+          postcode: '',
+          country: '',
+          phone: '',
+        });
 
         setTimeout(() => {
           setErrorMessage(null);
           setIsSubmitted(false);
-          setAdditionalInfo(''); // Clear the additional info field
         }, 4000);
       } else {
         throw new Error(
@@ -197,18 +340,14 @@ export default function AddPurchase({ currentPage }) {
     } catch (error) {
       setLoading(false);
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
         setErrorMessage(
           `Error: ${error.response.data.message || 'Server error'}`
         );
       } else if (error.request) {
-        // The request was made but no response was received
         setErrorMessage(
           'Error: No response from server. Please check your internet connection.'
         );
       } else {
-        // Something happened in setting up the request that triggered an Error
         setErrorMessage(`Error: ${error.message}`);
       }
     }
@@ -221,7 +360,10 @@ export default function AddPurchase({ currentPage }) {
     isSubscription,
     duration,
     additionalInfo,
+    createWooCommerceOrder,
+    shippingAddress,
     mutate,
+    currentPage,
   ]);
 
   const handleInputChange = (e) => {
@@ -261,6 +403,7 @@ export default function AddPurchase({ currentPage }) {
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         placement="top-center"
+        scrollBehavior="inside"
       >
         <ModalContent>
           {(onClose) => (
@@ -320,6 +463,7 @@ export default function AddPurchase({ currentPage }) {
                   variant="bordered"
                   value={numberOfVrGlasses}
                   onValueChange={setNumberOfVrGlasses}
+                  type="number"
                 />
                 <Input
                   autoFocus
@@ -328,6 +472,7 @@ export default function AddPurchase({ currentPage }) {
                   value={numberOfLicenses}
                   onValueChange={setNumberOfLicenses}
                   onChange={handleInputChange}
+                  type="number"
                 />
                 <Input
                   autoFocus
@@ -341,6 +486,7 @@ export default function AddPurchase({ currentPage }) {
                   autoFocus
                   isSelected={isSubscription}
                   onValueChange={setIsSubscription}
+                  color="secondary"
                 >
                   Is Subscription
                 </Checkbox>
@@ -363,6 +509,103 @@ export default function AddPurchase({ currentPage }) {
                     ))}
                   </SelectSection>
                 </Select>
+                <Checkbox
+                  autoFocus
+                  isSelected={createWooCommerceOrder}
+                  onValueChange={setCreateWooCommerceOrder}
+                  color="secondary"
+                >
+                  Create WooCommerce Order
+                </Checkbox>
+
+                {/* Shipping Address Form - only shown when createWooCommerceOrder is true */}
+                {createWooCommerceOrder && (
+                  <div className="space-y-4 mt-4 p-4 bg-gray-50 rounded-lg">
+                    <h3 className="text-lg font-semibold">Shipping Address</h3>
+                    <Input
+                      autoFocus
+                      label="Address Line 1"
+                      variant="bordered"
+                      value={shippingAddress.address1}
+                      onValueChange={(value) =>
+                        setShippingAddress((prev) => ({
+                          ...prev,
+                          address1: value,
+                        }))
+                      }
+                    />
+                    <Input
+                      label="Address Line 2"
+                      variant="bordered"
+                      value={shippingAddress.address2}
+                      onValueChange={(value) =>
+                        setShippingAddress((prev) => ({
+                          ...prev,
+                          address2: value,
+                        }))
+                      }
+                    />
+                    <div className="grid grid-cols-2 gap-4">
+                      <Input
+                        label="City"
+                        variant="bordered"
+                        value={shippingAddress.city}
+                        onValueChange={(value) =>
+                          setShippingAddress((prev) => ({
+                            ...prev,
+                            city: value,
+                          }))
+                        }
+                      />
+                      <Input
+                        label="State/Province"
+                        variant="bordered"
+                        value={shippingAddress.state}
+                        onValueChange={(value) =>
+                          setShippingAddress((prev) => ({
+                            ...prev,
+                            state: value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Input
+                        label="Postal Code"
+                        variant="bordered"
+                        value={shippingAddress.postcode}
+                        onValueChange={(value) =>
+                          setShippingAddress((prev) => ({
+                            ...prev,
+                            postcode: value,
+                          }))
+                        }
+                      />
+                      <Input
+                        label="Country"
+                        variant="bordered"
+                        value={shippingAddress.country}
+                        onValueChange={(value) =>
+                          setShippingAddress((prev) => ({
+                            ...prev,
+                            country: value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <Input
+                      label="Phone"
+                      variant="bordered"
+                      value={shippingAddress.phone}
+                      onValueChange={(value) =>
+                        setShippingAddress((prev) => ({
+                          ...prev,
+                          phone: value,
+                        }))
+                      }
+                    />
+                  </div>
+                )}
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="flat" onPress={onClose}>

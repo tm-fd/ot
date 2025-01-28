@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Spinner, Chip, Link, Divider } from '@nextui-org/react';
+import { Spinner, Chip, Link, Divider, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@nextui-org/react';
 import { PurchaseObj } from '../app/store/purchaseStore';
 import ActivationRecords from './ActivationRecords';
 import { useActivationStore } from '@/app/store/purchaseActivactionsStore';
@@ -10,6 +10,7 @@ import { getPNShippingStatusInfo, getDHLShippingStatusInfo } from '@/lib/utils'
 
 interface OrderDetailsProps {
   purchase: PurchaseObj;
+  oldPurchases: PurchaseObj[];
 }
 
 const emailStatusColorMap = {
@@ -24,8 +25,7 @@ const emailStatusColorMap = {
 
 
 
-export default function OrderDetails({ purchase }: OrderDetailsProps) {
-  const { fetchActivationRecord, clearActivationRecords } = useActivationStore();
+export default function OrderDetails({ purchase, oldPurchases }: OrderDetailsProps) {
   const { purchaseStatuses } = usePurchaseStore();
   const purchaseStatus = purchaseStatuses[purchase.id];
 
@@ -45,14 +45,7 @@ export default function OrderDetails({ purchase }: OrderDetailsProps) {
     isInvalidAccount,
     multipleActivations,
   } = purchaseStatus
-
-  // useEffect(() => {
-    
-  //   console.log(activationRecords.filter(record => record.user_id !== null) , purchase.numberOfLicenses)
-      
-  // }, [purchaseStatus]);
- 
-
+  
   if (!purchaseStatus) {
     return (
       <Spinner
@@ -63,9 +56,8 @@ export default function OrderDetails({ purchase }: OrderDetailsProps) {
       />
     );
   }
-
-  // const { orderStatus, orderEmail, shippingInfo } = purchaseStatus;
-
+  
+console.log(additionalInfos)
   return (
     <section className="pb-12">
       <div className="container flex flex-col items-start justify-start">
@@ -73,7 +65,7 @@ export default function OrderDetails({ purchase }: OrderDetailsProps) {
         {additionalInfoError ? (
           <p className="text-red-500 mb-4">{additionalInfoError}</p>
         ) : (
-          additionalInfos.length > 0 && (
+          additionalInfos.length > 0 && additionalInfos[0].info !== '' && (
             <div className="flex flex-col items-start justify-center mb-4">
               <h4 className="text-lg font-semibold mb-2">
                 Additional Information:
@@ -165,6 +157,39 @@ export default function OrderDetails({ purchase }: OrderDetailsProps) {
 
         <Divider className="my-4" />
         <ActivationRecords purchaseId={purchase.id} />
+        <Divider className="my-4" />
+         {/* Previous Purchases Section */}
+         {oldPurchases && oldPurchases.length > 0 && (
+          <div className="w-full mb-6">
+            <h4 className="text-lg font-semibold mb-3">Previous Purchases</h4>
+            <Table
+              aria-label="Old Purchases Table"
+              isStriped
+              className="w-full"
+            >
+              <TableHeader>
+              <TableColumn>Order Number</TableColumn>
+              <TableColumn>Code</TableColumn>
+                <TableColumn>Created Date</TableColumn>
+                <TableColumn>VR Glasses</TableColumn>
+                <TableColumn>Licenses</TableColumn>
+                <TableColumn>Duration</TableColumn>
+              </TableHeader>
+              <TableBody>
+                {oldPurchases.map((oldPurchase) => (
+                  <TableRow key={oldPurchase.id}>
+                    <TableCell>{oldPurchase.orderNumber}</TableCell>
+                    <TableCell>{oldPurchase.confirmationCode}</TableCell>
+                    <TableCell>{new Date(oldPurchase.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{oldPurchase.numberOfVrGlasses}</TableCell>
+                    <TableCell>{oldPurchase.numberOfLicenses}</TableCell>
+                    <TableCell>{oldPurchase.duration}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </div>
     </section>
   );
