@@ -1,5 +1,5 @@
-import { Tooltip } from "@nextui-org/react";
-import { CheckCircle2, Circle } from "lucide-react";
+import { Tooltip } from '@nextui-org/react';
+import { CheckCircle2, Circle } from 'lucide-react';
 
 interface PurchaseStatus {
   orderStatus: any | null;
@@ -37,7 +37,11 @@ export function PurchaseProgressSteps({ purchaseStatus }: StepProps) {
       case 'vrShipped':
         return !!purchaseStatus.shippingInfo;
       case 'vrDelivered':
-        return purchaseStatus.shippingInfo && (purchaseStatus.shippingInfo.status === 'DELIVERED' || purchaseStatus.shippingInfo.status?.statusCode === 'delivered');
+        return (
+          purchaseStatus.shippingInfo &&
+          (purchaseStatus.shippingInfo.status === 'DELIVERED' ||
+            purchaseStatus.shippingInfo.status?.statusCode === 'delivered')
+        );
       case 'accountActivated':
         return purchaseStatus.activationRecords.length > 0;
       case 'trainingStarted':
@@ -52,12 +56,12 @@ export function PurchaseProgressSteps({ purchaseStatus }: StepProps) {
       <div className="flex flex-col gap-2">
         <div className="flex justify-between">
           {steps.map(({ label }) => (
-            <div key={label} className="text-xs text-gray-600 text-center w-24">
+            <div key={label} className="text-xs text-gray-600 text-center w-16">
               {label}
             </div>
           ))}
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center justify-center">
           {steps.map(({ key }, index) => (
             <div key={key} className="flex items-center">
               <div className="relative">
