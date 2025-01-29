@@ -240,6 +240,13 @@ export default function UserPurchaseDetails({
         );
 
         const startedTraining = Boolean(
+          activationRecords &&
+            activationRecords.length > 0 &&
+            activationRecords[0]?.firestoreData?.TrainingStartedOn &&
+            !isInvalidAccount
+        );
+
+        const startedTraining_with_VR = Boolean(
           orderStatus &&
             orderEmail &&
             shippingInfo && (shippingInfo.status === 'DELIVERED' || shippingInfo.status?.statusCode === 'delivered') &&
@@ -248,6 +255,7 @@ export default function UserPurchaseDetails({
             activationRecords[0]?.firestoreData?.TrainingStartedOn &&
             !isInvalidAccount
         );
+        
       
         
         const isActivated_and_VR_delivered = Boolean(
@@ -285,6 +293,7 @@ export default function UserPurchaseDetails({
           isActivated_and_VR_delivered,
           isActivated_and_VR_not_delivered,
           startedTraining,
+          startedTraining_with_VR,
           hasOrderStatus_email,
           isInvalidAccount,
           multipleActivations,
@@ -359,7 +368,7 @@ export default function UserPurchaseDetails({
           <EyeIconLoading
             isLoading={localLoading}
             strokeColor={
-              purchaseStatus?.startedTraining
+              purchaseStatus?.startedTraining || purchaseStatus?.startedTraining_with_VR
                 ? '#0062ff'
                 : purchaseStatus?.hasOrderStatus_email
                 ? '#e8cd1e'
