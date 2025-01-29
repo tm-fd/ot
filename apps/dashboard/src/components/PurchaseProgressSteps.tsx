@@ -1,22 +1,6 @@
 import { Tooltip } from '@nextui-org/react';
 import { CheckCircle2, Circle } from 'lucide-react';
-
-interface PurchaseStatus {
-  orderStatus: any | null;
-  orderEmail: string | null;
-  shippingInfo: any | null;
-  activationRecords: any[];
-  hasOrderStatus_email: boolean;
-  isActivated_and_VR_delivered: boolean;
-  isActivated_and_VR_not_delivered: boolean;
-  startedTraining: boolean;
-  isInvalidAccount: boolean;
-  multipleActivations: boolean;
-}
-
-interface StepProps {
-  purchaseStatus: PurchaseStatus;
-}
+import { PurchaseStatus } from '@/app/store/purchaseStore'
 
 const steps = [
   { key: 'orderPlaced', label: 'Order Placed' },
@@ -27,7 +11,7 @@ const steps = [
   { key: 'trainingStarted', label: 'Training Started' },
 ];
 
-export function PurchaseProgressSteps({ purchaseStatus }: StepProps) {
+export function PurchaseProgressSteps({ purchaseStatus }: PurchaseStatus) {
   const getStepStatus = (step: string) => {
     switch (step) {
       case 'orderPlaced':
@@ -45,7 +29,7 @@ export function PurchaseProgressSteps({ purchaseStatus }: StepProps) {
       case 'accountActivated':
         return purchaseStatus.activationRecords.length > 0;
       case 'trainingStarted':
-        return purchaseStatus.startedTraining_with_VR;
+        return purchaseStatus.startedTraining;
       default:
         return false;
     }
