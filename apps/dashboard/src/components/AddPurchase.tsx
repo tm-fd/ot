@@ -112,7 +112,6 @@ export default function AddPurchase({ currentPage }) {
       isSubscription: Joi.boolean().required(),
       additionalInfo: Joi.string().allow('').optional(),
       additional_info: Joi.object().allow(null).optional(),
-      createWooCommerceOrder: Joi.boolean().required(),
     };
 
     // Add shipping address validation when WooCommerce order is enabled
@@ -161,8 +160,6 @@ export default function AddPurchase({ currentPage }) {
       isSubscription,
       duration: Number(duration),
       orderNumber,
-      createWooCommerceOrder,
-      ...(createWooCommerceOrder && { shippingAddress }),
       additional_info: {
         info: additionalInfo
       },
