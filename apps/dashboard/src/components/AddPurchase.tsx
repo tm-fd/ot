@@ -21,7 +21,6 @@ import Joi from 'joi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSWRConfig } from 'swr';
 
-
 export default function AddPurchase({ currentPage }) {
   const { mutate } = useSWRConfig();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -66,6 +65,7 @@ export default function AddPurchase({ currentPage }) {
   const [additionalInfo, setAdditionalInfo] = useState('');
   const [loading, setLoading] = useState(false);
   const [createWooCommerceOrder, setCreateWooCommerceOrder] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
   const [shippingAddress, setShippingAddress] = useState({
     address1: '',
     address2: '',
@@ -184,7 +184,6 @@ export default function AddPurchase({ currentPage }) {
 
       if (purchaseRes.status === 200) {
         const purchaseId = purchaseRes.data.id;
-
         // If WooCommerce order creation is enabled, create the order
         if (createWooCommerceOrder) {
           try {
@@ -219,12 +218,10 @@ export default function AddPurchase({ currentPage }) {
                 {
                   product_id: process.env.VR_GLASSES_PRODUCT_ID,
                   quantity: Number(numberOfVrGlasses) || 0,
-                  total: "0",
                 },
                 {
                   product_id: process.env.LICENSE_PRODUCT_ID,
                   quantity: Number(numberOfLicenses),
-                  total: "0",
                 },
               ],
               shipping_lines: [
@@ -234,14 +231,21 @@ export default function AddPurchase({ currentPage }) {
                   total: '0.00',
                 },
               ],
-              // fee_lines: 
-              //   [ { total: "2000", name: "Start package"}]
+              meta_data: [
+                {
+                  key: '_activation_code',
+                  value: code,
+                },
+              ],
+              coupon_lines: couponCode ? [{ code: couponCode }] : [],
             };
 
             // Remove line items with quantity 0
-            wooCommerceOrderData.line_items = wooCommerceOrderData.line_items.filter(
-              item => item.quantity > 0
-            );
+            wooCommerceOrderData.line_items =
+              wooCommerceOrderData.line_items.filter(
+                (item) => item.quantity > 0
+              );
+            console.log(wooCommerceOrderData);
 
             const wooCommerceRes = await axios.post(
               `${process.env.IMVI_WOOCOMMERCE_URL}/wp-json/wc/v3/orders`,
@@ -364,6 +368,7 @@ export default function AddPurchase({ currentPage }) {
     shippingAddress,
     mutate,
     currentPage,
+    couponCode,
   ]);
 
   const handleInputChange = (e) => {
@@ -521,6 +526,14 @@ export default function AddPurchase({ currentPage }) {
                 {/* Shipping Address Form - only shown when createWooCommerceOrder is true */}
                 {createWooCommerceOrder && (
                   <div className="space-y-4 mt-4 p-4 bg-gray-50 rounded-lg">
+                    <h3 className="text-lg font-semibold">Discount</h3>
+                    <Input
+                      label="Coupon Code"
+                      variant="bordered"
+                      value={couponCode}
+                      onValueChange={setCouponCode}
+                      description="Enter coupon code which has been created in woocommerce"
+                    />
                     <h3 className="text-lg font-semibold">Shipping Address</h3>
                     <Input
                       autoFocus
