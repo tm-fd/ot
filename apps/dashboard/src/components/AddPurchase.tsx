@@ -65,7 +65,7 @@ export default function AddPurchase({ currentPage }) {
   const [additionalInfo, setAdditionalInfo] = useState('');
   const [loading, setLoading] = useState(false);
   const [createWooCommerceOrder, setCreateWooCommerceOrder] = useState(false);
-  const [couponCode, setCouponCode] = useState('');
+  const [couponCode, setCouponCode] = useState(null);
   const [shippingAddress, setShippingAddress] = useState({
     address1: '',
     address2: '',
