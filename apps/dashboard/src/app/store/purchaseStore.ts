@@ -39,6 +39,7 @@ interface PurchaseStatus {
   hasOrderStatus_email: boolean;
   isActivated_VReceived: boolean;
   startedTraining: boolean;
+  startedTraining_with_VR:boolean;
   isInvalidAccount: boolean;
   multipleActivations: boolean;
 }
