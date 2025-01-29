@@ -218,10 +218,12 @@ export default function AddPurchase({ currentPage }) {
                 {
                   product_id: process.env.VR_GLASSES_PRODUCT_ID,
                   quantity: Number(numberOfVrGlasses) || 0,
+                  total: !couponCode ? '0' : undefined
                 },
                 {
                   product_id: process.env.LICENSE_PRODUCT_ID,
                   quantity: Number(numberOfLicenses),
+                  total: !couponCode ? '0' : undefined
                 },
               ],
               shipping_lines: [
