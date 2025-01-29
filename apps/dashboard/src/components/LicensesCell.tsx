@@ -1,6 +1,6 @@
 import usePurchaseStore from '@/app/store/purchaseStore';
 import Purchase from './Purchase';
-import { ZPurchase, PurchaseObj } from '@/app/store/purchaseStore';
+import { PurchaseObj } from '@/app/store/purchaseStore';
 export const LicensesCell = ({ purchase }: { purchase: PurchaseObj }) => {
     const { purchaseStatuses } = usePurchaseStore();
     const purchaseStatus = purchaseStatuses[purchase.id];

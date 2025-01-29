@@ -335,7 +335,8 @@ export default function UserPurchaseDetails({
           <div className="p-2">Loading status...</div>
         )
       }
-      placement="top"
+      placement="left"
+      offset={-20}
       showArrow
       delay={0}
       closeDelay={0}
@@ -377,41 +378,6 @@ export default function UserPurchaseDetails({
         </span>
       </div>
     </Tooltip>
-      {/* <div className="relative flex items-center justify-end gap-2 min-w-20">
-        {purchaseStatus?.multipleActivations &&
-          purchase.numberOfLicenses > 1 && (
-            <SquareStack size={20} color="#999999" strokeWidth={1.5} />
-          )}
-        <span
-          onClick={handleViewClick}
-          className={`text-lg text-default-400 ${
-            !localLoading && purchaseStatus ? 'cursor-pointer' : 'cursor-wait'
-          } active:opacity-50`}
-        >
-          <EyeIconLoading
-            isLoading={localLoading}
-            strokeColor={
-              purchaseStatus?.startedTraining
-                ? '#0062ff'
-                : purchaseStatus?.hasOrderStatus_email
-                ? '#e8cd1e'
-                : purchaseStatus?.isActivated_and_VR_not_delivered
-                ? '#e8cd1e'
-                : purchaseStatus?.isActivated_and_VR_delivered
-                ? '#ec4fba'
-                : purchaseStatus?.isInvalidAccount
-                ? '#bababa'
-                : '#eb1717'
-            }
-          />
-        </span>
-        <span
-          onClick={handleEditClick}
-          className="text-lg text-default-400 cursor-pointer active:opacity-50"
-        >
-          <EditIcon />
-        </span>
-      </div> */}
       <SharedModal
         isOpen={isOpen}
         onOpenChange={handleCloseModal}
