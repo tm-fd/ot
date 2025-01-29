@@ -62,7 +62,7 @@ export default function AddPurchase({ currentPage }) {
   const [isSubscription, setIsSubscription] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [additionalInfo, setAdditionalInfo] = useState('');
+  const [additionalInfo, setAdditionalInfo] = useState(null);
   const [loading, setLoading] = useState(false);
   const [createWooCommerceOrder, setCreateWooCommerceOrder] = useState(false);
   const [couponCode, setCouponCode] = useState(null);
@@ -111,6 +111,7 @@ export default function AddPurchase({ currentPage }) {
       orderNumber: Joi.string().required(),
       isSubscription: Joi.boolean().required(),
       additionalInfo: Joi.string().allow('').optional(),
+      additional_info: Joi.object().allow(null).optional(),
       createWooCommerceOrder: Joi.boolean().required(),
     };
 
@@ -162,7 +163,9 @@ export default function AddPurchase({ currentPage }) {
       orderNumber,
       createWooCommerceOrder,
       ...(createWooCommerceOrder && { shippingAddress }),
-      additionalInfo,
+      additional_info: {
+        info: additionalInfo
+      },
     };
 
     const { error } = JoiValidatePurchase(purchaseObj);
@@ -174,6 +177,8 @@ export default function AddPurchase({ currentPage }) {
       setErrorMessage(null);
       setLoading(true);
     }
+
+    console.log(purchaseObj)
 
     try {
       // First, create the purchase in your SQL database
@@ -322,7 +327,7 @@ export default function AddPurchase({ currentPage }) {
         setNumberOfLicenses('');
         setIsSubscription(false);
         setDuration('');
-        setAdditionalInfo('');
+        setAdditionalInfo(null);
         setCreateWooCommerceOrder(false);
         setShippingAddress({
           address1: '',
