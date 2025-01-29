@@ -65,7 +65,7 @@ export default function AddPurchase({ currentPage }) {
   const [additionalInfo, setAdditionalInfo] = useState('');
   const [loading, setLoading] = useState(false);
   const [createWooCommerceOrder, setCreateWooCommerceOrder] = useState(false);
-  const [couponCode, setCouponCode] = useState('');
+  const [couponCode, setCouponCode] = useState(null);
   const [shippingAddress, setShippingAddress] = useState({
     address1: '',
     address2: '',
@@ -218,10 +218,12 @@ export default function AddPurchase({ currentPage }) {
                 {
                   product_id: process.env.VR_GLASSES_PRODUCT_ID,
                   quantity: Number(numberOfVrGlasses) || 0,
+                  total: !couponCode ? '0' : undefined
                 },
                 {
                   product_id: process.env.LICENSE_PRODUCT_ID,
                   quantity: Number(numberOfLicenses),
+                  total: !couponCode ? '0' : undefined
                 },
               ],
               shipping_lines: [
