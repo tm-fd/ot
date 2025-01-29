@@ -240,6 +240,9 @@ export default function UserPurchaseDetails({
         );
 
         const startedTraining = Boolean(
+          orderStatus &&
+            orderEmail &&
+            shippingInfo && (shippingInfo.status === 'DELIVERED' || shippingInfo.status?.statusCode === 'delivered') &&
           activationRecords &&
             activationRecords.length > 0 &&
             activationRecords[0]?.firestoreData?.TrainingStartedOn &&
