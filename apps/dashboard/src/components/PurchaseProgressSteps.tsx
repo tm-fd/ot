@@ -29,7 +29,7 @@ export function PurchaseProgressSteps({ purchaseStatus }: PurchaseStatus) {
       case 'accountActivated':
         return purchaseStatus.activationRecords.length > 0;
       case 'trainingStarted':
-        return purchaseStatus.startedTraining;
+        return purchaseStatus.startedTraining_with_VR;
       default:
         return false;
     }
