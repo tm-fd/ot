@@ -241,6 +241,11 @@ export default function AddPurchase({ currentPage }) {
                   key: '_activation_code',
                   value: code,
                 },
+                {
+                  key: '_created_from_dashboard',
+                  value: 'true',
+                }
+            
               ],
               coupon_lines: couponCode ? [{ code: couponCode }] : [],
             };
