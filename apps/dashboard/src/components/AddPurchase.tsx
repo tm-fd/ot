@@ -144,6 +144,7 @@ export default function AddPurchase({ currentPage }) {
   };
 
   const submitPurchase = useCallback(async () => {
+    if (loading) return;
     const orderNumber = cryptoRandomString({ length: 10, type: 'numeric' });
     const code = cryptoRandomString({
       length: 4,
@@ -628,7 +629,9 @@ export default function AddPurchase({ currentPage }) {
                 <Button color="danger" variant="flat" onPress={onClose}>
                   Close
                 </Button>
-                <Button className="bg-blue-700" onPress={submitPurchase}>
+                <Button className="bg-blue-700" onPress={submitPurchase}
+                  isDisabled={loading}
+                >
                   Submit
                 </Button>
               </ModalFooter>
