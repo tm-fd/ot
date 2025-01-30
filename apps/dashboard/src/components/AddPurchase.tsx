@@ -372,7 +372,6 @@ export default function AddPurchase({ currentPage }) {
     createWooCommerceOrder,
     shippingAddress,
     mutate,
-    currentPage,
     couponCode,
   ]);
 
