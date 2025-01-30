@@ -62,7 +62,7 @@ export default function AddPurchase({ currentPage }) {
   const [isSubscription, setIsSubscription] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [additionalInfo, setAdditionalInfo] = useState(null);
+  const [additionalInfo, setAdditionalInfo] = useState('');
   const [loading, setLoading] = useState(false);
   const [createWooCommerceOrder, setCreateWooCommerceOrder] = useState(false);
   const [couponCode, setCouponCode] = useState(null);
@@ -325,7 +325,7 @@ export default function AddPurchase({ currentPage }) {
         setNumberOfLicenses('');
         setIsSubscription(false);
         setDuration('');
-        setAdditionalInfo(null);
+        setAdditionalInfo('');
         setCreateWooCommerceOrder(false);
         setShippingAddress({
           address1: '',
@@ -372,6 +372,7 @@ export default function AddPurchase({ currentPage }) {
     createWooCommerceOrder,
     shippingAddress,
     mutate,
+    currentPage,
     couponCode,
   ]);
 
