@@ -146,7 +146,6 @@ export default function UserPurchaseDetails({
           });
           if (emailRes.ok) {
             const emailData = await emailRes.json();
-            console.log("emailData",emailData)
             const sentEmails = emailData.filter(
               (emailObj) => emailObj.ContactAlt === purchase.email.toLowerCase()
             );
