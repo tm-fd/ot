@@ -25,7 +25,9 @@ const authOptions: NextAuthConfig = {
           name: user.name,
           email: user.email,
           role: user.role,
-          emailVerified: user.emailVerified
+          emailVerified: user.emailVerified,
+          sessionExpires: user.sessionExpires
+
         };
       }
       return token;
@@ -33,6 +35,14 @@ const authOptions: NextAuthConfig = {
     async session({ session, token }) {
       if (token.user) {
         session.user = token.user;
+
+        if (token.user.sessionExpires) {
+          const expirationTime = new Date(token.user.sessionExpires).getTime();
+          if (Date.now() > expirationTime) {
+            // Session has expired
+            return null;
+          }
+        }
       }
       return session;
     }
@@ -56,7 +66,10 @@ const authOptions: NextAuthConfig = {
           return null;
         }
 
-        return userData.user;
+        return {
+          ...userData.user,
+          sessionExpires: userData.expiresAt
+        };
       } catch (error) {
         console.error('Auth error:', error);
         return null;

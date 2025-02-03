@@ -3,7 +3,7 @@ import axios from 'axios';
 
 export async function GET(request: Request) {
   try {
-    const response = await axios.get(`https://api.mailjet.com/v3/REST/message?Limit=500&ShowSubject=true&ShowContactAlt=true&Sort=ArrivedAt+DESC`, {
+    const response = await axios.get(`https://api.mailjet.com/v3/REST/message?Limit=1000&ShowSubject=true&ShowContactAlt=true&Sort=ArrivedAt+DESC`, {
       auth: {
         username: process.env.MAILJET_USERNAME,
         password: process.env.MAILJET_PASSWORD,
