@@ -5,6 +5,7 @@ import { signIn, signOut } from "@/auth";
 import * as bcrypt from 'bcryptjs';
 
 
+
 export async function getUserLogin(email, password) {
   try {
     const res = await fetch(`${process.env.CLOUDRUN_DEV_URL}/auth_admin/login`, {
@@ -16,17 +17,24 @@ export async function getUserLogin(email, password) {
       }),
     });
 
-    const user = await res.json();
+    const data = await res.json();
 
-    if (res.ok && user) {
-      return user;
+    if (!res.ok) {
+      return null;
     }
-    return null;
-  
-  } catch (err) {
-    throw new Error(err)
-  }
 
+    
+    if (data.expiresAt) {
+      // Store this in your NextAuth session
+      data.user.sessionExpires = data.expiresAt;
+    }
+
+    return data;
+
+  } catch (err) {
+    console.error('Login error:', err);
+    throw new Error('Authentication failed');
+  }
 }
 
 export async function doCredentialLogin(formData) {
@@ -48,11 +56,15 @@ export async function doCredentialLogin(formData) {
       };
     }
 
+    // Pass the expiration time to NextAuth
     const response = await signIn("credentials", {
       email: formData.get("email"),
       password: formData.get("password"),
       redirect: false,
-      userData: JSON.stringify(userData.user),
+      userData: JSON.stringify({
+        ...userData.user,
+        sessionExpires: userData.expiresAt
+      }),
     });
 
     if (response.error) {
