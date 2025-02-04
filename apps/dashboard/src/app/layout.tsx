@@ -1,6 +1,9 @@
 import './global.css';
 import Providers from './providers';
 import Header from '@/components/Header';
+import AuthWrapper from '@/components/AuthWrapper';
+import { auth } from '@/auth';
+
 
 export const metadata = {
   title: 'Order tracker - imvilabs',
@@ -30,6 +33,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth();
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <head>
@@ -39,12 +43,14 @@ export default async function RootLayout({
         <link rel="apple-icon" sizes="180x180" href="/apple-icon.png" />
       </head>
       <body className="h-screen">
-        <Providers>
+        <Providers session={session}>
+        <AuthWrapper>
           <Header />
           <main className="container flex justify-center items-center h-full">
             {children}
           </main>
           <footer></footer>
+          </AuthWrapper>
         </Providers>
       </body>
     </html>

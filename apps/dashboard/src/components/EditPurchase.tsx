@@ -139,7 +139,7 @@ export function EditPurchase({ purchase, onClose }: EditPurchaseProps) {
           Cancel
         </Button>
         <Button
-          onClick={handleSave}
+          onPress={handleSave}
           isLoading={loading}
           className="bg-blue-700"
         >

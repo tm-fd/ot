@@ -15,13 +15,10 @@ import {
   DropdownMenu,
   DropdownItem,
   Button,
-  Spinner,
 } from '@nextui-org/react';
 import { SearchIcon } from './icons';
-import { useActivationStore } from '@/app/store/purchaseActivactionsStore';
 import { ChevronDownIcon } from './icons';
 import usePurchaseStore from '@/app/store/purchaseStore';
-import Loading from '@/app/loading';
 import moment from 'moment';
 
 interface FirestoreTimestamp {
@@ -168,10 +165,7 @@ export default function ActivationRecords({
       </div>
     );
   }, [filterValue, statusFilter]);
-
-  // if (isLoadingActivations) {
-  //   return <Loading style_inline={{width: "30px"}} />;
-  // }
+  
 
   return (
     <div className="w-full mb-4">

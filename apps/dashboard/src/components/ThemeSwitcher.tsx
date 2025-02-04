@@ -16,10 +16,10 @@ export default function ThemeSwitcher() {
 
   return (
     <div className='flex gap-4'>
-      <Button size='sm' variant='flat' onClick={() => setTheme('light')}>
+      <Button size='sm' variant='flat' onPress={() => setTheme('light')}>
         Light
       </Button>
-      <Button size='sm' variant='flat' onClick={() => setTheme('dark')}>
+      <Button size='sm' variant='flat' onPress={() => setTheme('dark')}>
         Dark
       </Button>
     </div>
