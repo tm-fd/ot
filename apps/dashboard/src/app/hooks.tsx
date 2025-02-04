@@ -3,6 +3,8 @@ import { PurchaseObj } from './store/purchaseStore';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Joi from 'joi';
+import { signOut } from 'next-auth/react';
+
 
 export function usePurchasesData(params) {
   const { data, error, isLoading, mutate } = useSWR({
@@ -175,3 +177,4 @@ export const useAdditionalInfo = (purchaseId: number) => {
     refetchAdditionalInfo: fetchAdditionalInfo,
   };
 };
+

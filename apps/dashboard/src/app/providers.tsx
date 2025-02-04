@@ -7,18 +7,18 @@ import { SessionProvider } from 'next-auth/react';
 import { SWRConfig } from 'swr';
 import { swrConfig } from '@/lib/swr-config';
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+export default function Providers({ children, session }) {
   return (
-    <NextUIProvider>
-      <NextThemesProvider
-        attribute="class"
-        defaultTheme="dark"
-        themes={['light', 'dark']}
-      >
-        <SessionProvider>
+    <SessionProvider session={session}>
+      <NextUIProvider>
+        <NextThemesProvider
+          attribute="class"
+          defaultTheme="dark"
+          themes={['light', 'dark']}
+        >
           <SWRConfig value={swrConfig}>{children}</SWRConfig>
-        </SessionProvider>
-      </NextThemesProvider>
-    </NextUIProvider>
+        </NextThemesProvider>
+      </NextUIProvider>
+    </SessionProvider>
   );
 }
