@@ -92,8 +92,7 @@ export default function Purshases() {
         ) : error ? (
           <p className="text-red-500">Failed to load</p>
         ) : (
-          <p className="text-red-500">PurchaseTable</p>
-          // <PurchaseTable />
+          <PurchaseTable />
         )}
       </div>
     </section>
