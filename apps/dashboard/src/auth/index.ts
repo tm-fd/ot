@@ -1,40 +1,30 @@
 import NextAuth, { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { getUserLogin } from "@/actions"
 
 export const BASE_PATH = "/api/auth"
 
-interface LoginResponse {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    emailVerified: string | null;
-  };
-  sessionToken: string;
-  expiresAt: string;
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  emailVerified: string | null;
+  sessionExpires?: string;
+  sessionToken?: string;
 }
 
 const authOptions: NextAuthConfig = {
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       if (user) {
-        token.user = {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          emailVerified: user.emailVerified,
-          sessionExpires: user.sessionExpires
-
-        };
+        token.user = user
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token, user }) {
       if (token.user) {
-        session.user = token.user;
+        session.user = token.user as UserData;
+
 
         if (token.user.sessionExpires) {
           const expirationTime = new Date(token.user.sessionExpires).getTime();
@@ -50,30 +40,19 @@ const authOptions: NextAuthConfig = {
   providers: [
     Credentials({
       async authorize(credentials) {
-        const { email, password } = credentials as {
-          email: string;
-          password: string;
-        };
+        const { userData } = credentials as {userData: string;};
+        console.log("userData",userData)
         try {
-        const userData = await getUserLogin(email, password);
+          if (!userData) return null;
+          
+          const parsedUserData: UserData = JSON.parse(userData);
+          if (!parsedUserData.emailVerified) return null;
 
-        if (!userData || !userData.user) {
+          return parsedUserData;
+        } catch (error) {
+          console.error('Auth error:', error);
           return null;
         }
-
-        // Check if email is verified
-        if (!userData.user.emailVerified) {
-          return null;
-        }
-
-        return {
-          ...userData.user,
-          sessionExpires: userData.expiresAt
-        };
-      } catch (error) {
-        console.error('Auth error:', error);
-        return null;
-      }
       }
     })
   ],

@@ -1,86 +1,75 @@
-
 'use server'
-
 import { signIn, signOut } from "@/auth";
 import * as bcrypt from 'bcryptjs';
 
+interface LoginResponse {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    emailVerified: string | null;
+  };
+  sessionToken: string;
+  expiresAt: string;
+}
 
-
-export async function getUserLogin(email, password) {
+async function loginRequest(email: string, password: string): Promise<LoginResponse | null> {
   try {
     const res = await fetch(`${process.env.CLOUDRUN_DEV_URL}/auth_admin/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email,
-        password
-      }),
+      body: JSON.stringify({ email, password }),
     });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      return null;
-    }
-
-    
-    if (data.expiresAt) {
-      // Store this in your NextAuth session
-      data.user.sessionExpires = data.expiresAt;
-    }
-
-    return data;
-
-  } catch (err) {
-    console.error('Login error:', err);
-    throw new Error('Authentication failed');
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    console.error('Login request failed:', error);
+    return null;
   }
 }
 
-export async function doCredentialLogin(formData) {
+export async function doCredentialLogin(formData: FormData) {
   try {
-    const userData = await getUserLogin(
-      formData.get("email"),
-      formData.get("password")
-    );
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
-    if (!userData) {
-      return {
-        error: "Invalid credentials"
-      };
+    // 1. Get user data from API
+    const loginResponse = await loginRequest(email, password);
+    console.log("loginResponse",loginResponse)
+    if (!loginResponse) {
+      return { error: "Invalid credentials" };
     }
 
-    if (!userData.user.emailVerified) {
-      return {
-        error: "Please check your email to verify it before logging in"
-      };
+    if (!loginResponse.user.emailVerified) {
+      return { error: "Please verify your email before logging in" };
     }
 
-    // Pass the expiration time to NextAuth
-    const response = await signIn("credentials", {
-      email: formData.get("email"),
-      password: formData.get("password"),
+    // 2. Create session with NextAuth
+    const userData = {
+      ...loginResponse.user,
+      sessionExpires: loginResponse.expiresAt,
+      sessionToken: loginResponse.sessionToken
+    };
+
+    const authResponse = await signIn("credentials", {
       redirect: false,
-      userData: JSON.stringify({
-        ...userData.user,
-        sessionExpires: userData.expiresAt
-      }),
+      userData: JSON.stringify(userData),
     });
 
-    if (response.error) {
-      return {
-        error: response.error
-      };
+    if (authResponse?.error) {
+      return { error: authResponse.error };
     }
+
     return {
       success: true,
       data: userData
     };
-  } catch (err) {
-    console.error(err);
-    return {
-      error: "An error occurred during login"
-    };
+
+  } catch (error) {
+    console.error('Login error:', error);
+    return { error: "An error occurred during login" };
   }
 }
 
