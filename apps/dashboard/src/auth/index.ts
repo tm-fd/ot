@@ -41,7 +41,6 @@ const authOptions: NextAuthConfig = {
     Credentials({
       async authorize(credentials) {
         const { userData } = credentials as {userData: string;};
-        console.log("userData",userData)
         try {
           if (!userData) return null;
           

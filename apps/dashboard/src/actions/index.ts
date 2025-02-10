@@ -1,6 +1,8 @@
 'use server'
 import { signIn, signOut } from "@/auth";
 import * as bcrypt from 'bcryptjs';
+import axios from 'axios';
+
 
 interface LoginResponse {
   user: {
@@ -37,7 +39,6 @@ export async function doCredentialLogin(formData: FormData) {
 
     // 1. Get user data from API
     const loginResponse = await loginRequest(email, password);
-    console.log("loginResponse",loginResponse)
     if (!loginResponse) {
       return { error: "Invalid credentials" };
     }
@@ -78,31 +79,38 @@ export async function doLogout() {
 }
 
 
-export async function registerUser({ email, password, name, role }) {
+export async function registerUser({ email, password, name, role }, sessionToken) {
   try {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    const res = await fetch(`${process.env.CLOUDRUN_DEV_URL}/auth_admin/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    
+    const response = await axios.post(
+      `${process.env.CLOUDRUN_DEV_URL}/auth_admin/register`,
+      {
         email,
         password: hashedPassword,
         name,
         role
-      }),
-    });
-    
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`
+        }
+      }
+    );
 
-    const createdAccount = await res.json();
-    console.log(createdAccount, res.ok)
-    if (!res.ok) {
-      return { error: createdAccount.error.message || 'Registration failed' };
-    }
-    return { data: createdAccount };
-  } catch (err) {
-    return { error: err.message || 'Registration failed' };
+    return { data: response.data };
+
+} catch (error) {
+  if (axios.isAxiosError(error)) {
+    const errorMessage = error.response?.data?.error?.message || 
+                        error.response?.data?.message || 
+                        'Registration failed';
+    return { error: errorMessage };
   }
+  return { error: error.message || 'Registration failed' };
+}
 
 }
 

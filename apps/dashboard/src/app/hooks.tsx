@@ -71,7 +71,6 @@ export function useEditPurchase() {
     try {
 
       const session = await getSession();
-console.log(session?.user?.sessionToken)
       if (!session) {
         throw new Error('Not authenticated');
       }
@@ -163,15 +162,32 @@ export const useAdditionalInfo = (purchaseId: number) => {
 
   const saveAdditionalInfo = async () => {
     try {
+      const session = await getSession();
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
       await axios.patch(
         `${process.env.CLOUDRUN_DEV_URL}/purchases/additional-info/${editedAdditionalInfos.id}`,
         {
           info: editedAdditionalInfos.info,
           is_hidden: editedAdditionalInfos.is_hidden,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.user?.sessionToken}`,
+          },
         }
       );
     } catch (error) {
-      console.error('Error saving additional info:', error);
+      if (axios.isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message || 'Failed to update purchase';
+        console.error('Error updating purchase:', errorMessage);
+        setErrorMessage(errorMessage);
+      } else {
+        console.error('Error updating purchase:', error);
+        setErrorMessage('An unexpected error occurred');
+      }
       throw error;
     }
   };

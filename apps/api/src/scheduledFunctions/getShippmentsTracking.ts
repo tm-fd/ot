@@ -11,7 +11,6 @@ export const getTrackingInfo = async () => {
     try {
         const response = await axios.get(`https://www.e3pl.se/system/api.asp?s=443ce94115bf88d519dc6ce2c7489d59&typ=skickat&order=alla&datum=${formattedDate}&data=txt`);
         const result = response.data;
-        console.log(response)
         const data = convertTxtToJSON(result);
         await prisma.shippingInfo.createMany({
             data
