@@ -181,6 +181,7 @@ export default function AddPurchase({ currentPage }) {
     }
 
     try {
+      console.log("session?.user?.sessionToken",session?.user?.sessionToken)
       const purchaseRes = await axios.post(
         `${process.env.CLOUDRUN_DEV_URL}/purchases/addPurchase`,
         purchaseObj,
