@@ -181,7 +181,6 @@ export default function AddPurchase({ currentPage }) {
     }
 
     try {
-      // First, create the purchase in your SQL database
       const purchaseRes = await axios.post(
         `${process.env.CLOUDRUN_DEV_URL}/purchases/addPurchase`,
         purchaseObj,
