@@ -118,6 +118,11 @@ export function EditPurchase({ purchase, onClose }: EditPurchaseProps) {
         />
         {additionalInfos.map((pi, index) => (
           <div key={index} className="flex flex-col gap-4 items-center">
+             <Input
+          label="Additional info"
+          value={pi.info}
+          onChange={(e) => editAdditionalInfo(pi.id, e.target.value, pi.is_hidden)}
+        />
             <Switch
               defaultSelected={pi.is_hidden}
               size="sm"

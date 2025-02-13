@@ -3,7 +3,8 @@ import { PurchaseObj } from './store/purchaseStore';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Joi from 'joi';
-import { signOut } from 'next-auth/react';
+import { getSession } from 'next-auth/react';
+
 
 
 export function usePurchasesData(params) {
@@ -68,26 +69,33 @@ export function useEditPurchase() {
       setErrorMessage(null);
     }
     try {
-      const response = await fetch(
+
+      const session = await getSession();
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+     
+      const response = await axios.patch(
         `${process.env.CLOUDRUN_DEV_URL}/purchases/${purchaseId}`,
+        reshapedData,
         {
-          method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.user?.sessionToken}`,
           },
-          body: JSON.stringify(reshapedData),
         }
       );
 
-      if (!response.ok) {
-        throw new Error('Failed to update purchase');
-      }
-
-      const updatedPurchase = await response.json();
-
-      return updatedPurchase;
+      return response;
     } catch (error) {
-      console.error('Error updating purchase:', error);
+      if (axios.isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message || 'Failed to update purchase';
+        console.error('Error updating purchase:', errorMessage);
+        setErrorMessage(errorMessage);
+      } else {
+        console.error('Error updating purchase:', error);
+        setErrorMessage('An unexpected error occurred');
+      }
       throw error;
     }
   };
@@ -154,15 +162,32 @@ export const useAdditionalInfo = (purchaseId: number) => {
 
   const saveAdditionalInfo = async () => {
     try {
+      const session = await getSession();
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
       await axios.patch(
         `${process.env.CLOUDRUN_DEV_URL}/purchases/additional-info/${editedAdditionalInfos.id}`,
         {
           info: editedAdditionalInfos.info,
           is_hidden: editedAdditionalInfos.is_hidden,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.user?.sessionToken}`,
+          },
         }
       );
     } catch (error) {
-      console.error('Error saving additional info:', error);
+      if (axios.isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message || 'Failed to update purchase';
+        console.error('Error updating purchase:', errorMessage);
+        setErrorMessage(errorMessage);
+      } else {
+        console.error('Error updating purchase:', error);
+        setErrorMessage('An unexpected error occurred');
+      }
       throw error;
     }
   };

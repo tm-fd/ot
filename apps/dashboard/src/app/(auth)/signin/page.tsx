@@ -27,7 +27,7 @@ export default function SignIn() {
   const [email, setEmail] = useState('');
   const [isPending, startTransition] = useTransition();
   const { reset } = usePurchaseStore();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const toggleVisibility = () => setIsVisible(!isVisible);
   const router = useRouter();
 
@@ -35,29 +35,28 @@ export default function SignIn() {
     if (status === 'authenticated') {
       router.push('/purchases');
     }
-  }, [status, session, router]);
+  }, [status, router]);
 
-  const handleCredentialLogin = async (event: React.FormEvent) => {
+  const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
-    reset();
-    try {
-      const formData = new FormData(event.currentTarget);
-      startTransition(async () => {
+    setError(null);
+
+    startTransition(async () => {
+      try {
+        const formData = new FormData(event.currentTarget as HTMLFormElement);
         const response = await doCredentialLogin(formData);
-        console.log(response);
 
         if (response.error) {
           setError(response.error);
         } else if (response.success) {
-          // Force a router refresh to update the session
           router.refresh();
           router.push('/purchases');
         }
-      });
-    } catch (err) {
-      console.error(err);
-      setError('Check your Credentials');
-    }
+      } catch (err) {
+        setError('An unexpected error occurred');
+        console.error(err);
+      }
+    });
   };
 
   const handleResendVerification = async () => {
@@ -155,7 +154,7 @@ export default function SignIn() {
           <Form
             className="flex flex-col gap-4 max-[600px]:w-full"
             validationErrors={error}
-            onSubmit={handleCredentialLogin}
+            onSubmit={handleLogin}
           >
             <Input
               type="email"

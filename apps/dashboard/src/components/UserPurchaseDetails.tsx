@@ -140,24 +140,24 @@ export default function UserPurchaseDetails({
         }
         // Fetch order email
         let orderEmail = null;
-        try {
-          const emailRes = await fetch('/api/handleOrdersEmail', {
-            cache: 'no-store',
-          });
-          if (emailRes.ok) {
-            const emailData = await emailRes.json();
-            const sentEmails = emailData.filter(
-              (emailObj) => emailObj.ContactAlt === purchase.email.toLowerCase()
-            );
-            orderEmail = sentEmails.find(
-              (email) =>
-                email.Subject === 'Tack för din order från imvi labs!' ||
-                email.Subject.includes('förnyelseorder')
-            )?.Status;
-          }
-        } catch (emailError) {
-          console.error('Error fetching order email:', emailError);
-        }
+        // try {
+        //   const emailRes = await fetch('/api/handleOrdersEmail', {
+        //     cache: 'no-store',
+        //   });
+        //   if (emailRes.ok) {
+        //     const emailData = await emailRes.json();
+        //     const sentEmails = emailData.filter(
+        //       (emailObj) => emailObj.ContactAlt === purchase.email.toLowerCase()
+        //     );
+        //     orderEmail = sentEmails.find(
+        //       (email) =>
+        //         email.Subject === 'Tack för din order från imvi labs!' ||
+        //         email.Subject.includes('förnyelseorder')
+        //     )?.Status;
+        //   }
+        // } catch (emailError) {
+        //   console.error('Error fetching order email:', emailError);
+        // }
 
         let shippingInfo = null;
         try {
@@ -355,6 +355,9 @@ export default function UserPurchaseDetails({
       className="w-[500px]"
     >
        <div className="relative flex items-center justify-end gap-2 min-w-20">
+        {purchase.numberOfVrGlasses === 0 && oldPurchases.length > 0 && (
+          <span>C</span>
+        )}
         {purchaseStatus?.multipleActivations &&
           purchase.numberOfLicenses > 1 && (
             <SquareStack size={20} color="#999999" strokeWidth={1.5} />

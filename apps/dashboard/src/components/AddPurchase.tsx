@@ -20,8 +20,11 @@ import cryptoRandomString from 'crypto-random-string';
 import Joi from 'joi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSWRConfig } from 'swr';
+import { useSession } from "next-auth/react";
+
 
 export default function AddPurchase({ currentPage }) {
+  const { data: session } = useSession(); 
   const { mutate } = useSWRConfig();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [duration, setDuration] = useState('');
@@ -75,6 +78,7 @@ export default function AddPurchase({ currentPage }) {
     country: '',
     phone: '',
   });
+  
 
   const handleSelectionChange = (e: any) => {
     setDuration(e.target.value);
@@ -176,13 +180,16 @@ export default function AddPurchase({ currentPage }) {
       setLoading(true);
     }
 
-    console.log(purchaseObj)
-
     try {
       // First, create the purchase in your SQL database
       const purchaseRes = await axios.post(
         `${process.env.CLOUDRUN_DEV_URL}/purchases/addPurchase`,
-        purchaseObj
+        purchaseObj,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.sessionToken}`,
+          }
+        }
       );
 
       if (purchaseRes.status === 200) {
@@ -255,7 +262,6 @@ export default function AddPurchase({ currentPage }) {
               wooCommerceOrderData.line_items.filter(
                 (item) => item.quantity > 0
               );
-            console.log(wooCommerceOrderData);
 
             const wooCommerceRes = await axios.post(
               `${process.env.IMVI_WOOCOMMERCE_URL}/wp-json/wc/v3/orders`,
@@ -292,7 +298,13 @@ export default function AddPurchase({ currentPage }) {
           try {
             const additionalInfoRes = await axios.post(
               `${process.env.CLOUDRUN_DEV_URL}/purchases/additional-info/${purchaseId}`,
-              { info: additionalInfo }
+              { info: additionalInfo },
+              {
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${session?.user?.sessionToken}`,
+                },
+              }
             );
 
             if (

@@ -19,6 +19,9 @@ import Joi from 'joi';
 import { registerUser } from '@/actions';
 import { LoadingSpinner, CheckIcon } from '@/components/icons';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSession } from 'next-auth/react';
+
+
 
 
 export default function Register() {
@@ -40,6 +43,8 @@ export default function Register() {
   const router = useRouter();
   const [errors, setErrors] = useState({});
   const [isSuccess, setIsSuccess] = useState(false);
+  const { data: session } = useSession();
+
 
   function JoiValidateForm(obj: any) {
     const schema = Joi.object({
@@ -77,6 +82,10 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!session) {
+      console.error('Not authenticated');
+      return;
+    }
     if (isPending || isSuccess) {
         return;
       }
@@ -93,22 +102,24 @@ export default function Register() {
       );
       return;
     }
+    const userData = {
+      name: data.name as string,
+      email: data.email as string,
+      password: data.password as string,
+      role: data.role as string,
+    }
 
     try {
       startTransition(async () => {
-        const result = await registerUser({
-          name: data.name as string,
-          email: data.email as string,
-          password: data.password as string,
-          role: data.role as string,
-        });
+            const { data, error } = await registerUser(userData, session.user.sessionToken);
 
-        if (result?.error) {
-          setErrors({ form: result.error });
+
+        if (error) {
+          setErrors({ form: error });
           return;
         }
 
-        if (result?.data) {
+        if (data) {
             setIsSuccess(true);
           setTimeout(() => {
             setIsSuccess(false);
@@ -189,7 +200,6 @@ export default function Register() {
               isRequired
             />
             <Input
-              type="password"
               label="Password"
               name="password"
               variant="bordered"
@@ -215,7 +225,6 @@ export default function Register() {
               className="lg:w-96 sm:w-64"
             />
             <Input
-              type="password"
               label="Confirm Password"
               name="confirmPassword"
               variant="bordered"
