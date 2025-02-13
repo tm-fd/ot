@@ -355,6 +355,9 @@ export default function UserPurchaseDetails({
       className="w-[500px]"
     >
        <div className="relative flex items-center justify-end gap-2 min-w-20">
+        {purchase.numberOfVrGlasses === 0 && oldPurchases.length > 0 && (
+          <span>C</span>
+        )}
         {purchaseStatus?.multipleActivations &&
           purchase.numberOfLicenses > 1 && (
             <SquareStack size={20} color="#999999" strokeWidth={1.5} />
