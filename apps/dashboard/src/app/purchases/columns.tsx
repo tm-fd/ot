@@ -3,14 +3,20 @@ import { DeleteIcon, EditIcon, EyeIcon } from '../../components/icons';
 import Purchase from '../../components/Purchase';
 import Actions from '../../components/Actions';
 import { ZPurchase, PurchaseObj } from '../store/purchaseStore';
-import { LicensesCell } from '@/components/LicensesCell'; // Add this import
+import { LicensesCell } from '@/components/LicensesCell'; 
+import usePurchaseStore from '@/app/store/purchaseStore';
+
 
 
 
 export const columns = [
   {
+    key: 'source',
+    label: 'Source',
+  },
+  {
     key: 'orderNumber',
-    label: 'Order Id',
+    label: 'Order Number',
   },
   {
     key: 'customerName',
@@ -50,9 +56,40 @@ export const columns = [
   },
 ];
 
+
+const getSource = (purchase: PurchaseObj, oldPurchases: Purchase[] = [], purchaseStatus) => {
+  const orderNumberLength = purchase.orderNumber?.toString().length;
+  const isContinueTraining = purchase.numberOfVrGlasses === 0 && purchaseStatus?.orderStatus;
+  const isStartPackage = purchase.numberOfVrGlasses >= 1 && purchaseStatus?.orderStatus;
+  
+  if (orderNumberLength > 8) {
+    return <span className="italic">Admin</span>;
+  }
+
+  if(isContinueTraining || isStartPackage){
+    return <span className="text-purple-400 italic">Woo</span>;
+  }
+
+  // All other cases are imported orders
+   return <span className="italic">Imported</span>;
+};
+
+const SourceCell = ({ purchase, oldPurchases }: { 
+  purchase: PurchaseObj, 
+  oldPurchases: Purchase[] 
+}) => {
+  const { purchaseStatuses } = usePurchaseStore();
+  const purchaseStatus = purchaseStatuses[purchase.id];
+  
+
+  return <Purchase>{getSource(purchase, oldPurchases, purchaseStatus)}</Purchase>;
+};
+
 export const renderCell = (purchase: PurchaseObj, columnKey: React.Key, oldPurchases?: Purchase[] = []) => {
   const cellValue = purchase[columnKey as keyof PurchaseObj];
   switch (columnKey) {
+    case'source':
+      return <SourceCell purchase={purchase} oldPurchases={oldPurchases} />;
     case 'orderNumber':
       return <Purchase>{purchase.orderNumber}</Purchase>;
     case 'email':
